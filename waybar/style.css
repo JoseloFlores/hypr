@@ -1,0 +1,165 @@
+/* Importar tema activo */
+@import "themes/tokyonight.css";
+/* Los temas disponibles son:
+   - gruvbox-dark.css
+   - gruvbox-light.css
+   - nord.css
+   - catppuccin.css
+   - tokyonight.css
+   - everforest.css
+   - rosepine.css
+   - dracula.css
+  */  
+* {
+    border: none;
+    border-radius: 0;
+    font-family: "Font Awesome 6 Free", "Font Awesome", "Symbols Nerd Font Mono" ,"MesloLGM Nerd Font Mono", "Symbols Nerd Font", "Helvetica", "Arial", sans-serif;
+    font-size: 11px;
+    min-height: 0;
+}
+
+window#waybar {
+    background-color: transparent;
+    color: @base05;
+    transition-property: background-color;
+    transition-duration: .5s;
+    border-radius: 0;
+    margin: 4px 8px;
+}
+
+#workspaces {
+    background-color: transparent;
+    margin: 2px 1px;
+}
+
+#workspaces button {
+    padding: 0;
+    margin: 0 3px;
+    min-width: 24px;
+    background-color: alpha(@base02, 0.8);
+    border-radius: 12px;
+    color: @base04;
+    transition: all 0.3s ease;
+}
+
+#workspaces button.active {
+    background-color: alpha(@base05, 0.2);
+    color: @accent5;
+}
+
+#workspaces button.empty {
+    color: @base04;
+    opacity: 0.5;
+}
+
+
+#workspaces button:hover {
+    color: @accent5;
+    background-color: alpha(@base05, 0.1);
+    border-radius: 10px;
+}
+
+#clock,
+#tray,
+#custom-updates,
+#idle_inhibitor,
+#power-profiles-daemon,
+#backlight,
+#mpris,
+#pulseaudio,
+#custom-network,
+#bluetooth,
+#battery {
+    padding: 0 10px;
+    margin: 2px 4px;
+    background-color: alpha(@base02, 0.8);
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+#clock:hover,
+#tray:hover,
+#custom-updates:hover,
+#idle_inhibitor:hover,
+#power-profiles-daemon:hover,
+#backlight:hover,
+#mpris:hover,
+#pulseaudio:hover,
+#custom-network:hover,
+#bluetooth:hover,
+#battery:hover {
+    background-color: alpha(@base05, 0.1);
+}
+
+#backlight {
+    color: @accent3;
+}
+
+#custom-updates.updated {
+    color: @base04;
+}
+
+#custom-updates.pending {
+    color: @accent3;
+    background-color: alpha(@accent3, 0.1);
+}
+
+/* --- GRUPO QUICK SETTINGS --- */
+#group-quicksettings {
+    background-color: transparent;
+    padding: 0;
+    margin: 0;
+}
+
+#pulseaudio { color: @accent5; }
+#custom-network { color: @accent6; }
+#custom-network.vpn { color: @accent4; }
+#custom-network.disconnected {
+    color: @base04;
+}
+#bluetooth { color: @accent4; }
+#battery { color: @accent2; }
+#idle_inhibitor { color: @accent5; }
+#power-profiles-daemon { color: @accent3; }
+
+/* Menú de Apagado */
+#group-power {
+    margin: 2px 2px;
+}
+
+#custom-power, #custom-lock, #custom-suspend, #custom-reboot, #custom-quit {
+    padding: 0 8px;
+    margin: 2px 2px;
+    background-color: alpha(@base02, 0.6);
+    border-radius: 10px;
+    transition: all 0.3s ease;
+}
+
+#custom-power { color: @accent1; }
+#custom-lock { color: @accent6; }
+#custom-suspend { color: @accent3; }
+#custom-reboot { color: @accent2; }
+#custom-quit { color: @accent5; }
+
+#custom-power:hover, #custom-lock:hover, #custom-suspend:hover, #custom-reboot:hover, #custom-quit:hover {
+    background-color: alpha(@base05, 0.1);
+}
+
+/* --- TOOLTIP & CALENDAR --- */
+tooltip {
+    background: alpha(@base00, 0.9);
+    border: 1px solid alpha(@accent4, 0.5);
+    border-radius: 12px;
+    box-shadow: none;
+    text-shadow: none;
+}
+
+tooltip label {
+    color: @base05;
+    font-size: 14px;
+    padding: 8px;
+}
+
+#calendar {
+    margin: 8px;
+}

@@ -1,0 +1,13 @@
+/* Gruvbox Dark Theme */
+@define-color base00 #282828; /* Background */
+@define-color base01 #3c3836; /* Background Alt */
+@define-color base02 #504945; /* Background Module */
+@define-color base03 #665c54; /* Background Hover */
+@define-color base04 #bdae93; /* Foreground Alt */
+@define-color base05 #ebdbb2; /* Foreground */
+@define-color accent1 #fb4934; /* Red */
+@define-color accent2 #b8bb26; /* Green */
+@define-color accent3 #fabd2f; /* Yellow */
+@define-color accent4 #83a598; /* Blue */
+@define-color accent5 #d3869b; /* Purple */
+@define-color accent6 #8ec07c; /* Aqua */
