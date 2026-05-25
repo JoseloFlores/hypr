@@ -61,7 +61,6 @@ window#waybar {
 
 #clock,
 #tray,
-#custom-updates,
 #idle_inhibitor,
 #power-profiles-daemon,
 #backlight,
@@ -79,7 +78,6 @@ window#waybar {
 
 #clock:hover,
 #tray:hover,
-#custom-updates:hover,
 #idle_inhibitor:hover,
 #power-profiles-daemon:hover,
 #backlight:hover,
@@ -97,11 +95,21 @@ window#waybar {
 
 #custom-updates.updated {
     color: @base04;
+    padding: 0;
+    margin: 0;
 }
 
 #custom-updates.pending {
     color: @accent3;
     background-color: alpha(@accent3, 0.1);
+    padding: 0 10px;
+    margin: 2px 4px;
+    border-radius: 12px;
+    transition: all 0.3s ease;
+}
+
+#custom-updates.pending:hover {
+    background-color: alpha(@accent3, 0.2);
 }
 
 /* --- GRUPO QUICK SETTINGS --- */

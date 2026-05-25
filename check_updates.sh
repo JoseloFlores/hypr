@@ -11,5 +11,5 @@ fi
 if [ "$count" -gt 0 ]; then
     echo "{\"text\": \"󰚰 $count\", \"class\": \"pending\"}"
 else
-    echo ""
+    echo "{\"text\": \"\", \"class\": \"updated\"}"
 fi

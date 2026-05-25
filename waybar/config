@@ -127,7 +127,8 @@
         "exec": "~/.config/hypr/check_updates.sh",
         "on-click": "foot sh -c 'sudo apt update && sudo apt upgrade -y; pkill -SIGRTMIN+8 waybar; echo \"Sistema actualizado. Presiona cualquier tecla para cerrar...\"; read -n 1'",
         "signal": 8,
-        "tooltip": false
+        "tooltip": false,
+        "hide-empty-text": true
     },
 
     "hyprland/workspaces": {
