@@ -17,9 +17,12 @@ sleep 0.2
 ~/.cargo/bin/eww daemon &
 
 # 5. Esperar a que el demonio cargue su estado interno
-sleep 0.3
+sleep 0.2
 
 # 6. Abrir la barra
 ~/.cargo/bin/eww open bar
+
+# 7. Pequeña pausa adicional para que los widgets carguen
+sleep 0.2
 
 echo "Eww reiniciado con éxito y entorno cargado."
