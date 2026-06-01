@@ -1,10 +1,10 @@
 # Hyprland Dotfiles - Debian 13 Trixie
 
-Este repositorio contiene la configuración optimizada para Hyprland en Debian 13, utilizando **Waybar** como barra principal de estado.
+Este repositorio contiene la configuración optimizada para Hyprland en Debian 13, utilizando **Eww** como barra principal de estado.
 
 ##  Características Principales
 
--   **Panel Superior (Waybar):** Configuración modular con temas de color a eleccion.
+-   **Panel Superior (Eww):** Configuración modular con temas de color a eleccion.
     - **Espacios de Trabajo:** Indicadores dinámicos mediante iconos de ventanas.
         - **Red Unificada:** Módulo inteligente que alterna entre WiFi (con niveles de señal) y VPN de forma automática, ignorando servicios de fondo como Tailscale.
         - **Quick Settings:** Control de volumen (modernizado con Nerd Fonts), red (nmtui) y bluetooth (minimalista con iconos de estado y nombres en tooltip).
