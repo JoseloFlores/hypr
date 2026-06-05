@@ -20,7 +20,7 @@ sleep 0.2
 sleep 0.2
 
 # 6. Abrir la barra
-~/.cargo/bin/eww open bar
+~/.cargo/bin/eww open eww-bar
 
 # 7. Pequeña pausa adicional para que los widgets carguen
 sleep 0.2

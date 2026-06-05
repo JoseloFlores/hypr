@@ -6,11 +6,14 @@ export PATH="$HOME/.cargo/bin:$HOME/.local/bin:$PATH"
 # 2. Sincronizar colores
 "$HOME/.config/hypr/foot_sync.sh"
 
-# 3. Iniciar el demonio en segundo plano
+# 3. Iniciar el demonio con variables de entorno para Wayland
+export GDK_BACKEND=wayland
+export GTK_THEME=Adwaita:dark
 ~/.cargo/bin/eww daemon
 
 # 4. Esperar a que el demonio cargue
 sleep 1
 
-# 5. Abrir la barra
-~/.cargo/bin/eww open bar
+# 6. Abrir la barra
+~/.cargo/bin/eww open eww-bar
+
