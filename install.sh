@@ -1,63 +1,78 @@
 #!/bin/bash
 
 # =============================================================================
-#  Hyprland Dots Installer - Universal script (Arch, Debian, Fedora)
+#  Hyprland Dots Installer - Debian 13 (Trixie) Edition
 # =============================================================================
 
 set -e
 
-# Detectar gestor de paquetes
-if [ -f /etc/os-release ]; then
-    . /etc/os-release
-    OS=$ID
-else
-    echo "No se pudo detectar el sistema operativo."
-    exit 1
+# Comprobación de root
+if [ "$EUID" -ne 0 ]; then 
+  echo "Por favor, ejecuta este script como root o con sudo."
+  exit
 fi
 
-echo "Detectado: $OS"
+echo "Iniciando instalación para Debian 13 (Trixie)..."
 
-# Mapeo de paquetes por distribución
-case "$OS" in
-    arch)
-        PACKAGES="hyprland waybar swaybg wofi foot nautilus playerctl wireplumber brightnessctl grim slurp swappy jq ttf-font-awesome pavucontrol blueman hyprlock hypridle polkit-kde-agent"
-        INSTALL_CMD="sudo pacman -S --needed --noconfirm"
-        ;;
-    debian|ubuntu|pop)
-        PACKAGES="hyprland waybar swaybg wofi foot nautilus playerctl wireplumber brightnessctl grim slurp swappy jq fonts-font-awesome pavucontrol blueman hyprlock hypridle hyprpolkitagent libayatana-appindicator3-1"
-        INSTALL_CMD="sudo apt update && sudo apt install -y"
-        ;;
-    fedora)
-        PACKAGES="hyprland waybar swaybg wofi foot nautilus playerctl wireplumber-utils brightnessctl grim slurp swappy jq fontawesome-fonts-all pavucontrol blueman hyprlock hypridle"
-        INSTALL_CMD="sudo dnf install -y"
-        ;;
-    *)
-        echo "Distribución no soportada automáticamente. Por favor instala los paquetes manualmente."
-        exit 1
-        ;;
-esac
-
-echo "Instalando dependencias..."
-$INSTALL_CMD $PACKAGES
-
-# Configuración de directorios
-DOTS_DIR="$HOME/.config/hypr"
-if [ -d "$DOTS_DIR" ]; then
-    echo "Haciendo backup de la configuración actual..."
-    mv "$DOTS_DIR" "$DOTS_DIR-$(date +%Y%m%d-%H%M%S).bak"
+# 1. Habilitar Backports
+BACKPORTS_FILE="/etc/apt/sources.list.d/trixie-backports.list"
+if [ ! -f "$BACKPORTS_FILE" ]; then
+    echo "deb http://deb.debian.org/debian trixie-backports main contrib non-free non-free-firmware" | sudo tee "$BACKPORTS_FILE"
+    apt update
 fi
 
-echo "Instalando configuración..."
-mkdir -p "$HOME/.config"
+# 2. Instalar Drivers Intel y dependencias base
+echo "Instalando drivers de video y utilidades..."
+apt install -y firmware-linux-nonfree intel-media-va-driver mesa-va-drivers
+
+# 3. Instalar Hyprland y ecosistema
+echo "Instalando Hyprland, SDDM, y herramientas..."
+# Instalamos hyprland explícitamente desde backports
+apt install -t trixie-backports -y \
+    hyprland \
+    sddm \
+    hyprpolkitagent \
+    udiskie \
+    waybar \
+    foot \
+    thunar \
+    fuzzel \
+    playerctl \
+    wireplumber \
+    brightnessctl \
+    grim \
+    slurp \
+    swappy \
+    jq \
+    fonts-font-awesome \
+    pavucontrol \
+    blueman \
+    hyprlock \
+    hypridle \
+    libayatana-appindicator3-1 \
+    git \
+    zsh \
+    vim \
+
+
+# 4. Habilitar servicios
+echo "Habilitando SDDM..."
+systemctl enable sddm
+
+# 5. Configuración de directorios (usando el usuario real que ejecutó el script con sudo)
+USER_HOME=$(eval echo ~$SUDO_USER)
+DOTS_DIR="$USER_HOME/.config/hypr"
+
+echo "Instalando configuración en $DOTS_DIR..."
+mkdir -p "$USER_HOME/.config"
+# Asumimos que este script está en la raíz de los dots
 cp -r . "$DOTS_DIR"
 
-# Quitar el script de instalación del destino
-rm "$DOTS_DIR/install.sh" || true
-
-# Dar permisos de ejecución a los scripts
+# Ajustar permisos
+chown -R "$SUDO_USER":"$SUDO_USER" "$DOTS_DIR"
 chmod +x "$DOTS_DIR"/*.sh
 
 echo "-------------------------------------------------------"
-echo "¡Instalación completada!"
-echo "Reinicia Hyprland o inicia sesión para ver los cambios."
+echo "¡Instalación completada con éxito!"
+echo "Reinicia el sistema para iniciar sesión en Hyprland."
 echo "-------------------------------------------------------"
