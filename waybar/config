@@ -111,7 +111,7 @@
         "format": "󰌾",
         "tooltip": true,
         "tooltip-format": "Bloquear pantalla",
-        "on-click": "hyprlock & sleep 0.5 && hyprctl dispatch dpms off"
+        "on-click": "hyprlock & sleep 2 && hyprctl dispatch dpms off"
     },
     "custom/reboot": {
         "format": "󰜉",
@@ -151,7 +151,8 @@
     "clock": {
         "timezone": "America/Argentina/Buenos_Aires",
         "format": " {:%H:%M   %d/%m}",
-        "tooltip": false,
+        "tooltip": true,
+        "tooltip-format": "<big>{:%Y %B}</big>\n<tt><small>{calendar}</small></tt>",
         "on-click": "gnome-calendar",
         "actions":  {
             "on-click-middle": "shift_up",

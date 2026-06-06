@@ -14,25 +14,25 @@ Este repositorio contiene la configuración optimizada para Hyprland en Debian 1
         - **Gestión de Actualizaciones:** Indicador de paquetes pendientes para APT.
 -   **Bloqueo de Pantalla:** Configuración de `hyprlock` con fondo difuminado y reloj minimalista.
 -   **Idle Management:** `hypridle` configurado para ahorrar energía y bloquear automáticamente.
--   **Estética:** Tema Tokyo Night coherente en Waybar, Wofi y terminal (foot).
+-   **Estética:** Tema Tokyo Night coherente en Eww, Fuzzel y terminal (foot).
 
 ## ⌨️ Atajos de Teclado Relevantes
 
 | Atajo | Acción |
 | :--- | :--- |
 | `Super + Return` | Abrir Terminal (foot) |
-| `Super + D` | Lanzador de aplicaciones (Wofi) |
+| `Super + D` | Lanzador de aplicaciones (Fuzzel) |
 | `Super + Q` | Cerrar Ventana |
 | `Super + C` | Abrir Navegador (Chrome) |
 | `Super + Z` | Abrir Spotify |
-| `Super + L` | Menú de Apagado (Wofi) |
-| `Super + Shift + B` | Recargar Waybar |
+| `Super + L` | Menú de Apagado (Script) |
+| `Super + Shift + B` | Recargar Eww |
 | `Print` | Captura de pantalla (Área) |
 
 ## 🛠️ Estructura de Archivos
 
 -   `hyprland.conf`: Configuración principal de Hyprland (monitores, binds, reglas).
--   `waybar/`: Configuración y estilos de la barra superior.
+-   `eww/`: Configuración y estilos de la barra superior.
 -   `hyprlock.conf` / `hypridle.conf`: Bloqueo y gestión de inactividad.
 -   `check_updates.sh`: Consulta actualizaciones pendientes.
 -   `confirm_power.sh`: Diálogo de confirmación para acciones de energía.
