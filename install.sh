@@ -1,19 +1,19 @@
 #!/bin/bash
 
 # =============================================================================
-#  Hyprland & Eww Installer - Debian 13 (Stable) Backports Edition
+#  Hyprland & Eww Minimal Installer - Debian 13 (Trixie)
 # =============================================================================
 
 set -e
 
-# Comprobación de root y de ejecución mediante sudo
+# Comprobación de root
 if [ "$EUID" -ne 0 ]; then 
   echo "Por favor, ejecuta este script con sudo."
   exit 1
 fi
 
 if [ -z "$SUDO_USER" ]; then
-  echo "Por favor, ejecuta el script usando 'sudo ./install.sh' desde tu usuario habitual."
+  echo "Por favor, ejecuta el script usando 'sudo ./install.sh'."
   exit 1
 fi
 
@@ -21,83 +21,118 @@ REAL_USER=$SUDO_USER
 USER_HOME=$(eval echo ~$REAL_USER)
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 
-echo "Iniciando instalación limpia para Debian 13 (Stable) con entorno GTK..."
+echo "Iniciando instalación mínima para Debian 13 (Trixie)..."
 
-# 1. Asegurar repositorio de Backports
+# 1. Configuración de Repositorios (Asegurar Backports para Hyprland)
 echo "Configurando repositorios..."
 BACKPORTS_FILE="/etc/apt/sources.list.d/trixie-backports.list"
 if [ ! -f "$BACKPORTS_FILE" ]; then
     echo "deb http://deb.debian.org/debian trixie-backports main contrib non-free non-free-firmware" | tee "$BACKPORTS_FILE"
 fi
-
 apt update
 
-# 2. Instalar Drivers y Herramientas Base del Sistema
-echo "Instalando drivers de video y utilidades del sistema..."
-apt install -y \
-    firmware-linux-nonfree intel-media-va-driver mesa-va-drivers \
-    wget curl bc jq network-manager nm-connection-editor sddm \
+# 2. Drivers y Firmware (Esencial y genérico para compatibilidad)
+echo "Instalando drivers de video y firmware..."
+apt install -y --no-install-recommends \
+    firmware-linux-nonfree \
+    intel-media-va-driver mesa-va-drivers \
+    libgl1-mesa-dri xserver-xorg-video-all
+
+# 3. Herramientas Base del Sistema y Dependencias de Scripts
+echo "Instalando utilidades base..."
+apt install -y --no-install-recommends \
+    wget curl bc jq git build-essential pkg-config \
+    network-manager nm-connection-editor \
     udiskie foot thunar fuzzel playerctl wireplumber brightnessctl \
-    grim slurp swappy pavucontrol blueman libayatana-appindicator3-1 \
-    swaybg zenity zsh vim
+    grim slurp swappy pavucontrol blueman firefox-esr \
+    swaybg zenity zsh vim lxappearance
 
-# 3. Componentes específicos para la gestión de entorno GTK y Credenciales
-echo "Instalando herramientas de personalización GTK..."
-apt install -y \
-    lxappearance \
-    gsettings-desktop-schemas \
-    gnome-keyring \
-    gnome-themes-extra
+# 4. Hyprland y Ecosistema (Desde Backports cuando sea posible)
+echo "Instalando Hyprland, Greetd y Hypr-herramientas..."
+apt install -y -t trixie-backports --no-install-recommends \
+    hyprland hyprlock hypridle hyprpolkitagent
 
-# 4. Instalar Hyprland, Eww y Ecosistema desde Backports
-echo "Instalando Hyprland y Eww desde backports..."
-apt install -t trixie-backports -y \
-    hyprland \
-    eww \
-    hyprlock \
-    hypridle \
-    polkit-kde-agent-1
+apt install -y --no-install-recommends greetd tuigreet
 
-# 5. Configuración de archivos (Dots)
+# 5. Compilación de Eww (Desde código fuente)
+echo "Instalando dependencias de compilación para Eww..."
+apt install -y --no-install-recommends \
+    rustc cargo libgtk-3-dev libgtk-layer-shell-dev \
+    libpangocairo-1.0-0 libcairo-gobject2 libglib2.0-dev libgdk-pixbuf2.0-dev
+
+if [ ! -f "/usr/local/bin/eww" ]; then
+    echo "Clonando y compilando Eww..."
+    EWW_BUILD_DIR="/tmp/eww_build"
+    rm -rf "$EWW_BUILD_DIR"
+    sudo -u "$REAL_USER" git clone https://github.com/elkowar/eww "$EWW_BUILD_DIR"
+    cd "$EWW_BUILD_DIR"
+    # Compilamos con soporte para Wayland usando los paquetes de Debian
+    sudo -u "$REAL_USER" cargo build --release --no-default-features --features wayland
+    cp target/release/eww /usr/local/bin/
+    cd "$SCRIPT_DIR"
+    rm -rf "$EWW_BUILD_DIR"
+fi
+
+# 6. Configuración de Greetd (Login ligero)
+echo "Configurando Greetd con tuigreet..."
+mkdir -p /etc/greetd
+cat <<EOF > /etc/greetd/config.toml
+[terminal]
+vt = 1
+
+[default_session]
+command = "tuigreet --time --remember --cmd Hyprland"
+user = "_greetd"
+EOF
+# Asegurar que el usuario _greetd pueda acceder al video
+usermod -aG video _greetd || true
+
+# 7. Despliegue de Configuraciones (Dots)
 DOTS_CONF="$USER_HOME/.config"
 mkdir -p "$DOTS_CONF"
 
-echo "Desplegando configuraciones..."
+echo "Desplegando configuraciones locales..."
+# Lista de carpetas a desplegar
+CONFIGS=("hypr" "foot" "fuzzel")
 
-# A) Copiar entornos locales del script
-if [ -d "$SCRIPT_DIR/hypr" ]; then cp -r "$SCRIPT_DIR/hypr" "$DOTS_CONF/"; fi
-if [ -d "$SCRIPT_DIR/foot" ]; then cp -r "$SCRIPT_DIR/foot" "$DOTS_CONF/"; fi
-if [ -d "$SCRIPT_DIR/fuzzel" ]; then cp -r "$SCRIPT_DIR/fuzzel" "$DOTS_CONF/"; fi
+for item in "${CONFIGS[@]}"; do
+    # 1. Buscar en el mismo directorio que el script
+    if [ -d "$SCRIPT_DIR/$item" ]; then
+        cp -r "$SCRIPT_DIR/$item" "$DOTS_CONF/"
+    # 2. Si el script está DENTRO de la carpeta hypr, buscar hermanos
+    elif [ -d "$SCRIPT_DIR/../$item" ]; then
+        cp -r "$SCRIPT_DIR/../$item" "$DOTS_CONF/"
+    # 3. Caso especial: si el script es parte de la carpeta hypr y queremos desplegar hypr
+    elif [ "$(basename "$SCRIPT_DIR")" == "$item" ]; then
+        mkdir -p "$DOTS_CONF/$item"
+        cp -r "$SCRIPT_DIR"/* "$DOTS_CONF/$item/"
+    fi
+done
 
-# B) Clonar configuración personalizada de Eww si no existe localmente
+# Clonar la barra personalizada de JoseloFlores si no existe
 echo "Descargando configuración de Eww personalizada..."
-rm -rf "$DOTS_CONF/eww"
-git clone https://github.com/JoseloFlores/eww "$DOTS_CONF/eww"
+if [ ! -d "$DOTS_CONF/eww" ]; then
+    sudo -u "$REAL_USER" git clone https://github.com/JoseloFlores/eww "$DOTS_CONF/eww"
+fi
 
-# 6. Generalización de rutas y limpieza de rutas de compilación pasadas
-echo "Ajustando rutas para el usuario actual..."
+# 8. Ajustes finales de rutas y permisos
+echo "Ajustando rutas y permisos..."
+# Reemplazar la ruta hardcodeada /home/jose por la del usuario actual
 find "$DOTS_CONF/hypr" "$DOTS_CONF/eww" -type f \( -name "*.sh" -o -name "*.yuck" -o -name "*.conf" \) -exec sed -i "s|/home/jose|$USER_HOME|g" {} +
 
-# Reemplazar cualquier llamada directa al binario compilado antiguo por el comando global 'eww'
+# Corregir la ruta de eww en los scripts para usar el binario global /usr/local/bin/eww
 find "$DOTS_CONF/hypr" "$DOTS_CONF/eww" -type f \( -name "*.sh" -o -name "*.yuck" \) -exec sed -i "s|$USER_HOME/eww/target/release/eww|eww|g" {} +
 
-# Ajustar permisos estrictamente a las carpetas creadas
-chown -R "$REAL_USER":"$REAL_USER" "$DOTS_CONF/hypr" "$DOTS_CONF/foot" "$DOTS_CONF/fuzzel" "$DOTS_CONF/eww"
-find "$DOTS_CONF/hypr" "$DOTS_CONF/eww" "$DOTS_CONF/foot" "$DOTS_CONF/fuzzel" -name "*.sh" -exec chmod +x {} +
+chown -R "$REAL_USER":"$REAL_USER" "$DOTS_CONF"
+find "$DOTS_CONF" -name "*.sh" -exec chmod +x {} +
 
-# 7. Habilitar servicios y pre-configurar sesión
-echo "Configurando SDDM para iniciar Hyprland por defecto..."
-systemctl enable sddm
-
-mkdir -p /var/lib/sddm
-cat <<EOF > /var/lib/sddm/state.conf
-[Last]
-Session=/usr/share/wayland-sessions/hyprland.desktop
-User=$REAL_USER
-EOF
+# Habilitar servicios y asegurar arranque en modo gráfico
+systemctl disable sddm || true
+systemctl enable greetd
+systemctl set-default graphical.target
 
 echo "-------------------------------------------------------"
-echo "¡Instalación nativa completada con éxito!"
-echo "Hyprland y Eww instalados mediante paquetes oficiales."
-echo "Reinicia el sistema para iniciar tu sesión."
+echo "¡Instalación minimalista completada!"
+echo "Sistema: Debian 13 (Trixie) con Hyprland + Eww + Greetd"
+echo "Reinicia para iniciar sesión con Greetd."
 echo "-------------------------------------------------------"
