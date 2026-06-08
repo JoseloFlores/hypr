@@ -1,92 +1,62 @@
 #!/bin/bash
 
 # =============================================================================
-#  Hyprland Dots Installer - Debian 13 (Trixie) Edition
+#  Hyprland & Eww Installer - Debian 13 (Stable) Backports Edition
 # =============================================================================
 
 set -e
 
-# Comprobación de root
+# Comprobación de root y de ejecución mediante sudo
 if [ "$EUID" -ne 0 ]; then 
   echo "Por favor, ejecuta este script con sudo."
-  exit
+  exit 1
 fi
 
-# Obtener el usuario real y su home
+if [ -z "$SUDO_USER" ]; then
+  echo "Por favor, ejecuta el script usando 'sudo ./install.sh' desde tu usuario habitual."
+  exit 1
+fi
+
 REAL_USER=$SUDO_USER
 USER_HOME=$(eval echo ~$REAL_USER)
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 
-echo "Iniciando instalación para Debian 13 (Trixie) para el usuario $REAL_USER..."
+echo "Iniciando instalación limpia para Debian 13 (Stable) con entorno GTK..."
 
-# 1. Habilitar Backports y Limpiar Repositorios Antiguos
+# 1. Asegurar repositorio de Backports
 echo "Configurando repositorios..."
-
-# Eliminar repositorios antiguos de Chrome y Spotify si existen
-rm -f /etc/apt/sources.list.d/google-chrome.list
-rm -f /etc/apt/sources.list.d/spotify.list
-rm -f /usr/share/keyrings/google-chrome.gpg
-rm -f /usr/share/keyrings/spotify.gpg
-
-# Backports
 BACKPORTS_FILE="/etc/apt/sources.list.d/trixie-backports.list"
 if [ ! -f "$BACKPORTS_FILE" ]; then
-    echo "deb http://deb.debian.org/debian trixie-backports main contrib non-free non-free-firmware" | sudo tee "$BACKPORTS_FILE"
+    echo "deb http://deb.debian.org/debian trixie-backports main contrib non-free non-free-firmware" | tee "$BACKPORTS_FILE"
 fi
 
 apt update
 
-# 2. Instalar Drivers y dependencias de compilación
-echo "Instalando drivers, herramientas de compilación y dependencias..."
+# 2. Instalar Drivers y Herramientas Base del Sistema
+echo "Instalando drivers de video y utilidades del sistema..."
 apt install -y \
     firmware-linux-nonfree intel-media-va-driver mesa-va-drivers \
-    build-essential git pkg-config libgtk-3-dev libgtk-layer-shell-dev \
-    libpulse-dev libdbus-1-dev libcommon-sense-perl libpango1.0-dev \
-    libcairo2-dev libgdk-pixbuf2.0-dev libglib2.0-dev libatk1.0-dev \
-    wget curl bc jq 
+    wget curl bc jq network-manager nm-connection-editor sddm \
+    udiskie foot thunar fuzzel playerctl wireplumber brightnessctl \
+    grim slurp swappy pavucontrol blueman libayatana-appindicator3-1 \
+    swaybg zenity zsh vim
 
-# Instalar Rust desde backports para Eww
-apt install -t trixie-backports -y rustc cargo
+# 3. Componentes específicos para la gestión de entorno GTK y Credenciales
+echo "Instalando herramientas de personalización GTK..."
+apt install -y \
+    lxappearance \
+    gsettings-desktop-schemas \
+    gnome-keyring \
+    gnome-themes-extra
 
-# 3. Instalar Hyprland, Apps y Ecosistema
-echo "Instalando programas..."
+# 4. Instalar Hyprland, Eww y Ecosistema desde Backports
+echo "Instalando Hyprland y Eww desde backports..."
 apt install -t trixie-backports -y \
     hyprland \
-    sddm \
-    hyprpolkitagent \
-    udiskie \
-    foot \
-    thunar \
-    fuzzel \
-    playerctl \
-    wireplumber \
-    brightnessctl \
-    grim \
-    slurp \
-    swappy \
-    pavucontrol \
-    blueman \
+    eww \
     hyprlock \
     hypridle \
-    libayatana-appindicator3-1 \
-    swaybg \
-    zenity \
-    gnome-control-center \
-    gnome-calendar \
-    network-manager \
-    firefox-esr \
-    zsh \
-    vim
-
-# 4. Compilar e instalar Eww
-echo "Compilando Eww..."
-TEMP_EWW="/tmp/eww_build"
-rm -rf "$TEMP_EWW"
-git clone https://github.com/elkowar/eww "$TEMP_EWW"
-cd "$TEMP_EWW"
-cargo build --release --no-default-features --features=wayland
-install -m 755 target/release/eww /usr/local/bin/eww
-cd -
-rm -rf "$TEMP_EWW"
+    polkit-kde-agent-1
 
 # 5. Configuración de archivos (Dots)
 DOTS_CONF="$USER_HOME/.config"
@@ -94,33 +64,31 @@ mkdir -p "$DOTS_CONF"
 
 echo "Desplegando configuraciones..."
 
-# A) Hyprland, Foot, Fuzzel (desde el directorio actual del script)
-# Asumimos que el script se ejecuta desde la raíz de los dots del usuario
-cp -r hypr foot fuzzel "$DOTS_CONF/"
+# A) Copiar entornos locales del script
+if [ -d "$SCRIPT_DIR/hypr" ]; then cp -r "$SCRIPT_DIR/hypr" "$DOTS_CONF/"; fi
+if [ -d "$SCRIPT_DIR/foot" ]; then cp -r "$SCRIPT_DIR/foot" "$DOTS_CONF/"; fi
+if [ -d "$SCRIPT_DIR/fuzzel" ]; then cp -r "$SCRIPT_DIR/fuzzel" "$DOTS_CONF/"; fi
 
-# B) Eww (desde el repo de personalización del usuario)
+# B) Clonar configuración personalizada de Eww si no existe localmente
 echo "Descargando configuración de Eww personalizada..."
 rm -rf "$DOTS_CONF/eww"
 git clone https://github.com/JoseloFlores/eww "$DOTS_CONF/eww"
 
-# 6. Generalización de rutas
+# 6. Generalización de rutas y limpieza de rutas de compilación pasadas
 echo "Ajustando rutas para el usuario actual..."
-
-# Reemplazar /home/jose por el home del usuario actual en todos los configs
 find "$DOTS_CONF/hypr" "$DOTS_CONF/eww" -type f \( -name "*.sh" -o -name "*.yuck" -o -name "*.conf" \) -exec sed -i "s|/home/jose|$USER_HOME|g" {} +
 
-# Asegurar que los scripts usen el binario de eww en /usr/local/bin
+# Reemplazar cualquier llamada directa al binario compilado antiguo por el comando global 'eww'
 find "$DOTS_CONF/hypr" "$DOTS_CONF/eww" -type f \( -name "*.sh" -o -name "*.yuck" \) -exec sed -i "s|$USER_HOME/eww/target/release/eww|eww|g" {} +
 
-# Ajustar permisos y propiedad
-chown -R "$REAL_USER":"$REAL_USER" "$DOTS_CONF"
-find "$DOTS_CONF" -name "*.sh" -exec chmod +x {} +
+# Ajustar permisos estrictamente a las carpetas creadas
+chown -R "$REAL_USER":"$REAL_USER" "$DOTS_CONF/hypr" "$DOTS_CONF/foot" "$DOTS_CONF/fuzzel" "$DOTS_CONF/eww"
+find "$DOTS_CONF/hypr" "$DOTS_CONF/eww" "$DOTS_CONF/foot" "$DOTS_CONF/fuzzel" -name "*.sh" -exec chmod +x {} +
 
 # 7. Habilitar servicios y pre-configurar sesión
 echo "Configurando SDDM para iniciar Hyprland por defecto..."
 systemctl enable sddm
 
-# Pre-seleccionar Hyprland para el usuario para evitar que tenga que elegirlo manualmente
 mkdir -p /var/lib/sddm
 cat <<EOF > /var/lib/sddm/state.conf
 [Last]
@@ -129,8 +97,7 @@ User=$REAL_USER
 EOF
 
 echo "-------------------------------------------------------"
-echo "¡Instalación completada con éxito!"
-echo "Binario 'eww' instalado en /usr/local/bin"
-echo "Configuraciones desplegadas en $DOTS_CONF"
-echo "Reinicia el sistema para iniciar sesión en Hyprland."
+echo "¡Instalación nativa completada con éxito!"
+echo "Hyprland y Eww instalados mediante paquetes oficiales."
+echo "Reinicia el sistema para iniciar tu sesión."
 echo "-------------------------------------------------------"
