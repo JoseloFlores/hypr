@@ -1,49 +1,102 @@
-# Hyprland Dotfiles - Debian 13 Trixie
+# 🚀 Hyprland + Eww para Debian 13 (Trixie)
 
-Este repositorio contiene la configuración optimizada para Hyprland en Debian 13, utilizando **Eww** como barra principal de estado.
+Este repositorio contiene una configuración (dotfiles) completa y automatizada para transformar una instalación base de **Debian 13 (Trixie)** (se recomienda una instalacion minima) en un entorno de escritorio moderno, rápido y estéticamente pulido basado en **Hyprland** y **Eww**.
 
-##  Características Principales
+![Hyprland](https://img.shields.io/badge/OS-Debian%2013-red?logo=debian)
+![Window Manager](https://img.shields.io/badge/WM-Hyprland-blue)
+![Status Bar](https://img.shields.io/badge/Bar-Eww-green)
 
--   **Panel Superior (Eww):** Configuración modular con temas de color a eleccion.
-    - **Espacios de Trabajo:** Indicadores dinámicos mediante iconos de ventanas.
-        - **Red Unificada:** Módulo inteligente que alterna entre WiFi (con niveles de señal) y VPN de forma automática, ignorando servicios de fondo como Tailscale.
-        - **Quick Settings:** Control de volumen (modernizado con Nerd Fonts), red (nmtui) y bluetooth (minimalista con iconos de estado y nombres en tooltip).
-        - **Batería:** Iconos estándar mejorados para mayor compatibilidad.
-        - **Media Control (MPRIS):** Muestra canción actual y permite control básico (se oculta automáticamente si no hay contenido).
-        - **Power Menu Drawer:** Menú expansible en la barra para Apagar, Reiniciar, Bloquear y Salir.
-        - **Gestión de Actualizaciones:** Indicador de paquetes pendientes para APT.
--   **Bloqueo de Pantalla:** Configuración de `hyprlock` con fondo difuminado y reloj minimalista.
--   **Idle Management:** `hypridle` configurado para ahorrar energía y bloquear automáticamente.
--   **Estética:** Tema Tokyo Night coherente en Eww, Fuzzel y terminal (foot).
+---
 
-## ⌨️ Atajos de Teclado Relevantes
+## 📸 Screenshots
+
+![Preview 1](preview1.png)
+![Preview 2](preview2.png)
+
+---
+
+## 🛠️ Requisitos Previos
+
+1. **Sistema Operativo:** Debian 13 (Trixie) instalado (preferiblemente mínimo sin otro escritorio).
+2. **Git:** Para clonar el repositorio.
+3. **Fuente Nerd Font:** Se requiere una fuente parcheada (ej. Meslo, JetBrainsMono) para ver los iconos correctamente.
+4. **Usuario:** Debes tener permisos de `sudo`.
+5. **Internet:** Conexión activa para descargar paquetes y compilar herramientas.
+
+---
+
+## 🚀 Instalación en un Solo Paso
+
+He diseñado un script inteligente que se encarga de todo: habilitar repositorios, instalar aplicaciones, y compilar la barra de estado.
+
+### 1. Clonar el Repositorio
+Abre tu terminal y descarga tus configuraciones:
+
+```bash
+git clone https://github.com/JoseloFlores/hypr.git
+cd hypr
+```
+
+### 2. Ejecutar el Instalador
+Simplemente ejecuta el script con permisos de superusuario:
+
+```bash
+sudo ./install.sh
+```
+
+**¿Qué hace este script por ti?**
+- ✅ **Repositorios:** Habilita *Backports* y añade los repositorios oficiales de **Google Chrome** y **Spotify**.
+- ✅ **Drivers:** Instala drivers de video Intel y soporte de aceleración gráfica.
+- ✅ **Compilación:** Descarga y compila **Eww** (la barra de estado) desde su código fuente original.
+- ✅ **Personalización:** Descarga automáticamente el tema de la barra desde el repo de JoseloFlores.
+- ✅ **Portabilidad:** Ajusta todas las rutas internas para que funcionen con TU nombre de usuario.
+- ✅ **Apps:** Instala herramientas esenciales (Foot, Thunar, Fuzzel, Swaybg, etc.).
+
+---
+
+## ⌨️ Atajos de Teclado Principales (Guía Rápida)
+
+Una vez reinicies y entres en Hyprland, estos son los comandos que necesitas conocer:
 
 | Atajo | Acción |
 | :--- | :--- |
-| `Super + Return` | Abrir Terminal (foot) |
-| `Super + D` | Lanzador de aplicaciones (Fuzzel) |
-| `Super + Q` | Cerrar Ventana |
-| `Super + C` | Abrir Navegador (Chrome) |
-| `Super + Z` | Abrir Spotify |
-| `Super + L` | Menú de Apagado (Script) |
-| `Super + Shift + B` | Recargar Eww |
-| `Print` | Captura de pantalla (Área) |
+| `Super + Enter` | Abrir Terminal (**Foot**) |
+| `Super + C` | Abrir Navegador (**Google Chrome**) |
+| `Super + D` | Lanzador de aplicaciones (**Fuzzel**) |
+| `Super + X` | Explorador de Archivos (**Thunar**) |
+| `Super + Q` | Cerrar ventana activa |
+| `Super + L` | Menú de Energía (Apagar/Reiniciar) |
+| `Super + Shift + B` | Reiniciar barra Eww y sincronizar colores |
+| `Super + 1-9` | Cambiar de escritorio |
+| `Print` | Captura de pantalla (Seleccionar área) |
 
-## 🛠️ Estructura de Archivos
+*(La tecla `Super` suele ser la tecla Windows)*
 
--   `hyprland.conf`: Configuración principal de Hyprland (monitores, binds, reglas).
--   `eww/`: Configuración y estilos de la barra superior.
--   `hyprlock.conf` / `hypridle.conf`: Bloqueo y gestión de inactividad.
--   `check_updates.sh`: Consulta actualizaciones pendientes.
--   `confirm_power.sh`: Diálogo de confirmación para acciones de energía.
--   `power_menu.sh`: Menú de apagado interactivo vía Wofi.
--   `wall.jpeg` / `wall2.jpg`: Fondos de pantalla utilizados.
+---
 
-## 🔧 Instalación
+## 🎨 Personalización y Temas
 
-El script `install.sh` automatiza la instalación de dependencias en Arch, Debian y Fedora, y copia los archivos a `~/.config/hypr`.
+Este entorno utiliza un sistema de **Sincronización de Colores**:
 
-```bash
-chmod +x install.sh
-./install.sh
-```
+1.  La fuente de verdad es el archivo `~/.config/eww/eww.scss`.
+2.  Al presionar `Super + Shift + B`, el script `foot_sync.sh` lee el tema de Eww y aplica los mismos colores a tu terminal (**Foot**) y al lanzador (**Fuzzel**) automáticamente.
+
+---
+
+## 📁 Estructura de Archivos
+
+*   `~/.config/hypr/`: Configuración principal del gestor de ventanas y scripts de sistema.
+*   `~/.config/eww/`: Todo lo relacionado con la barra de estado y los widgets.
+*   `~/.config/foot/`: Configuración de la terminal.
+*   `~/.config/fuzzel/`: Configuración del lanzador de apps.
+
+---
+
+## ⚠️ Notas Importantes
+
+- **Primer Inicio:** Si al entrar no ves la barra, presiona `Super + Shift + B` para forzar su inicio inicial.
+- **Audio/Bluetooth:** Puedes gestionarlos directamente desde los iconos de la barra haciendo clic en ellos.
+- **VPN:** El icono de la barra está configurado para mostrarse solo cuando una VPN manual está activa (ignora servicios como Tailscale para evitar desorden).
+
+---
+*Desarrollado con ❤️ para la comunidad de Debian.*

@@ -8,32 +8,58 @@ set -e
 
 # Comprobación de root
 if [ "$EUID" -ne 0 ]; then 
-  echo "Por favor, ejecuta este script como root o con sudo."
+  echo "Por favor, ejecuta este script con sudo."
   exit
 fi
 
-echo "Iniciando instalación para Debian 13 (Trixie)..."
+# Obtener el usuario real y su home
+REAL_USER=$SUDO_USER
+USER_HOME=$(eval echo ~$REAL_USER)
 
-# 1. Habilitar Backports
+echo "Iniciando instalación para Debian 13 (Trixie) para el usuario $REAL_USER..."
+
+# 1. Habilitar Backports y Repositorios de Terceros (Chrome & Spotify)
+echo "Configurando repositorios..."
+
+# Backports
 BACKPORTS_FILE="/etc/apt/sources.list.d/trixie-backports.list"
 if [ ! -f "$BACKPORTS_FILE" ]; then
     echo "deb http://deb.debian.org/debian trixie-backports main contrib non-free non-free-firmware" | sudo tee "$BACKPORTS_FILE"
-    apt update
 fi
 
-# 2. Instalar Drivers Intel y dependencias base
-echo "Instalando drivers de video y utilidades..."
-apt install -y firmware-linux-nonfree intel-media-va-driver mesa-va-drivers
+# Google Chrome
+if [ ! -f "/etc/apt/sources.list.d/google-chrome.list" ]; then
+    wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor | sudo tee /usr/share/keyrings/google-chrome.gpg > /dev/null
+    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+fi
 
-# 3. Instalar Hyprland y ecosistema
-echo "Instalando Hyprland, SDDM, y herramientas..."
-# Instalamos hyprland explícitamente desde backports
+# Spotify
+if [ ! -f "/etc/apt/sources.list.d/spotify.list" ]; then
+    curl -sS https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/spotify.gpg > /dev/null
+    echo "deb [signed-by=/usr/share/keyrings/spotify.gpg] http://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
+fi
+
+apt update
+
+# 2. Instalar Drivers y dependencias de compilación
+echo "Instalando drivers, herramientas de compilación y dependencias..."
+apt install -y \
+    firmware-linux-nonfree intel-media-va-driver mesa-va-drivers \
+    build-essential git pkg-config libgtk-3-dev libgtk-layer-shell-dev \
+    libpulse-dev libdbus-1-dev libcommon-sense-perl libpango1.0-dev \
+    libcairo2-dev libgdk-pixbuf2.0-dev libglib2.0-dev libatk1.0-dev \
+    wget curl bc jq 
+
+# Instalar Rust desde backports para Eww
+apt install -t trixie-backports -y rustc cargo
+
+# 3. Instalar Hyprland, Apps y Ecosistema
+echo "Instalando programas..."
 apt install -t trixie-backports -y \
     hyprland \
     sddm \
     hyprpolkitagent \
     udiskie \
-    waybar \
     foot \
     thunar \
     fuzzel \
@@ -43,36 +69,69 @@ apt install -t trixie-backports -y \
     grim \
     slurp \
     swappy \
-    jq \
-    fonts-font-awesome \
     pavucontrol \
     blueman \
     hyprlock \
     hypridle \
     libayatana-appindicator3-1 \
-    git \
+    swaybg \
+    zenity \
+    gnome-control-center \
+    gnome-calendar \
+    network-manager \
+    google-chrome-stable \
+    spotify-client \
     zsh \
-    vim \
+    vim
 
+# 4. Compilar e instalar Eww
+echo "Compilando Eww..."
+TEMP_EWW="/tmp/eww_build"
+rm -rf "$TEMP_EWW"
+git clone https://github.com/elkowar/eww "$TEMP_EWW"
+cd "$TEMP_EWW"
+cargo build --release --no-default-features --features=wayland
+install -m 755 target/release/eww /usr/local/bin/eww
+cd -
+rm -rf "$TEMP_EWW"
 
-# 4. Habilitar servicios
-echo "Habilitando SDDM..."
+# 5. Configuración de archivos (Dots)
+DOTS_CONF="$USER_HOME/.config"
+mkdir -p "$DOTS_CONF"
+
+echo "Desplegando configuraciones..."
+
+# A) Hyprland, Foot, Fuzzel (desde el directorio actual del script)
+# Asumimos que el script se ejecuta desde la raíz de los dots del usuario
+cp -r hypr foot fuzzel "$DOTS_CONF/"
+
+# B) Eww (desde el repo de personalización del usuario)
+echo "Descargando configuración de Eww personalizada..."
+rm -rf "$DOTS_CONF/eww"
+git clone https://github.com/JoseloFlores/eww "$DOTS_CONF/eww"
+
+# 6. Generalización de rutas y limpieza de Waybar
+echo "Ajustando rutas y eliminando rastros de Waybar..."
+
+# Reemplazar /home/jose por el home del usuario actual en todos los configs
+find "$DOTS_CONF/hypr" "$DOTS_CONF/eww" -type f \( -name "*.sh" -o -name "*.yuck" -o -name "*.conf" \) -exec sed -i "s|/home/jose|$USER_HOME|g" {} +
+
+# Asegurar que los scripts usen el binario de eww en /usr/local/bin
+find "$DOTS_CONF/hypr" "$DOTS_CONF/eww" -type f \( -name "*.sh" -o -name "*.yuck" \) -exec sed -i "s|$USER_HOME/eww/target/release/eww|eww|g" {} +
+
+# Eliminar menciones a Waybar en hyprland.conf (aunque ya están comentadas, las limpiamos)
+sed -i '/waybar/d' "$DOTS_CONF/hypr/hyprland.conf"
+
+# Ajustar permisos y propiedad
+chown -R "$REAL_USER":"$REAL_USER" "$DOTS_CONF"
+find "$DOTS_CONF" -name "*.sh" -exec chmod +x {} +
+
+# 7. Habilitar servicios
 systemctl enable sddm
-
-# 5. Configuración de directorios (usando el usuario real que ejecutó el script con sudo)
-USER_HOME=$(eval echo ~$SUDO_USER)
-DOTS_DIR="$USER_HOME/.config/hypr"
-
-echo "Instalando configuración en $DOTS_DIR..."
-mkdir -p "$USER_HOME/.config"
-# Asumimos que este script está en la raíz de los dots
-cp -r . "$DOTS_DIR"
-
-# Ajustar permisos
-chown -R "$SUDO_USER":"$SUDO_USER" "$DOTS_DIR"
-chmod +x "$DOTS_DIR"/*.sh
 
 echo "-------------------------------------------------------"
 echo "¡Instalación completada con éxito!"
+echo "Binario 'eww' instalado en /usr/local/bin"
+echo "Configuraciones desplegadas en $DOTS_CONF"
 echo "Reinicia el sistema para iniciar sesión en Hyprland."
 echo "-------------------------------------------------------"
