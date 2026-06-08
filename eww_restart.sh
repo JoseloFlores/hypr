@@ -8,19 +8,19 @@ export PATH="$HOME/.cargo/bin:$HOME/.local/bin:$PATH"
 
 # 3. Matar Eww de forma "civilizada" (Evita el error 'Scope not in graph')
 # Usamos el comando nativo de eww en lugar de kill -9 para que limpie la memoria
-eww kill
+/home/jose/eww/target/release/eww kill
 
 # Le damos un respiro para que cierre el socket correctamente
 sleep 0.2 
 
 # 4. Iniciar el demonio en segundo plano
-eww daemon &
+/home/jose/eww/target/release/eww daemon &
 
 # 5. Esperar a que el demonio cargue su estado interno
 sleep 0.2
 
 # 6. Abrir la barra
-eww open eww-bar
+/home/jose/eww/target/release/eww open eww-bar
 
 
 # 7. Pequeña pausa adicional para que los widgets carguen

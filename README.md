@@ -70,7 +70,7 @@ Una vez reinicies y entres en Hyprland, estos son los comandos que necesitas con
 | `Super + 1-9` | Cambiar de escritorio |
 | `Print` | Captura de pantalla (Seleccionar área) |
 
-*(La tecla `Super` suele ser la tecla Windows)*
+*(La tecla `Super` suele ser la tecla Windows )*
 
 ---
 
