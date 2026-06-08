@@ -18,8 +18,14 @@ USER_HOME=$(eval echo ~$REAL_USER)
 
 echo "Iniciando instalación para Debian 13 (Trixie) para el usuario $REAL_USER..."
 
-# 1. Habilitar Backports
+# 1. Habilitar Backports y Limpiar Repositorios Antiguos
 echo "Configurando repositorios..."
+
+# Eliminar repositorios antiguos de Chrome y Spotify si existen
+rm -f /etc/apt/sources.list.d/google-chrome.list
+rm -f /etc/apt/sources.list.d/spotify.list
+rm -f /usr/share/keyrings/google-chrome.gpg
+rm -f /usr/share/keyrings/spotify.gpg
 
 # Backports
 BACKPORTS_FILE="/etc/apt/sources.list.d/trixie-backports.list"
