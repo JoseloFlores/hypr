@@ -18,25 +18,13 @@ USER_HOME=$(eval echo ~$REAL_USER)
 
 echo "Iniciando instalación para Debian 13 (Trixie) para el usuario $REAL_USER..."
 
-# 1. Habilitar Backports y Repositorios de Terceros (Chrome & Spotify)
+# 1. Habilitar Backports
 echo "Configurando repositorios..."
 
 # Backports
 BACKPORTS_FILE="/etc/apt/sources.list.d/trixie-backports.list"
 if [ ! -f "$BACKPORTS_FILE" ]; then
     echo "deb http://deb.debian.org/debian trixie-backports main contrib non-free non-free-firmware" | sudo tee "$BACKPORTS_FILE"
-fi
-
-# Google Chrome
-if [ ! -f "/etc/apt/sources.list.d/google-chrome.list" ]; then
-    wget -q -O - https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor | sudo tee /usr/share/keyrings/google-chrome.gpg > /dev/null
-    echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
-fi
-
-# Spotify
-if [ ! -f "/etc/apt/sources.list.d/spotify.list" ]; then
-    curl -sS https://download.spotify.com/debian/pubkey_C85668DF69375001.gpg | gpg --dearmor | sudo tee /usr/share/keyrings/spotify.gpg > /dev/null
-    echo "deb [signed-by=/usr/share/keyrings/spotify.gpg] http://repository.spotify.com stable non-free" | sudo tee /etc/apt/sources.list.d/spotify.list
 fi
 
 apt update
@@ -79,8 +67,7 @@ apt install -t trixie-backports -y \
     gnome-control-center \
     gnome-calendar \
     network-manager \
-    google-chrome-stable \
-    spotify-client \
+    firefox-esr \
     zsh \
     vim
 
