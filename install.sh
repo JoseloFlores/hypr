@@ -110,8 +110,8 @@ echo "Descargando configuración de Eww personalizada..."
 rm -rf "$DOTS_CONF/eww"
 git clone https://github.com/JoseloFlores/eww "$DOTS_CONF/eww"
 
-# 6. Generalización de rutas y limpieza de Waybar
-echo "Ajustando rutas y eliminando rastros de Waybar..."
+# 6. Generalización de rutas
+echo "Ajustando rutas para el usuario actual..."
 
 # Reemplazar /home/jose por el home del usuario actual en todos los configs
 find "$DOTS_CONF/hypr" "$DOTS_CONF/eww" -type f \( -name "*.sh" -o -name "*.yuck" -o -name "*.conf" \) -exec sed -i "s|/home/jose|$USER_HOME|g" {} +
@@ -119,15 +119,21 @@ find "$DOTS_CONF/hypr" "$DOTS_CONF/eww" -type f \( -name "*.sh" -o -name "*.yuck
 # Asegurar que los scripts usen el binario de eww en /usr/local/bin
 find "$DOTS_CONF/hypr" "$DOTS_CONF/eww" -type f \( -name "*.sh" -o -name "*.yuck" \) -exec sed -i "s|$USER_HOME/eww/target/release/eww|eww|g" {} +
 
-# Eliminar menciones a Waybar en hyprland.conf (aunque ya están comentadas, las limpiamos)
-sed -i '/waybar/d' "$DOTS_CONF/hypr/hyprland.conf"
-
 # Ajustar permisos y propiedad
 chown -R "$REAL_USER":"$REAL_USER" "$DOTS_CONF"
 find "$DOTS_CONF" -name "*.sh" -exec chmod +x {} +
 
-# 7. Habilitar servicios
+# 7. Habilitar servicios y pre-configurar sesión
+echo "Configurando SDDM para iniciar Hyprland por defecto..."
 systemctl enable sddm
+
+# Pre-seleccionar Hyprland para el usuario para evitar que tenga que elegirlo manualmente
+mkdir -p /var/lib/sddm
+cat <<EOF > /var/lib/sddm/state.conf
+[Last]
+Session=/usr/share/wayland-sessions/hyprland.desktop
+User=$REAL_USER
+EOF
 
 echo "-------------------------------------------------------"
 echo "¡Instalación completada con éxito!"
