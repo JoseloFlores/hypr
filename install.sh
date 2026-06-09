@@ -60,7 +60,8 @@ if [ ! -f "/usr/bin/tuigreet" ]; then
     TUIGREET_VERSION="0.9.1"
     wget https://github.com/apognu/tuigreet/releases/download/$TUIGREET_VERSION/tuigreet-$TUIGREET_VERSION.tar.gz -O /tmp/tuigreet.tar.gz
     tar -xzf /tmp/tuigreet.tar.gz -C /tmp
-    mv /tmp/tuigreet-$TUIGREET_VERSION/tuigreet /usr/bin/
+    # Intentar mover el binario buscando su ubicación real tras la extracción
+    find /tmp -name tuigreet -type f -exec mv {} /usr/bin/ \;
     chmod +x /usr/bin/tuigreet
     rm -rf /tmp/tuigreet.tar.gz /tmp/tuigreet-$TUIGREET_VERSION
 fi
@@ -84,7 +85,7 @@ if [ ! -f "/usr/local/bin/eww" ]; then
     rm -rf "$EWW_BUILD_DIR"
 fi
 
-# 6. Configuración de Greetd (Login ligero)
+# 7. Configuración de Greetd (Login ligero)
 echo "Configurando Greetd con tuigreet..."
 mkdir -p /etc/greetd
 cat <<EOF > /etc/greetd/config.toml
@@ -92,13 +93,14 @@ cat <<EOF > /etc/greetd/config.toml
 vt = 1
 
 [default_session]
-command = "tuigreet --time --remember --cmd Hyprland"
+command = "/usr/bin/tuigreet --time --remember --cmd /usr/bin/Hyprland"
 user = "_greetd"
 EOF
-# Asegurar que el usuario _greetd pueda acceder al video
+# Asegurar que el usuario _greetd pueda acceder al hardware gráfico
 usermod -aG video _greetd || true
+usermod -aG render _greetd || true
 
-# 7. Despliegue de Configuraciones (Dots)
+# 8. Despliegue de Configuraciones (Dots)
 DOTS_CONF="$USER_HOME/.config"
 mkdir -p "$DOTS_CONF"
 
@@ -126,7 +128,7 @@ if [ ! -d "$DOTS_CONF/eww" ]; then
     sudo -u "$REAL_USER" git clone https://github.com/JoseloFlores/eww "$DOTS_CONF/eww"
 fi
 
-# 8. Ajustes finales de rutas y permisos
+# 9. Ajustes finales de rutas y permisos
 echo "Ajustando rutas y permisos..."
 # Reemplazar la ruta hardcodeada /home/jose por la del usuario actual
 find "$DOTS_CONF/hypr" "$DOTS_CONF/eww" -type f \( -name "*.sh" -o -name "*.yuck" -o -name "*.conf" \) -exec sed -i "s|/home/jose|$USER_HOME|g" {} +
@@ -137,8 +139,9 @@ find "$DOTS_CONF/hypr" "$DOTS_CONF/eww" -type f \( -name "*.sh" -o -name "*.yuck
 chown -R "$REAL_USER":"$REAL_USER" "$DOTS_CONF"
 find "$DOTS_CONF" -name "*.sh" -exec chmod +x {} +
 
-# Habilitar servicios y asegurar arranque en modo gráfico
-systemctl disable sddm || true
+# 10. Habilitar servicios y asegurar arranque en modo gráfico
+echo "Habilitando servicios de arranque..."
+systemctl disable sddm lightdm gdm || true
 systemctl enable greetd
 systemctl set-default graphical.target
 
