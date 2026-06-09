@@ -52,9 +52,20 @@ echo "Instalando Hyprland, Greetd y Hypr-herramientas..."
 apt install -y -t trixie-backports --no-install-recommends \
     hyprland hyprlock hypridle hyprpolkitagent
 
-apt install -y --no-install-recommends greetd tuigreet
+apt install -y --no-install-recommends greetd
 
-# 5. Compilación de Eww (Desde código fuente)
+# 5. Instalación de tuigreet (Manual desde GitHub ya que no está en repos de Debian)
+if [ ! -f "/usr/bin/tuigreet" ]; then
+    echo "Descargando tuigreet desde GitHub..."
+    TUIGREET_VERSION="0.9.1"
+    wget https://github.com/apognu/tuigreet/releases/download/$TUIGREET_VERSION/tuigreet-$TUIGREET_VERSION.tar.gz -O /tmp/tuigreet.tar.gz
+    tar -xzf /tmp/tuigreet.tar.gz -C /tmp
+    mv /tmp/tuigreet-$TUIGREET_VERSION/tuigreet /usr/bin/
+    chmod +x /usr/bin/tuigreet
+    rm -rf /tmp/tuigreet.tar.gz /tmp/tuigreet-$TUIGREET_VERSION
+fi
+
+# 6. Compilación de Eww (Desde código fuente)
 echo "Instalando dependencias de compilación para Eww..."
 apt install -y --no-install-recommends \
     rustc cargo libgtk-3-dev libgtk-layer-shell-dev \
