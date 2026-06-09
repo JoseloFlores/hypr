@@ -1,23 +1,20 @@
 #!/bin/bash
 
 # =============================================================================
-#  Hyprland & Eww Minimal Installer - Debian 13 (Trixie)
+#  Hyprland & Eww Minimal Installer - Debian 13 (Trixie) - VM OPTIMIZED
 # =============================================================================
 
-set -e
+set -eo pipefail
 
-# Configurar logging para ver errores después (en el directorio actual)
+# Configurar logging
 LOG_FILE="install.log"
 exec > >(tee -i "$LOG_FILE") 2>&1
 
-# Comprobación de root
-if [ "$EUID" -ne 0 ]; then 
-  echo "ERROR: Por favor, ejecuta este script con sudo."
-  exit 1
-fi
+echo "--- INICIANDO INSTALACIÓN (Ver log en $LOG_FILE) ---"
 
-if [ -z "$SUDO_USER" ]; then
-  echo "ERROR: No se detectó el usuario real. Ejecuta con 'sudo ./install.sh'."
+# 1. Validaciones Iniciales
+if [ "$EUID" -ne 0 ]; then 
+  echo "ERROR: Ejecuta con sudo: sudo ./install.sh"
   exit 1
 fi
 
@@ -25,44 +22,36 @@ REAL_USER=$SUDO_USER
 USER_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &> /dev/null && pwd)
 
-echo "Iniciando instalación para $REAL_USER en $USER_HOME..."
-echo "Los logs se guardarán en $(pwd)/$LOG_FILE"
+# Comprobar RAM para Eww
+TOTAL_RAM=$(free -m | awk '/^Mem:/{print $2}')
+echo "Memoria RAM detectada: $TOTAL_RAM MB"
+if [ "$TOTAL_RAM" -lt 3500 ]; then
+    echo "ADVERTENCIA: Tienes poca RAM. La compilación de Eww podría fallar o congelar la VM."
+fi
 
-# 1. Configuración de Repositorios (Asegurar Backports para Hyprland)
-echo "--- 1/10 Configurando repositorios ---"
+# 2. Repositorios y Paquetes Base
+echo "1/10 Configurando repositorios y actualizando..."
 BACKPORTS_FILE="/etc/apt/sources.list.d/trixie-backports.list"
 if [ ! -f "$BACKPORTS_FILE" ]; then
     echo "deb http://deb.debian.org/debian trixie-backports main contrib non-free non-free-firmware" | tee "$BACKPORTS_FILE"
 fi
 apt update
 
-# 2. Drivers y Firmware
-echo "--- 2/10 Instalando drivers de video y firmware ---"
+echo "2/10 Instalando dependencias de sistema y video..."
 apt install -y --no-install-recommends \
-    firmware-linux-nonfree \
-    intel-media-va-driver mesa-va-drivers \
-    libgl1-mesa-dri xserver-xorg-video-all \
-    va-driver-all
-
-# 3. Herramientas Base del Sistema
-echo "--- 3/10 Instalando utilidades base ---"
-apt install -y --no-install-recommends \
+    firmware-linux-nonfree mesa-va-drivers libgl1-mesa-dri va-driver-all \
     wget curl bc jq git build-essential pkg-config \
-    network-manager nm-connection-editor \
-    udiskie foot thunar fuzzel playerctl wireplumber brightnessctl \
-    grim slurp swappy pavucontrol blueman firefox-esr \
-    swaybg zenity zsh vim lxappearance libpam0g-dev
+    network-manager nm-connection-editor udiskie foot thunar fuzzel \
+    playerctl wireplumber brightnessctl grim slurp swappy pavucontrol \
+    blueman firefox-esr swaybg zenity zsh vim lxappearance
 
-# 4. Hyprland y Ecosistema (Desde Backports)
-echo "--- 4/10 Instalando Hyprland, Greetd y Hypr-herramientas ---"
+echo "3/10 Instalando Hyprland y Greetd (Backports)..."
 apt install -y -t trixie-backports --no-install-recommends \
-    hyprland hyprlock hypridle hyprpolkitagent
+    hyprland hyprlock hypridle hyprpolkitagent greetd
 
-apt install -y --no-install-recommends greetd
-
-# 5. Instalación de tuigreet
+# 3. Instalación de tuigreet
 if [ ! -f "/usr/bin/tuigreet" ]; then
-    echo "--- 5/10 Descargando tuigreet ---"
+    echo "4/10 Instalando tuigreet..."
     TUIGREET_VERSION="0.9.1"
     wget -q "https://github.com/apognu/tuigreet/releases/download/$TUIGREET_VERSION/tuigreet-$TUIGREET_VERSION.tar.gz" -O /tmp/tuigreet.tar.gz
     mkdir -p /tmp/tuigreet_ext
@@ -72,103 +61,102 @@ if [ ! -f "/usr/bin/tuigreet" ]; then
     rm -rf /tmp/tuigreet.tar.gz /tmp/tuigreet_ext
 fi
 
-# 6. Compilación de Eww
-echo "--- 6/10 Instalando dependencias de compilación para Eww ---"
+# 4. Compilación de Eww
+echo "5/10 Preparando compilación de Eww..."
 apt install -y --no-install-recommends \
     rustc cargo libgtk-3-dev libgtk-layer-shell-dev \
     libpangocairo-1.0-0 libcairo-gobject2 libglib2.0-dev libgdk-pixbuf2.0-dev \
-    libpango1.0-dev libdbus-1-dev libssl-dev
+    libpango1.0-dev libdbus-1-dev libssl-dev libcairo2-dev
 
 if [ ! -f "/usr/local/bin/eww" ]; then
-    echo "Clonando y compilando Eww (esto puede tardar unos minutos)..."
+    echo "Clonando y compilando Eww (esto toma tiempo)..."
     EWW_BUILD_DIR="/tmp/eww_build"
     rm -rf "$EWW_BUILD_DIR"
     sudo -u "$REAL_USER" git clone https://github.com/elkowar/eww "$EWW_BUILD_DIR"
     cd "$EWW_BUILD_DIR"
-    # Compilamos con soporte para Wayland
-    if ! sudo -u "$REAL_USER" cargo build --release --no-default-features --features wayland; then
-        echo "ERROR: Falló la compilación de Eww. Revisa el log."
+    # Usar solo 1 hilo si hay poca RAM para evitar crashes
+    JOBS_FLAG=""
+    [ "$TOTAL_RAM" -lt 4000 ] && JOBS_FLAG="-j 1"
+    
+    if ! sudo -u "$REAL_USER" cargo build --release --no-default-features --features wayland $JOBS_FLAG; then
+        echo "ERROR: Falló la compilación de Eww. Probablemente falta de RAM."
     else
         cp target/release/eww /usr/local/bin/
     fi
     cd "$SCRIPT_DIR"
-    rm -rf "$EWW_BUILD_DIR"
 fi
 
-# 7. Configuración de Greetd (Login ligero con soporte VM)
-echo "--- 7/10 Configurando Greetd ---"
+# 5. Configuración de Greetd y Hyprland para VM
+echo "6/10 Configurando Greetd (VM Friendly)..."
 mkdir -p /etc/greetd
-# Forzamos WLR_NO_HARDWARE_CURSORS para compatibilidad con VMs y algunos drivers
+# Forzamos renderizado por software y ocultamos cursor de hardware para VMs
 cat <<EOF > /etc/greetd/config.toml
 [terminal]
 vt = 1
 
 [default_session]
-command = "env WLR_NO_HARDWARE_CURSORS=1 /usr/bin/tuigreet --time --remember --cmd /usr/bin/Hyprland"
+command = "env WLR_NO_HARDWARE_CURSORS=1 WLR_RENDERER_ALLOW_SOFTWARE=1 /usr/bin/tuigreet --time --remember --cmd /usr/bin/Hyprland"
 user = "_greetd"
 EOF
-usermod -aG video _greetd || true
-usermod -aG render _greetd || true
+usermod -aG video,render _greetd || true
 
-# 8. Despliegue de Configuraciones (Dots)
+# 6. Despliegue de Configuraciones (Dots)
 DOTS_CONF="$USER_HOME/.config"
+echo "7/10 Desplegando configuraciones en $DOTS_CONF..."
 sudo -u "$REAL_USER" mkdir -p "$DOTS_CONF"
 
-echo "--- 8/10 Desplegando configuraciones locales ---"
-# Lista de carpetas a intentar copiar
 CONFIGS=("hypr" "foot" "fuzzel")
-
 for item in "${CONFIGS[@]}"; do
     TARGET="$DOTS_CONF/$item"
     if [ ! -d "$TARGET" ]; then
-        if [ -d "$SCRIPT_DIR/$item" ]; then
-            echo "Copiando $item desde $SCRIPT_DIR..."
-            cp -r "$SCRIPT_DIR/$item" "$DOTS_CONF/"
-        elif [ -d "$SCRIPT_DIR/../$item" ]; then
-            echo "Copiando $item desde nivel superior..."
-            cp -r "$SCRIPT_DIR/../$item" "$DOTS_CONF/"
-        elif [ "$(basename "$SCRIPT_DIR")" == "$item" ]; then
-            echo "Desplegando $item desde el directorio actual..."
-            mkdir -p "$TARGET"
-            cp -r "$SCRIPT_DIR"/* "$TARGET/"
+        # Buscar la carpeta en varios niveles por si acaso
+        SRC=""
+        [ -d "$SCRIPT_DIR/$item" ] && SRC="$SCRIPT_DIR/$item"
+        [ -d "$SCRIPT_DIR/../$item" ] && SRC="$SCRIPT_DIR/../$item"
+        [ "$(basename "$SCRIPT_DIR")" == "$item" ] && SRC="$SCRIPT_DIR"
+
+        if [ -n "$SRC" ]; then
+            echo "Copiando $item desde $SRC..."
+            if [ "$SRC" == "$SCRIPT_DIR" ]; then
+                mkdir -p "$TARGET"
+                cp -r "$SRC"/* "$TARGET/"
+            else
+                cp -r "$SRC" "$DOTS_CONF/"
+            fi
         else
-            echo "ADVERTENCIA: No se encontró la carpeta de configuración para $item"
+            echo "ADVERTENCIA: No se encontró la carpeta $item"
         fi
     fi
 done
 
-# Configuración de Eww personalizada de JoseloFlores
+# Eww config personalizada
 if [ ! -d "$DOTS_CONF/eww" ]; then
-    echo "Descargando configuración de Eww personalizada..."
-    if ! sudo -u "$REAL_USER" git clone https://github.com/JoseloFlores/eww "$DOTS_CONF/eww"; then
-        echo "ERROR: No se pudo clonar el repo de Eww."
-    fi
+    echo "Clonando configuración de Eww..."
+    sudo -u "$REAL_USER" git clone https://github.com/JoseloFlores/eww "$DOTS_CONF/eww" || true
 fi
 
-# 9. Ajustes finales de rutas y permisos
-echo "--- 9/10 Ajustando rutas y permisos ---"
-# Corregir rutas hardcodeadas en los archivos desplegados
-if [ -d "$DOTS_CONF/hypr" ]; then
-    find "$DOTS_CONF/hypr" -type f \( -name "*.sh" -o -name "*.yuck" -o -name "*.conf" \) -exec sed -i "s|/home/jose|$USER_HOME|g" {} +
-fi
-if [ -d "$DOTS_CONF/eww" ]; then
-    find "$DOTS_CONF/eww" -type f \( -name "*.sh" -o -name "*.yuck" -o -name "*.conf" \) -exec sed -i "s|/home/jose|$USER_HOME|g" {} +
-    # Corregir la ruta de eww en los scripts para usar el binario global
-    find "$DOTS_CONF/hypr" "$DOTS_CONF/eww" -type f \( -name "*.sh" -o -name "*.yuck" \) -exec sed -i "s|$USER_HOME/eww/target/release/eww|eww|g" {} +
-fi
+# 7. Permisos y Rutas
+echo "8/10 Finalizando permisos y rutas..."
+find "$DOTS_CONF" -type f \( -name "*.sh" -o -name "*.yuck" -o -name "*.conf" \) -exec sed -i "s|/home/jose|$USER_HOME|g" {} + 2>/dev/null || true
+# Asegurar que use el eww global
+find "$DOTS_CONF" -type f \( -name "*.sh" -o -name "*.yuck" \) -exec sed -i "s|$USER_HOME/eww/target/release/eww|eww|g" {} + 2>/dev/null || true
 
-# Asegurar que el usuario sea dueño de su home y los scripts sean ejecutables
 chown -R "$REAL_USER":"$REAL_USER" "$USER_HOME"
 find "$DOTS_CONF" -name "*.sh" -exec chmod +x {} +
 
-# 10. Habilitar servicios
-echo "--- 10/10 Habilitando servicios de arranque ---"
-systemctl disable sddm lightdm gdm || true
+# 8. Servicios
+echo "9/10 Habilitando servicios..."
+systemctl disable sddm lightdm gdm getty@tty1.service || true
+systemctl mask getty@tty1.service || true # Evitar que la TTY robe el foco a greetd
 systemctl enable greetd
 systemctl set-default graphical.target
 
+echo "--- 10/10 DIAGNÓSTICO FINAL ---"
+systemctl is-enabled greetd
+ls -l /usr/bin/tuigreet /usr/bin/Hyprland
+
 echo "-------------------------------------------------------"
-echo "¡Instalación completada!"
-echo "IMPORTANTE: Reinicia el sistema para iniciar Hyprland."
-echo "Si algo falla, revisa el archivo: $(pwd)/$LOG_FILE"
+echo "¡INSTALACIÓN COMPLETADA!"
+echo "REINICIA AHORA: 'sudo reboot'"
+echo "Si ves una pantalla negra, pulsa Ctrl+Alt+F2 para ver logs."
 echo "-------------------------------------------------------"
