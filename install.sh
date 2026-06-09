@@ -90,15 +90,25 @@ fi
 echo "6/10 Configurando Greetd (VM Friendly)..."
 mkdir -p /etc/greetd
 # Forzamos renderizado por software y ocultamos cursor de hardware para VMs
+# Usamos un script envoltorio para Hyprland con dbus-run-session
 cat <<EOF > /etc/greetd/config.toml
 [terminal]
 vt = 1
 
 [default_session]
-command = "env WLR_NO_HARDWARE_CURSORS=1 WLR_RENDERER_ALLOW_SOFTWARE=1 /usr/bin/tuigreet --time --remember --cmd /usr/bin/Hyprland"
+command = "env WLR_NO_HARDWARE_CURSORS=1 WLR_RENDERER_ALLOW_SOFTWARE=1 /usr/bin/tuigreet --time --remember --cmd 'dbus-run-session Hyprland'"
 user = "_greetd"
 EOF
 usermod -aG video,render _greetd || true
+
+# Crear un override para systemd de greetd para asegurar que espera a los servicios de video
+mkdir -p /etc/systemd/system/greetd.service.d/
+cat <<EOF > /etc/systemd/system/greetd.service.d/override.conf
+[Service]
+Restart=always
+RestartSec=5
+EOF
+systemctl daemon-reload
 
 # 6. Despliegue de Configuraciones (Dots)
 DOTS_CONF="$USER_HOME/.config"
