@@ -31,7 +31,14 @@ if [ ! -f "$BACKPORTS_FILE" ]; then
 fi
 
 # Asegurar componentes contrib y non-free en el sources principal
-sed -i 's/main$/main contrib non-free non-free-firmware/g' /etc/apt/sources.list 2>/dev/null || true
+echo "Configurando componentes contrib, non-free y non-free-firmware..."
+sed -i 's/\bmain\b/main contrib non-free non-free-firmware/g' /etc/apt/sources.list
+
+# Limpieza de duplicados de forma segura
+for comp in contrib non-free non-free-firmware; do
+    sed -i "s/\b$comp $comp\($\| \)/$comp /g" /etc/apt/sources.list
+done
+
 apt update
 
 # 3. Detección de Hardware y Drivers
@@ -56,9 +63,13 @@ elif lspci | grep -iq "amd"; then
     echo "-> GPU AMD detectada. Instalando drivers mesa..."
     apt install -y mesa-va-drivers mesa-vdpau-drivers libgl1-mesa-dri va-driver-all
     GPU_TYPE="amd"
-else
-    echo "-> Usando drivers Intel/Genéricos..."
+elif lspci | grep -iq "intel"; then
+    echo "-> GPU Intel detectada. Instalando drivers intel..."
     apt install -y intel-media-va-driver-non-free libgl1-mesa-dri va-driver-all
+    GPU_TYPE="intel"
+else
+    echo "-> Usando drivers genéricos (Posible VM)..."
+    apt install -y libgl1-mesa-dri va-driver-all
 fi
 
 # 4. Instalación de Paquetes Base
