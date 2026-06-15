@@ -92,7 +92,7 @@ fi
 # 6. Compilación de Eww (Optimizada)
 echo "5/10 Preparando Eww..."
 # Corregido typo de libgdk-pixbuf-2.0-dev y añadidas dependencias dbusmenu
-apt-get install -y --no-install-recommends \
+apt-get install -y -t trixie-backports --no-install-recommends \
     rustc cargo libgtk-3-dev libgtk-layer-shell-dev \
     libpangocairo-1.0-0 libcairo-gobject2 libglib2.0-dev libgdk-pixbuf-2.0-dev \
     libpango1.0-dev libdbus-1-dev libssl-dev libcairo2-dev \
