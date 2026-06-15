@@ -21,7 +21,6 @@ Este repositorio contiene una configuración (dotfiles) completa y automatizada 
 2. **Git:** Para clonar el repositorio.
 3. **Fuente Nerd Font:** Se requiere una fuente parcheada (ej. Meslo, JetBrainsMono) para ver los iconos correctamente.
 4. **Usuario:** Debes tener permisos de `sudo`.
-5. **Internet:** Conexión activa para descargar paquetes y compilar herramientas.
 
 ---
 
@@ -45,10 +44,10 @@ sudo ./install.sh
 ```
 
 **¿Qué hace este script por ti?**
-- ✅ **Repositorios:** Habilita *Backports* y añade los repositorios oficiales de **Google Chrome** y **Spotify**.
-- ✅ **Drivers:** Instala drivers de video Intel y soporte de aceleración gráfica.
+- ✅ **Repositorios:** Habilita *Backports* y añade los repositorios oficiales de Hyprland, Rust y Cargo para compilar la barra de eww
+- ✅ **Drivers:** Detecta si tienes procesador Intel , AMD y/ Tarjetas NVIDIA y descarga los drivers de video de soporte de aceleración gráfica.
 - ✅ **Compilación:** Descarga y compila **Eww** (la barra de estado) desde su código fuente original.
-- ✅ **Personalización:** Descarga automáticamente el tema de la barra desde el repo de JoseloFlores.
+- ✅ **Personalización:** Descarga automáticamente el tema de la barra desde el repo de JoseloFlores/eww.
 - ✅ **Portabilidad:** Ajusta todas las rutas internas para que funcionen con TU nombre de usuario.
 - ✅ **Apps:** Instala herramientas esenciales (Foot, Thunar, Fuzzel, Swaybg, etc.).
 
@@ -70,7 +69,7 @@ Una vez reinicies y entres en Hyprland, estos son los comandos que necesitas con
 | `Super + 1-9` | Cambiar de escritorio |
 | `Print` | Captura de pantalla (Seleccionar área) |
 
-*(La tecla `Super` suele ser la tecla Windows )*
+*(La tecla `Super` suele ser la tecla Windows , puedes modificarla a otra como `Alt`)*
 
 ---
 
@@ -97,6 +96,7 @@ Este entorno utiliza un sistema de **Sincronización de Colores**:
 - **Primer Inicio:** Si al entrar no ves la barra, presiona `Super + Shift + B` para forzar su inicio inicial.
 - **Audio/Bluetooth:** Puedes gestionarlos directamente desde los iconos de la barra haciendo clic en ellos.
 - **VPN:** El icono de la barra está configurado para mostrarse solo cuando una VPN manual está activa (ignora servicios como Tailscale para evitar desorden).
+- Con esto tiene una base funcional para que no empieces de cero a tener  un sistema funcional el cual puedes modificar a tus nnecesidades
 
 ---
 *Desarrollado con ❤️ para la comunidad de Debian.*
