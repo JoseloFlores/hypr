@@ -44,12 +44,14 @@ sudo ./install.sh
 ```
 
 **¿Qué hace este script por ti?**
-- ✅ **Repositorios:** Habilita *Backports* y añade los repositorios oficiales de Hyprland, Rust y Cargo para compilar la barra de eww
-- ✅ **Drivers:** Detecta si tienes procesador Intel , AMD y/ Tarjetas NVIDIA y descarga los drivers de video de soporte de aceleración gráfica.
-- ✅ **Compilación:** Descarga y compila **Eww** (la barra de estado) desde su código fuente original.
-- ✅ **Personalización:** Descarga automáticamente el tema de la barra desde el repo de JoseloFlores/eww.
-- ✅ **Portabilidad:** Ajusta todas las rutas internas para que funcionen con TU nombre de usuario.
-- ✅ **Apps:** Instala herramientas esenciales (Foot, Thunar, Fuzzel, Swaybg, etc.).
+- ✅ **Repositorios:** Habilita *Backports* (`trixie-backports`) con `contrib non-free non-free-firmware` sin tocar tus repos extra (brave/chrome/spotify/tailscale/vscode)
+- ✅ **Drivers:** Detecta CPU Intel/AMD y GPU NVIDIA/AMD/Intel e instala microcode + mesa/nvidia + `firmware-linux-nonfree` y VAAPI
+- ✅ **Comforts GNOME sin Mutter:** `nautilus` + `gvfs/udisks2/udiskie` (automontaje), `pavucontrol`+`pipewire`, `blueman`+`bluez`, `sway-notification-center`+`gnome-calendar`, `hyprpolkitagent`+`gnome-keyring` (PAM auto-unlock), `wl-clipboard`+`cliphist`
+- ✅ **Fuentes:** `fonts-jetbrains-mono` (apt) + `Meslo Nerd Font` + `Symbols Nerd` (descarga directa a `~/.local/share/fonts`)
+- ✅ **Hyprland:** `hyprland/hyprlock/hypridle/hyprpolkitagent/greetd+tuigreet` desde backports + `xdg-desktop-portal-hyprland` + override `greetd`
+- ✅ **Compilación:** Compila **Eww** (`cargo --features wayland`) e instala en `/usr/local/bin/eww` y clona tema `JoseloFlores/eww` a `~/.config/eww`
+- ✅ **Portabilidad:** Parchea rutas `/home/jose` → `$USER`, corrige `eww_start.sh` a `/usr/local/bin/eww`, usa `start-hyprland` wrapper Debian 13
+- ✅ **Servicios:** `greetd`+`bluetooth` enable, `gdm/sddm/lightdm` disable, `graphical.target`
 
 ---
 
@@ -60,9 +62,9 @@ Una vez reinicies y entres en Hyprland, estos son los comandos que necesitas con
 | Atajo | Acción |
 | :--- | :--- |
 | `Super + Enter` | Abrir Terminal (**Foot**) |
-| `Super + C` | Abrir Navegador (**Google Chrome**) |
+| `Super + C` | Abrir Navegador (**Firefox ESR**, instala Chrome manual si quieres) |
 | `Super + D` | Lanzador de aplicaciones (**Fuzzel**) |
-| `Super + X` | Explorador de Archivos (**Thunar**) |
+| `Super + X` | Explorador de Archivos (**Nautilus**) |
 | `Super + Q` | Cerrar ventana activa |
 | `Super + L` | Menú de Energía (Apagar/Reiniciar) |
 | `Super + Shift + B` | Reiniciar barra Eww y sincronizar colores |
@@ -94,9 +96,11 @@ Este entorno utiliza un sistema de **Sincronización de Colores**:
 ## ⚠️ Notas Importantes
 
 - **Primer Inicio:** Si al entrar no ves la barra, presiona `Super + Shift + B` para forzar su inicio inicial.
-- **Audio/Bluetooth:** Puedes gestionarlos directamente desde los iconos de la barra haciendo clic en ellos.
-- **VPN:** El icono de la barra está configurado para mostrarse solo cuando una VPN manual está activa (ignora servicios como Tailscale para evitar desorden).
-- Con esto tiene una base funcional para que no empieces de cero a tener  un sistema funcional el cual puedes modificar a tus nnecesidades
+- **Audio/Bluetooth:** Gestiona con `pavucontrol`, `blueman-applet` y teclas `XF86Audio*`/`brightnessctl`; también desde iconos de `eww`.
+- **Notificaciones/Calendario:** `swaync` (config `~/.config/swaync/config.json` con widget `calendar`) + `gnome-calendar` flotante. Click reloj eww → `swaync-client -t`.
+- **VPN:** Icono eww (`eww_network.sh`) muestra VPN manual activa (ignora Tailscale).
+- **Mutter:** No se instala `gnome-shell`/`mutter` a propósito para no romper `blur`/`rounding`/`opacity` de Hyprland (`hyprland.conf:130`).
+- Con esto tienes base funcional sin empezar de cero, modificable a tus necesidades.
 
 ---
 *Desarrollado con ❤️ para la comunidad de Debian.*

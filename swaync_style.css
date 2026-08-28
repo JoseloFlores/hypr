@@ -1,0 +1,48 @@
+/* swaync — estilo mínimo oscuro, compatible con tema eww/foot */
+@define-color bg #1e1e2e;
+@define-color fg #cdd6f4;
+@define-color accent #7aa2f7;
+@define-color border #313244;
+
+* {
+  font-family: "JetBrainsMono Nerd Font", "MesloLGS Nerd Font", monospace;
+  font-size: 12px;
+}
+
+.notification-row {
+  margin: 6px;
+  outline: none;
+}
+
+.notification {
+  background: @bg;
+  border: 1px solid @border;
+  border-radius: 12px;
+  padding: 8px;
+  color: @fg;
+}
+
+.control-center {
+  background: alpha(@bg, 0.95);
+  border: 1px solid @border;
+  border-radius: 12px;
+  padding: 12px;
+}
+
+.widget-title {
+  color: @fg;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+.widget-dnd {
+  margin: 8px 0;
+}
+
+.calendar {
+  background: @bg;
+  border: 1px solid @border;
+  border-radius: 8px;
+  padding: 8px;
+  color: @fg;
+}
