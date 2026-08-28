@@ -33,14 +33,25 @@ if [ "$EUID" -ne 0 ]; then
     echo "ERROR: Ejecuta con sudo: sudo ./install.sh" >&2
     exit 1
 fi
-if [ -z "${SUDO_USER:-}" ]; then
-    echo "ERROR: SUDO_USER vacío. Ejecuta con sudo, no como root directo." >&2
-    exit 1
+# Detección portable de usuario real: SUDO_USER > DOAS_USER > logname/USER/whoami
+if [ -n "${SUDO_USER:-}" ]; then
+    REAL_USER="$SUDO_USER"
+elif [ -n "${DOAS_USER:-}" ]; then
+    REAL_USER="$DOAS_USER"
+else
+    REAL_USER="$(logname 2>/dev/null || echo "${USER:-$(whoami)}")"
 fi
-REAL_USER=$SUDO_USER
-USER_HOME=$(getent passwd "$REAL_USER" | cut -d: -f6)
+# Si por algún motivo REAL_USER es root, intentar inferir usuario invocador
+if [ "$REAL_USER" = "root" ] && [ -n "${SUDO_USER:-}" ]; then
+    REAL_USER="$SUDO_USER"
+fi
+USER_HOME="$(getent passwd "$REAL_USER" | cut -d: -f6)"
+if [ -z "$USER_HOME" ] || [ ! -d "$USER_HOME" ]; then
+    # Fallback: expandir ~usuario (funciona aunque getent falle)
+    USER_HOME="$(eval echo ~"$REAL_USER")"
+fi
 if [ ! -d "$USER_HOME" ]; then
-    echo "ERROR: No se encontró HOME para $REAL_USER" >&2
+    echo "ERROR: No se encontró HOME para $REAL_USER (USER_HOME=$USER_HOME)" >&2
     exit 1
 fi
 SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
@@ -395,16 +406,13 @@ fi
 echo ""
 echo "9/10 Finalizando permisos, rutas y PAM..."
 
-# Compatibilidad: symlink legacy /home/jose/eww/target/release/eww
-mkdir -p "$USER_HOME/eww/target/release"
-ln -sf /usr/local/bin/eww "$USER_HOME/eww/target/release/eww"
-chown -R "$REAL_USER":"$REAL_USER" "$USER_HOME/eww" 2>/dev/null || true
-
-# Corregir hardcode /home/jose residual en configs desplegadas (por si el tema eww lo trae)
-find "$DOTS_CONF" -type f \( -name "*.sh" -o -name "*.yuck" -o -name "*.conf" -o -name "*.scss" \) \
-    -exec sed -i "s|/home/jose|$USER_HOME|g" {} + 2>/dev/null || true
-# Asegurar eww usa /usr/local/bin/eww y no ruta legacy
-sed -i "s|/home/[^/]*/eww/target/release/eww|/usr/local/bin/eww|g" "$HYPR_DIR/eww_start.sh" "$HYPR_DIR/eww_restart.sh" 2>/dev/null || true
+# Sanitizar hardcodes del tema eww (clon fresco de JoseloFlores/eww) y dots desplegados
+# Cubre casos verificados: /home/jose/.config/hypr/eww_network.sh, /home/jose/eww/target/release/eww, /home/jose/.config/eww/scripts/*
+# Reemplaza cualquier /home/<usuario>/eww/target/release/eww -> /usr/local/bin/eww y cualquier /home/<usuario> -> $USER_HOME
+find "$DOTS_CONF/eww" "$HYPR_DIR" "$DOTS_CONF/swaync" -type f \( -name "*.sh" -o -name "*.yuck" -o -name "*.conf" -o -name "*.scss" -o -name "*.css" -o -name "*.ini" -o -name "*.md" \) \
+    -exec sed -i -E "s|/home/[^/]+/eww/target/release/eww|/usr/local/bin/eww|g; s|/home/[^/]+|$USER_HOME|g" {} + 2>/dev/null || true
+# Asegurar wrappers hypr usan binario correcto (idempotente, por si find no cubrió)
+sed -i -E "s|/home/[^/]+/eww/target/release/eww|/usr/local/bin/eww|g" "$HYPR_DIR"/eww_*.sh 2>/dev/null || true
 # Normalizar permisos
 chown -R "$REAL_USER":"$REAL_USER" "$DOTS_CONF"
 find "$DOTS_CONF" -name "*.sh" -exec chmod +x {} + 2>/dev/null || true
