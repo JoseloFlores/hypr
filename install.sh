@@ -339,12 +339,14 @@ if [ -f "$SCRIPT_DIR/fuzzel.ini" ]; then
     sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/fuzzel.ini" "$DOTS_CONF/fuzzel/fuzzel.ini"
 fi
 
-# Eww config: clonar tema de JoseloFlores/eww (barras)
+# Eww config: clonar/actualizar tema de JoseloFlores/eww (barras)
 if [ ! -d "$DOTS_CONF/eww" ]; then
     echo "-> Clonando tema Eww (JoseloFlores/eww)..."
     sudo -u "$REAL_USER" env HOME="$USER_HOME" git clone --depth 1 https://github.com/JoseloFlores/eww "$DOTS_CONF/eww" || echo "WARN: No se pudo clonar eww theme"
 else
-    echo "-> ~/.config/eww ya existe, se omite clonado"
+    echo "-> ~/.config/eww ya existe, actualizando y re-sanitizando..."
+    # Intentar pull rápido (no falla si hay cambios locales)
+    sudo -u "$REAL_USER" env HOME="$USER_HOME" git -C "$DOTS_CONF/eww" pull --ff-only 2>/dev/null || echo "   (pull omitido: cambios locales o sin red, se re-sanitiza igual)"
 fi
 
 # SwayNC: desplegar config con calendario + integración eww
@@ -409,10 +411,22 @@ echo "9/10 Finalizando permisos, rutas y PAM..."
 # Sanitizar hardcodes del tema eww (clon fresco de JoseloFlores/eww) y dots desplegados
 # Cubre casos verificados: /home/jose/.config/hypr/eww_network.sh, /home/jose/eww/target/release/eww, /home/jose/.config/eww/scripts/*
 # Reemplaza cualquier /home/<usuario>/eww/target/release/eww -> /usr/local/bin/eww y cualquier /home/<usuario> -> $USER_HOME
-find "$DOTS_CONF/eww" "$HYPR_DIR" "$DOTS_CONF/swaync" -type f \( -name "*.sh" -o -name "*.yuck" -o -name "*.conf" -o -name "*.scss" -o -name "*.css" -o -name "*.ini" -o -name "*.md" \) \
+# Se usa -type f sin filtro restrictivo para no dejar fuera nuevos tipos (json, js, toml, etc.)
+if [ -d "$DOTS_CONF/eww" ]; then
+    find "$DOTS_CONF/eww" -type f -exec sed -i -E "s|/home/[^/]+/eww/target/release/eww|/usr/local/bin/eww|g; s|/home/[^/]+|$USER_HOME|g" {} + 2>/dev/null || true
+fi
+find "$HYPR_DIR" "$DOTS_CONF/swaync" -type f \( -name "*.sh" -o -name "*.yuck" -o -name "*.conf" -o -name "*.scss" -o -name "*.css" -o -name "*.ini" -o -name "*.md" -o -name "*.json" \) \
     -exec sed -i -E "s|/home/[^/]+/eww/target/release/eww|/usr/local/bin/eww|g; s|/home/[^/]+|$USER_HOME|g" {} + 2>/dev/null || true
 # Asegurar wrappers hypr usan binario correcto (idempotente, por si find no cubrió)
 sed -i -E "s|/home/[^/]+/eww/target/release/eww|/usr/local/bin/eww|g" "$HYPR_DIR"/eww_*.sh 2>/dev/null || true
+# Validación final: detectar hardcode residual de OTRO usuario (ignora $USER_HOME correcto)
+if grep -r "/home/" "$DOTS_CONF/eww" "$HYPR_DIR" 2>/dev/null | grep -v -F "$USER_HOME" | grep -q "/home/"; then
+    echo "ADVERTENCIA: Quedan rutas /home/ de otro usuario tras sanitización (revisar):"
+    grep -rn "/home/" "$DOTS_CONF/eww" "$HYPR_DIR" 2>/dev/null | grep -v -F "$USER_HOME" | head -n 20
+    echo "   -> Se intentó reemplazar por $USER_HOME / /usr/local/bin/eww; revisa manualmente si persiste."
+else
+    echo "-> Sanitización /home/ OK (sin hardcodes de otro usuario)"
+fi
 # Normalizar permisos
 chown -R "$REAL_USER":"$REAL_USER" "$DOTS_CONF"
 find "$DOTS_CONF" -name "*.sh" -exec chmod +x {} + 2>/dev/null || true
