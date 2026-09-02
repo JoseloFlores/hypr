@@ -66,8 +66,14 @@ bright6=$CYAN
 bright7=$FG
 EOF
 
-# 4. Sincronizar Fuzzel
+# 4. Sincronizar Fuzzel (idempotente, crea keys si faltan)
 if [ -f "$FUZZEL_CONFIG" ]; then
+    # Asegurar que existen las keys (por si el ini es plantilla mínima)
+    for key in background text match selection selection-text selection-match border; do
+        if ! grep -q "^${key}=" "$FUZZEL_CONFIG"; then
+            echo "${key}=000000ff" >> "$FUZZEL_CONFIG"
+        fi
+    done
     sed -i "s/^background=.*/background=${BG}ff/" "$FUZZEL_CONFIG"
     sed -i "s/^text=.*/text=${FG}ff/" "$FUZZEL_CONFIG"
     sed -i "s/^match=.*/match=${BLUE}ff/" "$FUZZEL_CONFIG"
@@ -76,6 +82,16 @@ if [ -f "$FUZZEL_CONFIG" ]; then
     sed -i "s/^selection-match=.*/selection-match=${FG}ff/" "$FUZZEL_CONFIG"
     sed -i "s/^border=.*/border=${BLUE}ff/" "$FUZZEL_CONFIG"
     echo "Fuzzel sincronizado."
+    # Recargar eww si corre (Fase2: refresco de temas lxappearance->nwg-look + foot)
+    if pgrep -x eww &>/dev/null && [ -x /usr/local/bin/eww ]; then
+        /usr/local/bin/eww reload 2>/dev/null || true
+    fi
+fi
+
+# 5. Propagar a gsettings si existe (para que nwg-look/lxappearance no rompa eww en Wayland)
+if command -v gsettings &>/dev/null && [ -n "${XDG_RUNTIME_DIR:-}" ]; then
+    # No forzar, solo sugerir: el usuario debe usar nwg-look en Wayland
+    echo "Tip Wayland: usa 'nwg-look' en vez de lxappearance para temas GTK sin romper eww (Wayland native)"
 fi
 
 echo "Sincronización completada con éxito."

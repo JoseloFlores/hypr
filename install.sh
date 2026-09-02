@@ -141,8 +141,9 @@ echo "3/10 Instalando herramientas base + comforts GNOME..."
 
 # Nota: --no-install-recommends para evitar arrastrar gnome-shell/mutter
 # Se excluye thunar (usuario eligió solo nautilus)
+# Fase 1: +socat (workspaces eww), +xdg-user-dirs/utils, +nwg-look (wayland reemplazo lxappearance), +light (fallback brillo)
 apt-get install -y --no-install-recommends \
-    wget curl bc jq git build-essential pkg-config unzip \
+    wget curl bc jq socat git build-essential pkg-config unzip \
     network-manager nm-connection-editor \
     gvfs gvfs-backends gvfs-fuse gvfs-daemons udisks2 udiskie \
     nautilus gnome-sushi file-roller \
@@ -150,13 +151,20 @@ apt-get install -y --no-install-recommends \
     pavucontrol \
     bluez blueman \
     sway-notification-center gnome-calendar \
-    wl-clipboard cliphist brightnessctl playerctl \
+    wl-clipboard cliphist brightnessctl light playerctl \
     foot fuzzel swaybg grim slurp swappy wf-recorder \
-    xdg-desktop-portal xdg-desktop-portal-gtk \
-    zsh vim firefox-esr zenity lxappearance \
+    xdg-desktop-portal xdg-desktop-portal-gtk xdg-user-dirs xdg-utils \
+    zsh vim firefox-esr zenity lxappearance nwg-look \
     fonts-jetbrains-mono fonts-noto-color-emoji \
     gnome-keyring libpam-gnome-keyring seahorse \
+    gnome-settings-daemon \
+    libgtk-layer-shell0 \
     polkitd
+
+# Asegurar xdg-user-dirs inicializado (Crea ~/Pictures, ~/Videos etc portable)
+if command -v xdg-user-dirs-update &>/dev/null; then
+    sudo -u "$REAL_USER" env HOME="$USER_HOME" xdg-user-dirs-update || true
+fi
 
 # xdg-desktop-portal-hyprland viene de backports
 apt-get install -y -t trixie-backports --no-install-recommends \
@@ -267,10 +275,32 @@ mkdir -p /etc/greetd
 mkdir -p /var/cache/tuigreet
 chown -R _greetd:_greetd /var/cache/tuigreet || chown -R _greetd:greetd /var/cache/tuigreet || true
 
-ENV_VARS="start-hyprland"
-if [ "$GPU_TYPE" = "nvidia" ]; then
-    ENV_VARS="env LIBVA_DRIVER_NAME=nvidia GBM_BACKEND=nvidia-drm __GLX_VENDOR_LIBRARY_NAME=nvidia WLR_NO_HARDWARE_CURSORS=1 start-hyprland"
+# --- 7b. Udev brillo: permitir a grupo video escribir sin sudo (fix scroll post-instalación) ---
+cat > /etc/udev/rules.d/90-backlight.rules <<'UDEV'
+ACTION=="add", SUBSYSTEM=="backlight", RUN+="/bin/chgrp video /sys/class/backlight/%k/brightness"
+ACTION=="add", SUBSYSTEM=="backlight", RUN+="/bin/chmod g+w /sys/class/backlight/%k/brightness"
+UDEV
+cat > /etc/udev/rules.d/90-brightnessctl.rules <<'UDEV2'
+ACTION=="add", SUBSYSTEM=="leds", RUN+="/bin/chgrp video /sys/class/leds/%k/brightness"
+ACTION=="add", SUBSYSTEM=="leds", RUN+="/bin/chmod g+w /sys/class/leds/%k/brightness"
+UDEV2
+udevadm control --reload-rules 2>/dev/null || true
+udevadm trigger --subsystem-match=backlight 2>/dev/null || true
+
+# Wrapper Hyprland portable: Debian backports provee /usr/bin/Hyprland, algunos wrappers usan start-hyprland
+HYPR_CMD="Hyprland"
+if command -v start-hyprland &>/dev/null; then
+    HYPR_CMD="start-hyprland"
+elif [ -x /usr/bin/start-hyprland ]; then
+    HYPR_CMD="start-hyprland"
+elif command -v Hyprland &>/dev/null; then
+    HYPR_CMD="Hyprland"
 fi
+ENV_VARS="$HYPR_CMD"
+if [ "$GPU_TYPE" = "nvidia" ]; then
+    ENV_VARS="env LIBVA_DRIVER_NAME=nvidia GBM_BACKEND=nvidia-drm __GLX_VENDOR_LIBRARY_NAME=nvidia WLR_NO_HARDWARE_CURSORS=1 $HYPR_CMD"
+fi
+echo "-> Hyprland wrapper detectado: $HYPR_CMD (GPU=$GPU_TYPE -> ENV_VARS=$ENV_VARS)"
 
 cat > /etc/greetd/config.toml <<EOF
 [terminal]
@@ -284,6 +314,10 @@ EOF
 usermod -aG video,render _greetd || true
 # Asegurar grupos del usuario real para video/render/input
 usermod -aG video,render,input "$REAL_USER" || true
+# Aplicar grupo video inmediatamente si posible (para brightnessctl sin relogin en VMs)
+if id "$REAL_USER" 2>/dev/null | grep -qv "video"; then
+    echo "-> Usuario $REAL_USER añadido a video/render/input (requiere relogin para aplicar)"
+fi
 
 mkdir -p /etc/systemd/system/greetd.service.d/
 cat > /etc/systemd/system/greetd.service.d/override.conf <<EOF
@@ -347,6 +381,37 @@ else
     echo "-> ~/.config/eww ya existe, actualizando y re-sanitizando..."
     # Intentar pull rápido (no falla si hay cambios locales)
     sudo -u "$REAL_USER" env HOME="$USER_HOME" git -C "$DOTS_CONF/eww" pull --ff-only 2>/dev/null || echo "   (pull omitido: cambios locales o sin red, se re-sanitiza igual)"
+fi
+
+# --- 8b. Parche idempotente Eww Fase 2 (fix scroll brillo/volumen + workspaces + hardcodes) ---
+# Aplica aunque el repo remoto aún no tenga los fixes; garantiza "funciona a la primera" sin post-instalación manual
+if [ -d "$DOTS_CONF/eww" ]; then
+    echo "-> Parcheando Eww clonado (Fase 2: brillo/volumen/workspaces)..."
+    # Si el repo local trae los scripts fijos, copiarlos directamente (preferido)
+    for f in backlight.sh backlight_scroll.sh audio.sh volume_scroll.sh volume.sh workspaces.sh; do
+        SRC_SCRIPT="$SCRIPT_DIR/eww/scripts/$f"
+        # También soporta repo plano donde los scripts estén en raíz del hypr (fallback)
+        [ -f "$SRC_SCRIPT" ] || SRC_SCRIPT="$SCRIPT_DIR/$f"
+        if [ -f "$SRC_SCRIPT" ]; then
+            sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p "$DOTS_CONF/eww/scripts"
+            sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SRC_SCRIPT" "$DOTS_CONF/eww/scripts/$f"
+            sudo -u "$REAL_USER" env HOME="$USER_HOME" chmod +x "$DOTS_CONF/eww/scripts/$f"
+            echo "   + parche $f"
+        fi
+    done
+    # Parchear eww.yuck si el repo trae versión fija
+    if [ -f "$SCRIPT_DIR/eww/eww.yuck" ]; then
+        sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/eww/eww.yuck" "$DOTS_CONF/eww/eww.yuck"
+        echo "   + parche eww.yuck (hardcodes eliminados, onscroll fijo)"
+    else
+        # Fallback sed mínimo si no hay eww.yuck local
+        sudo -u "$REAL_USER" env HOME="$USER_HOME" bash -c "
+            sed -i -E 's|/home/[^/]+/.config/hypr/eww_network.sh|~/.config/hypr/eww_network.sh|g; s|/home/[^/]+/.config/hypr/check_updates.sh|~/.config/hypr/check_updates.sh|g' '$DOTS_CONF/eww/eww.yuck' 2>/dev/null || true
+            sed -i -E 's|onscroll \"scripts/volume_scroll.sh|onscroll \"bash -c .scripts/volume_scroll.sh|g' '$DOTS_CONF/eww/eww.yuck' 2>/dev/null || true
+            sed -i -E 's|onscroll \"scripts/backlight_scroll.sh|onscroll \"bash -c .scripts/backlight_scroll.sh|g' '$DOTS_CONF/eww/eww.yuck' 2>/dev/null || true
+        "
+    fi
+    chown -R "$REAL_USER":"$REAL_USER" "$DOTS_CONF/eww" 2>/dev/null || true
 fi
 
 # SwayNC: desplegar config con calendario + integración eww
@@ -482,33 +547,64 @@ echo "10/10 Habilitando servicios..."
 
 # Deshabilitar DMs que compiten con greetd (no fallar si no existen — netinst limpio no los tiene)
 systemctl disable sddm lightdm gdm gdm3 getty@tty1.service 2>/dev/null || true
-# Solo enmascarar getty@tty1 si greetd está habilitado (evita dejar sistema sin login)
-if systemctl is-enabled greetd &>/dev/null; then
+# Solo enmascarar getty@tty1 si greetd está habilitado Y activo (evita dejar sistema sin login si greetd falla)
+if systemctl is-enabled greetd &>/dev/null && systemctl is-active greetd &>/dev/null; then
+    echo "-> greetd activo, enmascarando getty@tty1"
     systemctl mask getty@tty1.service 2>/dev/null || true
+elif systemctl is-enabled greetd &>/dev/null; then
+    echo "-> greetd habilitado pero no activo aún (primer boot), NO se enmascara getty@tty1 para evitar lockout"
+else
+    echo "WARN: greetd no habilitado, no se toca getty@tty1"
 fi
 systemctl enable greetd
 # bluetooth ya enable arriba; asegurar también
 systemctl enable bluetooth 2>/dev/null || true
 systemctl set-default graphical.target
 
+# --- 10b. Zoom aislado (flatpak) — evita rotura de librerías Wayland/eww ---
+if command -v flatpak &>/dev/null; then
+    echo "-> Flatpak ya instalado, asegurando flathub para Zoom..."
+else
+    echo "-> Instalando flatpak para Zoom aislado..."
+    apt-get install -y --no-install-recommends flatpak || echo "WARN: flatpak no instalable"
+fi
+if command -v flatpak &>/dev/null; then
+    # Flathub remote (idempotente)
+    sudo -u "$REAL_USER" env HOME="$USER_HOME" flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo 2>/dev/null || \
+        flatpak remote-add --if-not-exists flathub https://dl.flathub.org/repo/flathub.flatpakrepo 2>/dev/null || true
+    echo "-> Para instalar Zoom sin romper eww: flatpak install -y flathub us.zoom.Zoom"
+    echo "   (No se instala automático para no forzar 300MB en netinst; ejecuta manual o añade --install-zoom)"
+    if [ "${1:-}" = "--install-zoom" ]; then
+        echo "-> Flag --install-zoom detectado, instalando Zoom flatpak..."
+        sudo -u "$REAL_USER" env HOME="$USER_HOME" flatpak install -y flathub us.zoom.Zoom || echo "WARN: zoom flatpak falló (sin red?)"
+    fi
+fi
+
 echo ""
 echo "--- DIAGNÓSTICO FINAL ---"
 echo "Hardware: CPU=$(grep -m1 'model name' /proc/cpuinfo | cut -d: -f2 | xargs) | GPU=$GPU_TYPE"
-echo "Greetd: $(systemctl is-enabled greetd 2>&1)"
+echo "Greetd: $(systemctl is-enabled greetd 2>&1) (cmd=$HYPR_CMD)"
 echo "Bluetooth: $(systemctl is-enabled bluetooth 2>&1)"
 echo "Portal: $(systemctl --global is-enabled xdg-desktop-portal-hyprland 2>&1 || echo 'portal sin enable global (normal)')"
 echo "Eww: $(/usr/local/bin/eww --version 2>&1 || echo 'eww no en PATH')"
 echo "SwayNC: $(command -v swaync &>/dev/null && swaync --version 2>&1 || echo 'swaync no instalado')"
+echo "Socat: $(command -v socat &>/dev/null && echo 'OK socat' || echo 'FALTA socat -> workspaces no refrescará')"
+echo "Backlight: $(brightnessctl -m 2>&1 | head -n1 || echo 'sin backlight detectado (VM?)')"
 echo "Keyring PAM: $(grep -q pam_gnome_keyring /etc/pam.d/common-auth && echo 'OK' || echo 'revisa pam-auth-update')"
 echo "Fuentes: $(fc-list | grep -ci 'Meslo\|JetBrains' || echo 0) familias Nerd detectadas"
+echo "Flatpak: $(command -v flatpak &>/dev/null && flatpak remotes 2>&1 | tr '\n' ' ' || echo 'no instalado')"
+echo "Udev backlight: $(ls -l /etc/udev/rules.d/90-backlight.rules 2>&1 | awk '{print $NF}' || echo 'no')"
+echo "Nwg-look: $(command -v nwg-look &>/dev/null && echo 'instalado (usa nwg-look en vez de lxappearance en Wayland)' || echo 'no')"
 echo "-------------------------------------------------------"
 echo "¡INSTALACIÓN COMPLETADA!"
 if [ "$GPU_TYPE" = "nvidia" ]; then
     echo "AVISO NVIDIA: añade 'nvidia-drm.modeset=1' a GRUB_CMDLINE_LINUX en /etc/default/grub y ejecuta: update-grub"
 fi
 echo "Reinicia: sudo reboot"
-echo "Primer login: greetd → tuigreet → Hyprland (start-hyprland)"
+echo "Primer login: greetd → tuigreet → Hyprland ($HYPR_CMD)"
 echo "Atajos: Super+Enter (foot), Super+D (fuzzel), Super+L (power), Print (grim+swappy)"
+echo "Temas: usa 'nwg-look' (Wayland) en vez de lxappearance para no romper eww; luego Super+Shift+B"
+echo "Zoom: flatpak install flathub us.zoom.Zoom (evita .deb que rompe librerías Wayland)"
 echo "Post-instalación: instala Chrome manualmente si lo deseas."
 echo "Log completo: $LOG_FILE"
 echo "-------------------------------------------------------"

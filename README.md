@@ -46,12 +46,12 @@ sudo ./install.sh
 **¿Qué hace este script por ti?**
 - ✅ **Repositorios:** Habilita *Backports* (`trixie-backports`) con `contrib non-free non-free-firmware` sin tocar tus repos extra (brave/chrome/spotify/tailscale/vscode)
 - ✅ **Drivers:** Detecta CPU Intel/AMD y GPU NVIDIA/AMD/Intel e instala microcode + mesa/nvidia + `firmware-linux-nonfree` y VAAPI
-- ✅ **Comforts GNOME sin Mutter:** `nautilus` + `gvfs/udisks2/udiskie` (automontaje), `pavucontrol`+`pipewire`, `blueman`+`bluez`, `sway-notification-center`+`gnome-calendar`, `hyprpolkitagent`+`gnome-keyring` (PAM auto-unlock), `wl-clipboard`+`cliphist`
+- ✅ **Comforts GNOME sin Mutter:** `nautilus` + `gvfs/udisks2/udiskie` (automontaje), `pavucontrol`+`pipewire`, `blueman`+`bluez`, `sway-notification-center`+`gnome-calendar`, `hyprpolkitagent`+`gnome-keyring` (PAM auto-unlock), `wl-clipboard`+`cliphist`, `gnome-settings-daemon` + `nwg-look` (no lxappearance)
 - ✅ **Fuentes:** `fonts-jetbrains-mono` (apt) + `Meslo Nerd Font` + `Symbols Nerd` (descarga directa a `~/.local/share/fonts`)
-- ✅ **Hyprland:** `hyprland/hyprlock/hypridle/hyprpolkitagent/greetd+tuigreet` desde backports + `xdg-desktop-portal-hyprland` + override `greetd`
-- ✅ **Compilación:** Compila **Eww** (`cargo --features wayland`) e instala en `/usr/local/bin/eww` y clona tema `JoseloFlores/eww` a `~/.config/eww`
-- ✅ **Portabilidad:** Parchea rutas `/home/jose` → `$USER`, corrige `eww_start.sh` a `/usr/local/bin/eww`, usa `start-hyprland` wrapper Debian 13
-- ✅ **Servicios:** `greetd`+`bluetooth` enable, `gdm/sddm/lightdm` disable, `graphical.target`
+- ✅ **Hyprland:** `hyprland/hyprlock/hypridle/hyprpolkitagent/greetd+tuigreet` desde backports + `xdg-desktop-portal-hyprland` + override `greetd` + `udev` brillo (`video` group) + `socat` para workspaces live
+- ✅ **Compilación:** Compila **Eww** (`cargo --features wayland`) e instala en `/usr/local/bin/eww` y clona tema `JoseloFlores/eww` a `~/.config/eww` (rutas relativas, sin hardcode `/home/jose`)
+- ✅ **Portabilidad:** Usa `Hyprland`/`start-hyprland` autodetectado, `xdg-user-dirs`, `socat`+`light` fallback brillo, `wireplumber` y `brightnessctl` sin lag
+- ✅ **Servicios:** `greetd`+`bluetooth` enable, `gdm/sddm/lightdm` disable, `graphical.target`, `flatpak`+`flathub` para Zoom aislado
 
 ---
 
@@ -96,11 +96,14 @@ Este entorno utiliza un sistema de **Sincronización de Colores**:
 ## ⚠️ Notas Importantes
 
 - **Primer Inicio:** Si al entrar no ves la barra, presiona `Super + Shift + B` para forzar su inicio inicial.
-- **Audio/Bluetooth:** Gestiona con `pavucontrol`, `blueman-applet` y teclas `XF86Audio*`/`brightnessctl`; también desde iconos de `eww`.
+- **Audio/Bluetooth:** Gestiona con `pavucontrol`, `blueman-applet` y teclas `XF86Audio*`/`brightnessctl`; scroll sobre iconos de volumen/brillo en `eww` ya funciona a la primera (fix `socat` + `udev` brillo).
+- **Brillo:** Si tu equipo es desktop/VM sin backlight, el módulo muestra “no disponible” sin error; en laptops el scroll usa `brightnessctl -c backlight` + `light` fallback y `udev` `video` group.
+- **Workspaces:** Requiere `socat` (ya instalado); si cambias de escritorio la barra refresca instantáneo vía `socket2`. Sin `socat` la barra no refresca.
+- **Temas:** Usa `nwg-look` (Wayland native) en vez de `lxappearance` para no romper estilos `eww`/`swaync`. `lxappearance` sigue instalado por compat pero se recomienda `nwg-look`. Luego `Super+Shift+B`.
+- **Zoom:** No instales el `.deb` oficial — rompe librerías `wayland`/`gtk-layer-shell` y los estilos de `eww`. Usa: `flatpak install flathub us.zoom.Zoom` (o `sudo ./install.sh --install-zoom`). Aislado vía portal `hyprland`.
 - **Notificaciones/Calendario:** `swaync` (config `~/.config/swaync/config.json` con widget `calendar`) + `gnome-calendar` flotante. Click reloj eww → `swaync-client -t`.
 - **VPN:** Icono eww (`eww_network.sh`) muestra VPN manual activa (ignora Tailscale).
 - **Mutter:** No se instala `gnome-shell`/`mutter` a propósito para no romper `blur`/`rounding`/`opacity` de Hyprland (`hyprland.conf:130`).
-- Con esto tienes base funcional sin empezar de cero, modificable a tus necesidades.
 
 ---
 *Desarrollado con ❤️ para la comunidad de Debian.*
