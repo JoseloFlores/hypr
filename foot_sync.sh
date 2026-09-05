@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Configuración de temas para Waybar, Foot y Fuzzel
-# Fuente de verdad: ~/.config/waybar/themes/<nombre>.css  (y style.css @define-color)
+# Fuente de verdad: ~/.config/waybar/themes/<nombre>.css  (y style.css @import "themes/<tema>.css")
 
 WAYBAR_STYLE="$HOME/.config/waybar/style.css"
 THEMES_DIR="$HOME/.config/waybar/themes"
@@ -18,15 +18,27 @@ if [ ! -d "$THEMES_DIR" ] || [ -z "$(ls -A "$THEMES_DIR" 2>/dev/null)" ]; then
 fi
 
 # 1. Detectar el tema activo en Waybar
-# Busca el tema aplicado en style.css comparando @define-color, o usa ash-dark por defecto
+# Preferencia: @import "themes/<tema>.css", fallback legacy @define-color bg
 detect_theme() {
   if [ -f "$WAYBAR_STYLE" ]; then
-    # Intentar inferir por bg dominante comparando con themes/*.css
+    if grep -q '@import.*themes/' "$WAYBAR_STYLE" 2>/dev/null; then
+      import_theme=$(grep '@import.*themes/' "$WAYBAR_STYLE" 2>/dev/null | sed -E 's|.*themes/([^"/.]+)\.css.*|\1|' | head -n1)
+      if [ -n "$import_theme" ] && [ -f "$THEMES_DIR/${import_theme}.css" ]; then
+        echo "$import_theme"
+        return
+      fi
+      # también buscar si algún theme del dir coincide con import aunque path sea relativo distinto
+      if [ -n "$import_theme" ]; then
+        echo "$import_theme"
+        return
+      fi
+    fi
+    # Fallback legacy: inferir por bg dominante comparando con themes/*.css
     for th in "$THEMES_DIR"/*.css; do
       [ -f "$th" ] || continue
       bg_th=$(grep "@define-color bg " "$th" | awk '{print $3}' | tr -d ';' | head -n1)
-      bg_cur=$(grep "@define-color bg " "$WAYBAR_STYLE" | awk '{print $3}' | tr -d ';' | head -n1)
-      if [ -n "$bg_th" ] && [ "$bg_th" = "$bg_cur" ]; then
+      bg_cur=$(grep "@define-color bg " "$WAYBAR_STYLE" 2>/dev/null | awk '{print $3}' | tr -d ' ;' | head -n1)
+      if [ -n "$bg_th" ] && [ -n "$bg_cur" ] && [ "$bg_th" = "$bg_cur" ]; then
         basename "$th" .css
         return
       fi
