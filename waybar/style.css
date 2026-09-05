@@ -1,3 +1,14 @@
+/* Waybar theme — ash-dark */
+@define-color bg #15171e;
+@define-color bg-alt #232530;
+@define-color fg #c8c9d1;
+@define-color blue #7d8ac2;
+@define-color cyan #7da8c2;
+@define-color green #8da68a;
+@define-color purple #9a8ac2;
+@define-color red #b07a7a;
+@define-color yellow #b8a07a;
+
 /* Waybar — estilo principal */
 * {
   font-family: "MesloLGM Nerd Font Mono", "JetBrainsMono Nerd Font", monospace;
@@ -9,19 +20,10 @@
 
 /* === Paleta ash-dark === */
 /* Generado automáticamente por scripts/waybar-theme.sh — no editar manual si usas temas cambiables */
-@define-color bg #15171e;
-@define-color bg-alt #232530;
-@define-color fg #c8c9d1;
-@define-color blue #7d8ac2;
-@define-color cyan #7da8c2;
-@define-color green #8da68a;
-@define-color purple #9a8ac2;
-@define-color red #b07a7a;
-@define-color yellow #b8a07a;
 
 /* === Ventana bar — transparente === */
 window#waybar {
-  background-color: rgba(0, 0, 0, 0);
+  background-color: rgba(0, 0, 0,0);
   color: @fg;
   border-radius: 12px;
   padding: 0;
@@ -39,7 +41,7 @@ tooltip label {
   font-size: 12px;
 }
 
-/* === Módulos base === */
+/* === Módulos base — pildoras con color, fondo entre pills transparente === */
 #workspaces,
 #clock,
 #custom-updates,
@@ -61,35 +63,50 @@ tooltip label {
   transition: background-color 150ms;
 }
 
-/* Workspaces */
+/* Workspaces — pill como demás módulos */
 #workspaces {
-  background-color: transparent;
-  padding: 0;
+  background-color: rgba(35, 37, 48, 0.6);
+  padding: 0 3px;
   margin: 2px 2px;
   border-radius: 4px;
 }
 #workspaces button {
-  padding: 0 4px;
-  margin: 0 2px;
-  min-width: 16px;
-  background-color: rgba(35, 37, 48, 0.1);
-  border-radius: 4px;
+  padding: 0 6px;
+  margin: 1px 1px;
+  min-width: 18px;
+  background-color: transparent;
+  border-radius: 3px;
   border: none;
   color: @fg;
   transition: all 150ms;
 }
 #workspaces button:hover {
-  background-color: rgba(200, 201, 209, 0.15);
-  color: @purple;
+  background-color: rgba(200, 201, 209, 0.12);
+  color: @fg;
 }
 #workspaces button.active {
-  background-color: rgba(200, 201, 209, 0.08);
-  color: @purple;
+  background-color: rgba(200, 201, 209, 0.15);
+  color: @fg;
   font-weight: bold;
+  border: none;
+  border-radius: 3px;
 }
 #workspaces button.empty {
   color: rgba(200, 201, 209, 0.35);
 }
+#workspaces button.visible {
+  background-color: rgba(200, 201, 209, 0.10);
+  color: @fg;
+}
+#workspaces button.persistent {
+  color: @fg;
+  background-color: rgba(35, 37, 48, 0.3);
+}
+#workspaces button.urgent {
+  background-color: @red;
+  color: @bg;
+}
+
 
 /* Centro — Reloj */
 #clock {
@@ -206,7 +223,7 @@ tooltip label {
   padding-left: 8px;
 }
 
-/* Estados generales hover */
+/* Estados generales hover — leve gris, sin morado */
 #custom-network:hover,
 #pulseaudio:hover,
 #bluetooth:hover,

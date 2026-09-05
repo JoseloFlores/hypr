@@ -3,7 +3,7 @@
   // Portabilidad: Debian 13 trixie (waybar 0.12.0-1) y Debian 14 forky (0.15.0-1)
   "layer": "top",
   "position": "top",
-  "height": 20,
+  "height": 30,
   "exclusive": true,
   "passthrough": false,
   "spacing": 0,
@@ -32,7 +32,9 @@
   // Reloj
   "clock": {
     "interval": 1,
-    "format": " {:%H:%M}   {:%d/%m}",
+    "locale": "es_AR.UTF-8",
+    "timezone": "",
+    "format": " {0:%H:%M}   {0:%d/%m}",
     "tooltip-format": "{:%A, %d de %B de %Y}",
     "on-click": "swaync-client -t -sw || gnome-calendar &",
     "on-click-right": "gnome-calendar &"
@@ -60,14 +62,14 @@
     "scroll-step": 2,
     "max-volume": 100
   },
-  // Red — custom waybar_network.sh (VPN + WiFi)
+  // Red — custom waybar_network.sh (VPN + WiFi) - usa wifi_click.sh para manejar unmanaged
   "custom/network": {
     "exec": "~/.config/hypr/waybar_network.sh",
-    "interval": 1,
+    "interval": 2,
     "return-type": "json",
     "format": "{}",
     "tooltip": true,
-    "on-click": "foot -e nmtui &",
+    "on-click": "~/.config/hypr/wifi_click.sh",
     "on-click-right": "nm-connection-editor &"
   },
   // Bluetooth — nativo
@@ -94,7 +96,7 @@
     "format-charging": "󱐋 {capacity}%",
     "format-plugged": "󱐋 {capacity}%",
     "format-icons": ["", "", "", "", ""],
-    "tooltip-format": "Batería: {capacity}% ({status})",
+    "tooltip-format": "Batería: {capacity}%",
     "on-click": "gnome-power-statistics &",
     "on-click-right": "notify-send \"Batería\" \"$(cat /sys/class/power_supply/BAT*/status 2>/dev/null | head -n1): $(cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -n1)%\""
   },
@@ -104,8 +106,8 @@
     "format": "{icon}",
     "format-icons": ["󰃞", "󰃝", "󰃟", "󰃠"],
     "tooltip-format": "Brillo: {percent}%",
-    "on-scroll-up": "brightnessctl set 5%+",
-    "on-scroll-down": "brightnessctl set 5%-",
+    "on-scroll-up": "brightnessctl -d intel_backlight -e4 -n2 set 5%+",
+    "on-scroll-down": "brightnessctl -d intel_backlight -e4 -n2 set 5%-",
     "scroll-step": 5
   },
   // Power — grupo drawer slideleft 300ms

@@ -1,0 +1,10 @@
+/* Waybar theme — monokai */
+@define-color bg #272822;
+@define-color bg-alt #3e3d32;
+@define-color fg #f8f8f2;
+@define-color blue #66d9ef;
+@define-color cyan #a1efe4;
+@define-color green #a6e22e;
+@define-color purple #ae81ff;
+@define-color red #f92672;
+@define-color yellow #e6db74;

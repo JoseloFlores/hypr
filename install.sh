@@ -125,7 +125,7 @@ echo "3/9 Instalando herramientas base + comforts GNOME + Waybar..."
 
 apt-get install -y --no-install-recommends \
     wget curl bc jq build-essential pkg-config unzip \
-    network-manager nm-connection-editor \
+    network-manager network-manager-gnome iw wireless-tools rfkill \
     gvfs gvfs-backends gvfs-fuse gvfs-daemons udisks2 udiskie \
     nautilus gnome-sushi file-roller \
     pipewire pipewire-alsa pipewire-audio pipewire-pulse wireplumber pavucontrol \
@@ -133,12 +133,41 @@ apt-get install -y --no-install-recommends \
     sway-notification-center gnome-calendar \
     wl-clipboard cliphist brightnessctl playerctl \
     foot fuzzel swaybg grim slurp swappy wf-recorder \
-    xdg-desktop-portal xdg-desktop-portal-gtk \
+    xdg-desktop-portal xdg-desktop-portal-gtk xdg-user-dirs \
+    nwg-look \
     zsh vim firefox-esr zenity \
     fonts-jetbrains-mono fonts-noto-color-emoji \
     gnome-keyring libpam-gnome-keyring seahorse \
     polkitd \
     waybar
+
+# --- 3b. Corregir WiFi unmanaged (dhcpcd/ifupdown -> NetworkManager) ---
+echo "-> Corrigiendo WiFi para NetworkManager (unmanaged -> managed)..."
+mkdir -p /etc/NetworkManager/conf.d
+cat > /etc/NetworkManager/conf.d/10-globally-managed-devices.conf <<'NMCONF'
+[keyfile]
+unmanaged-devices=none
+NMCONF
+# Forzar managed=true en NetworkManager.conf (si existe)
+if [ -f /etc/NetworkManager/NetworkManager.conf ]; then
+    sed -i -E "s/managed=false/managed=true/" /etc/NetworkManager/NetworkManager.conf || true
+    grep -q "^\[ifupdown\]" /etc/NetworkManager/NetworkManager.conf || echo -e "\n[ifupdown]\nmanaged=true" >> /etc/NetworkManager/NetworkManager.conf
+fi
+# Dejar /etc/network/interfaces solo con loopback para que NM gestione wifi/eth
+if [ -f /etc/network/interfaces ] && grep -qE "wlp|wlan|eth|enp|ens" /etc/network/interfaces 2>/dev/null; then
+    cp /etc/network/interfaces /etc/network/interfaces.bak.$(date +%s)
+    cat > /etc/network/interfaces <<'IFACE'
+auto lo
+iface lo inet loopback
+IFACE
+    echo "-> /etc/network/interfaces reseteado a solo lo (backup creado)"
+fi
+# Evitar que dhcpcd interfiera con NM (denyinterfaces si dhcpcd existe)
+if [ -f /etc/dhcpcd.conf ] && ! grep -q "denyinterfaces" /etc/dhcpcd.conf 2>/dev/null; then
+    echo "denyinterfaces wlan* wlp* eth* enp* ens*" >> /etc/dhcpcd.conf || true
+fi
+systemctl enable NetworkManager 2>/dev/null || true
+systemctl restart NetworkManager 2>/dev/null || true
 
 if [ "$OS_CODENAME" = "trixie" ]; then
     apt-get install -y -t trixie-backports --no-install-recommends xdg-desktop-portal-hyprland || true
@@ -148,16 +177,20 @@ fi
 
 systemctl enable bluetooth || true
 
+# Nautilus: forzar directorios en español y recargar (ejecutar tras instalar nautilus)
+sudo -u "$REAL_USER" env HOME="$USER_HOME" LANG=es_ES.UTF-8 xdg-user-dirs-update --force || true
+sudo -u "$REAL_USER" env HOME="$USER_HOME" bash -c 'nautilus -q 2>/dev/null || true' || true
+
 # --- 4. Hyprland stack ---
 echo ""
 echo "4/9 Instalando Hyprland..."
 
 if [ "$OS_CODENAME" = "trixie" ]; then
     apt-get install -y -t trixie-backports --no-install-recommends \
-        hyprland hyprlock hypridle hyprpolkitagent greetd tuigreet
+        hyprland hyprlock hypridle hyprpolkitagent hyprland-guiutils greetd tuigreet
 else
     apt-get install -y --no-install-recommends \
-        hyprland hyprlock hypridle hyprpolkitagent greetd tuigreet
+        hyprland hyprlock hypridle hyprpolkitagent hyprland-guiutils greetd tuigreet
 fi
 
 # --- 5. Fuentes ---
@@ -230,7 +263,7 @@ for src in "hyprland.conf" "hyprlock.conf" "hypridle.conf" "wallpaper.jpg" "powe
 done
 
 # Helpers Hyprland / Waybar (scripts que usa waybar y binds)
-for src in "waybar_network.sh" "check_updates.sh" "check_updates_count.sh" "confirm_power.sh" "foot_sync.sh" "power_menu.sh"; do
+for src in "waybar_network.sh" "wifi_click.sh" "check_updates.sh" "check_updates_count.sh" "confirm_power.sh" "foot_sync.sh" "power_menu.sh"; do
     if [ -f "$SCRIPT_DIR/$src" ]; then
         sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/$src" "$DOTS_CONF/hypr/"
         sudo -u "$REAL_USER" env HOME="$USER_HOME" chmod +x "$DOTS_CONF/hypr/$src" 2>/dev/null || true
@@ -289,6 +322,37 @@ find "$DOTS_CONF/hypr" "$DOTS_CONF/waybar" "$DOTS_CONF/swaync" -type f \( -name 
 chown -R "$REAL_USER":"$REAL_USER" "$DOTS_CONF"
 find "$DOTS_CONF" -name "*.sh" -exec chmod +x {} + 2>/dev/null || true
 chmod +x "$DOTS_CONF/waybar/scripts"/*.sh 2>/dev/null || true
+
+# --- 7b. Fix Zoom Wayland sin XWayland (evita instalar xwayland que rompe Hyprland) ---
+echo ""
+echo "7b/9 Configurando Zoom para Wayland nativo (sin XWayland)..."
+
+# Wrapper que fuerza wayland + LANG + LD_LIBRARY_PATH (Zoom trae Qt bundled en /opt/zoom/Qt/lib)
+sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p "$USER_HOME/.local/bin" "$USER_HOME/.local/share/applications"
+sudo -u "$REAL_USER" env HOME="$USER_HOME" bash -c "cat > \"$USER_HOME/.local/bin/zoom-wayland\" <<'ZWAYLAND'
+#!/bin/bash
+export QT_QPA_PLATFORM=wayland
+export LANG=es_AR.UTF-8
+export LC_ALL=es_AR.UTF-8
+export LD_LIBRARY_PATH=/opt/zoom:/opt/zoom/Qt/lib:/opt/zoom/cef:\$LD_LIBRARY_PATH
+exec /opt/zoom/zoom \"\$@\"
+ZWAYLAND
+"
+sudo -u "$REAL_USER" env HOME="$USER_HOME" chmod +x "$USER_HOME/.local/bin/zoom-wayland"
+
+# Desktop override para que el menú use el wrapper y no /usr/bin/zoom (ZoomLauncher -> xcb)
+if [ -f /usr/share/applications/Zoom.desktop ]; then
+    sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f /usr/share/applications/Zoom.desktop "$USER_HOME/.local/share/applications/Zoom.desktop"
+    sudo -u "$REAL_USER" env HOME="$USER_HOME" sed -i -E "s|^Exec=.*zoom.*|Exec=$USER_HOME/.local/bin/zoom-wayland %U|" "$USER_HOME/.local/share/applications/Zoom.desktop"
+    sudo -u "$REAL_USER" env HOME="$USER_HOME" update-desktop-database "$USER_HOME/.local/share/applications" 2>/dev/null || true
+fi
+
+# Asegurar que hyprland.conf desplegado tenga el fix (por si el repo aún tenía wayland;xcb)
+if grep -q "QT_QPA_PLATFORM,wayland;xcb" "$DOTS_CONF/hypr/hyprland.conf" 2>/dev/null; then
+    sed -i -E "s/env = QT_QPA_PLATFORM,wayland;xcb/env = QT_QPA_PLATFORM,wayland/" "$DOTS_CONF/hypr/hyprland.conf"
+    grep -q "env = LANG," "$DOTS_CONF/hypr/hyprland.conf" || sed -i "/QT_QPA_PLATFORM/a env = LANG,es_AR.UTF-8" "$DOTS_CONF/hypr/hyprland.conf"
+    chown "$REAL_USER":"$REAL_USER" "$DOTS_CONF/hypr/hyprland.conf"
+fi
 
 # --- 8. PAM keyring y Portales ---
 echo ""
