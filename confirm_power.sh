@@ -5,7 +5,7 @@
 # Añadir rutas comunes al PATH para asegurar que comandos como systemctl o shutdown funcionen
 export PATH=$PATH:/usr/bin:/usr/sbin:/bin:/sbin
 
-# Detectar y exportar display para que zenity funcione desde eww (Wayland)
+# Detectar y exportar display para que zenity funcione desde Waybar (Wayland)
 if [ -n "$WAYLAND_DISPLAY" ]; then
     export WAYLAND_DISPLAY="$WAYLAND_DISPLAY"
 elif [ -n "$DISPLAY" ]; then

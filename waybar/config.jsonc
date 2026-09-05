@@ -1,0 +1,152 @@
+{
+  // Waybar — barra principal Hyprland
+  // Portabilidad: Debian 13 trixie (waybar 0.12.0-1) y Debian 14 forky (0.15.0-1)
+  "layer": "top",
+  "position": "top",
+  "height": 20,
+  "exclusive": true,
+  "passthrough": false,
+  "spacing": 0,
+  "output": ["*"],
+  "modules-left": ["hyprland/workspaces"],
+  "modules-center": ["clock"],
+  "modules-right": ["custom/updates", "pulseaudio", "custom/network", "bluetooth", "battery", "backlight", "group/power"],
+  // Workspaces — solo ocupados + activo
+  // persistent-workspaces vacío = solo muestra workspaces existentes + activo
+  "hyprland/workspaces": {
+    "format": "{icon}",
+    "format-icons": {
+      "active": "󰮯",
+      "default": "",
+      "empty": ""
+    },
+    "on-click": "hyprctl dispatch workspace {id}",
+    "on-scroll-up": "hyprctl dispatch workspace e+1",
+    "on-scroll-down": "hyprctl dispatch workspace e-1",
+    "all-outputs": false,
+    "active-only": false,
+    "sort-by-number": true,
+    "show-special": false,
+    "persistent-workspaces": {}
+  },
+  // Reloj
+  "clock": {
+    "interval": 1,
+    "format": " {:%H:%M}   {:%d/%m}",
+    "tooltip-format": "{:%A, %d de %B de %Y}",
+    "on-click": "swaync-client -t -sw || gnome-calendar &",
+    "on-click-right": "gnome-calendar &"
+  },
+  // Updates — solo visible si pending (class updated -> oculto por CSS)
+  "custom/updates": {
+    "exec": "~/.config/hypr/check_updates.sh",
+    "interval": 3600,
+    "return-type": "json",
+    "format": "{}",
+    "tooltip": true,
+    "on-click": "foot sh -c 'sudo apt update && sudo apt upgrade -y; pkill -SIGRTMIN+8 waybar' &",
+    "signal": 8
+  },
+  // Audio — pulseaudio nativo
+  "pulseaudio": {
+    "format": "{icon} {volume}%",
+    "format-muted": "󰝟 {volume}%",
+    "format-icons": {
+      "default": ["󰝟", "󰕿", "󰖀", "󰕾"]
+    },
+    "tooltip-format": "{desc} {volume}%",
+    "on-click": "pavucontrol &",
+    "on-click-right": "wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle",
+    "scroll-step": 2,
+    "max-volume": 100
+  },
+  // Red — custom waybar_network.sh (VPN + WiFi)
+  "custom/network": {
+    "exec": "~/.config/hypr/waybar_network.sh",
+    "interval": 1,
+    "return-type": "json",
+    "format": "{}",
+    "tooltip": true,
+    "on-click": "foot -e nmtui &",
+    "on-click-right": "nm-connection-editor &"
+  },
+  // Bluetooth — nativo
+  "bluetooth": {
+    "format": " {icon}",
+    "format-connected": "󰂱",
+    "format-on": "󰂯",
+    "format-off": "󰂲",
+    "format-disabled": "󰂲",
+    "tooltip-format": "{status}",
+    "tooltip-format-connected": "Conectado: {device_alias}",
+    "tooltip-format-enumerate-connected": "Conectado: {device_alias}",
+    "on-click": "blueman-manager &",
+    "on-click-right": "bluetoothctl power toggle"
+  },
+  // Batería
+  "battery": {
+    "interval": 30,
+    "states": {
+      "warning": 30,
+      "critical": 15
+    },
+    "format": "{icon} {capacity}%",
+    "format-charging": "󱐋 {capacity}%",
+    "format-plugged": "󱐋 {capacity}%",
+    "format-icons": ["", "", "", "", ""],
+    "tooltip-format": "Batería: {capacity}% ({status})",
+    "on-click": "gnome-power-statistics &",
+    "on-click-right": "notify-send \"Batería\" \"$(cat /sys/class/power_supply/BAT*/status 2>/dev/null | head -n1): $(cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -n1)%\""
+  },
+  // Brillo
+  "backlight": {
+    "device": "intel_backlight",
+    "format": "{icon}",
+    "format-icons": ["󰃞", "󰃝", "󰃟", "󰃠"],
+    "tooltip-format": "Brillo: {percent}%",
+    "on-scroll-up": "brightnessctl set 5%+",
+    "on-scroll-down": "brightnessctl set 5%-",
+    "scroll-step": 5
+  },
+  // Power — grupo drawer slideleft 300ms
+  "group/power": {
+    "orientation": "horizontal",
+    "drawer": {
+      "transition-duration": 300,
+      "transition-left-to-right": false,
+      "children-class": "power-drawer"
+    },
+    "modules": [
+      "custom/power-main",
+      "custom/power-suspend",
+      "custom/power-lock",
+      "custom/power-reboot",
+      "custom/power-logout"
+    ]
+  },
+  "custom/power-main": {
+    "format": "⏻",
+    "tooltip-format": "Menú de energía — click expandir / click apagar",
+    "on-click": "WAYLAND_DISPLAY=wayland-1 XDG_RUNTIME_DIR=/run/user/1000 GTK_A11Y=none ~/.config/hypr/confirm_power.sh 'Apagar el sistema?' 'systemctl poweroff'"
+  },
+  "custom/power-suspend": {
+    "format": "󰤄",
+    "tooltip-format": "Suspender",
+    "on-click": "WAYLAND_DISPLAY=wayland-1 XDG_RUNTIME_DIR=/run/user/1000 GTK_A11Y=none ~/.config/hypr/confirm_power.sh 'Suspender el sistema?' 'loginctl lock-session && sleep 1 && systemctl suspend'"
+  },
+  "custom/power-lock": {
+    "format": "󰌾",
+    "tooltip-format": "Bloquear",
+    "on-click": "loginctl lock-session"
+  },
+  "custom/power-reboot": {
+    "format": "󰜉",
+    "tooltip-format": "Reiniciar",
+    "on-click": "WAYLAND_DISPLAY=wayland-1 XDG_RUNTIME_DIR=/run/user/1000 GTK_A11Y=none ~/.config/hypr/confirm_power.sh 'Reiniciar el sistema?' 'systemctl reboot'"
+  },
+  "custom/power-logout": {
+    "format": "󰍃",
+    "tooltip-format": "Cerrar sesión",
+    "on-click": "WAYLAND_DISPLAY=wayland-1 XDG_RUNTIME_DIR=/run/user/1000 GTK_A11Y=none ~/.config/hypr/confirm_power.sh 'Cerrar sesion?' 'hyprctl dispatch exit'"
+  }
+}

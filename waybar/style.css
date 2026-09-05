@@ -1,0 +1,228 @@
+/* Waybar — estilo principal */
+* {
+  font-family: "MesloLGM Nerd Font Mono", "JetBrainsMono Nerd Font", monospace;
+  font-size: 12px;
+  border: none;
+  border-radius: 0;
+  min-height: 0;
+}
+
+/* === Paleta ash-dark === */
+/* Generado automáticamente por scripts/waybar-theme.sh — no editar manual si usas temas cambiables */
+@define-color bg #15171e;
+@define-color bg-alt #232530;
+@define-color fg #c8c9d1;
+@define-color blue #7d8ac2;
+@define-color cyan #7da8c2;
+@define-color green #8da68a;
+@define-color purple #9a8ac2;
+@define-color red #b07a7a;
+@define-color yellow #b8a07a;
+
+/* === Ventana bar — transparente === */
+window#waybar {
+  background-color: rgba(0, 0, 0, 0);
+  color: @fg;
+  border-radius: 12px;
+  padding: 0;
+}
+
+/* Tooltip */
+tooltip {
+  background-color: rgba(35, 37, 48, 0.95);
+  border: 1px solid rgba(200, 201, 209, 0.1);
+  border-radius: 10px;
+  padding: 6px 10px;
+}
+tooltip label {
+  color: @fg;
+  font-size: 12px;
+}
+
+/* === Módulos base === */
+#workspaces,
+#clock,
+#custom-updates,
+#pulseaudio,
+#custom-network,
+#bluetooth,
+#battery,
+#backlight,
+#custom-power-main,
+#custom-power-suspend,
+#custom-power-lock,
+#custom-power-reboot,
+#custom-power-logout {
+  background-color: rgba(35, 37, 48, 0.6);
+  padding: 0 5px;
+  margin: 2px 2px;
+  border-radius: 4px;
+  color: @fg;
+  transition: background-color 150ms;
+}
+
+/* Workspaces */
+#workspaces {
+  background-color: transparent;
+  padding: 0;
+  margin: 2px 2px;
+  border-radius: 4px;
+}
+#workspaces button {
+  padding: 0 4px;
+  margin: 0 2px;
+  min-width: 16px;
+  background-color: rgba(35, 37, 48, 0.1);
+  border-radius: 4px;
+  border: none;
+  color: @fg;
+  transition: all 150ms;
+}
+#workspaces button:hover {
+  background-color: rgba(200, 201, 209, 0.15);
+  color: @purple;
+}
+#workspaces button.active {
+  background-color: rgba(200, 201, 209, 0.08);
+  color: @purple;
+  font-weight: bold;
+}
+#workspaces button.empty {
+  color: rgba(200, 201, 209, 0.35);
+}
+
+/* Centro — Reloj */
+#clock {
+  font-weight: bold;
+  color: @fg;
+  padding: 0 8px;
+}
+#clock:hover {
+  background-color: rgba(200, 201, 209, 0.12);
+}
+
+/* === Derecha — colores === */
+#pulseaudio {
+  color: @purple;
+}
+#pulseaudio.muted {
+  color: @red;
+}
+#custom-network {
+  color: @blue;
+}
+#custom-network.vpn {
+  color: @purple;
+}
+#custom-network.ethernet {
+  color: @blue;
+}
+#custom-network.wifi {
+  color: @blue;
+}
+#custom-network.disconnected {
+  color: @red;
+}
+#bluetooth {
+  color: @blue;
+}
+#bluetooth.off {
+  color: rgba(200, 201, 209, 0.5);
+}
+#bluetooth.connected {
+  color: @blue;
+}
+#battery {
+  color: @green;
+}
+#battery.charging,
+#battery.plugged {
+  color: @green;
+}
+#battery.warning {
+  color: @yellow;
+}
+#battery.critical {
+  color: @red;
+}
+#backlight {
+  color: @yellow;
+}
+
+/* Updates — visible solo si pending */
+#custom-updates {
+  color: @yellow;
+  font-weight: bold;
+  padding: 0 6px;
+}
+#custom-updates.pending {
+  color: @yellow;
+  background-color: rgba(35, 37, 48, 0.6);
+}
+#custom-updates.updated {
+  opacity: 0;
+  min-width: 0;
+  padding: 0;
+  margin: 0;
+}
+
+/* === Power === */
+#custom-power-main {
+  color: @red;
+  font-size: 16px;
+  padding: 0 8px;
+  font-weight: bold;
+}
+#custom-power-main:hover {
+  background-color: rgba(200, 201, 209, 0.15);
+}
+#custom-power-suspend {
+  color: @yellow;
+}
+#custom-power-lock {
+  color: @cyan;
+}
+#custom-power-reboot {
+  color: @green;
+}
+#custom-power-logout {
+  color: @purple;
+}
+#custom-power-suspend:hover,
+#custom-power-lock:hover,
+#custom-power-reboot:hover,
+#custom-power-logout:hover {
+  background-color: rgba(200, 201, 209, 0.15);
+}
+
+/* Drawer del power */
+#group-power {
+  background-color: transparent;
+  padding: 0;
+  margin: 2px 2px;
+}
+.power-drawer {
+  background-color: transparent;
+  padding-left: 8px;
+}
+
+/* Estados generales hover */
+#custom-network:hover,
+#pulseaudio:hover,
+#bluetooth:hover,
+#battery:hover,
+#backlight:hover,
+#custom-updates:hover {
+  background-color: rgba(200, 201, 209, 0.12);
+}
+
+#workspaces button.active,
+#clock,
+#custom-updates.pending {
+  /* sin borde en barra para mantener proporción fina */
+}
+
+/* Animación global suave */
+window#waybar > box {
+  padding: 0 10px;
+}
