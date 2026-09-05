@@ -29,11 +29,12 @@
     "show-special": false,
     "persistent-workspaces": {}
   },
-  // Reloj
+  // Reloj — timezone sigue /etc/localtime (America/Argentina/Buenos_Aires) vía sistema; "" = local según waybar-clock(5)
+  // Si viajas, cambia con: sudo timedatectl set-timezone <Zona>  y Waybar seguirá automáticamente (o usa "timezones": ["", "Etc/UTC"] para scroll)
   "clock": {
     "interval": 1,
     "locale": "es_AR.UTF-8",
-    "timezone": "",
+    "timezone": "America/Argentina/Buenos_Aires",
     "format": " {0:%H:%M}   {0:%d/%m}",
     "tooltip-format": "{:%A, %d de %B de %Y}",
     "on-click": "swaync-client -t -sw || gnome-calendar &",
