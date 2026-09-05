@@ -297,13 +297,18 @@ else
     echo "WARN: No se encontró $SCRIPT_DIR/waybar, se omite despliegue Waybar"
 fi
 
-# Foot / Fuzzel (si existen como foot.ini / fuzzel.ini)
+# Foot / Fuzzel — despliegue de plantillas (ahora existen en repo)
 for app in foot fuzzel; do
     if [ -f "$SCRIPT_DIR/$app.ini" ]; then
         sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p "$DOTS_CONF/$app"
         sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/$app.ini" "$DOTS_CONF/$app/$app.ini"
+        echo "-> $app.ini desplegado en $DOTS_CONF/$app/"
     fi
 done
+# Sincronizar Foot/Fuzzel con tema Waybar activo (translúcido e6)
+if [ -x "$DOTS_CONF/hypr/foot_sync.sh" ]; then
+    sudo -u "$REAL_USER" env HOME="$USER_HOME" bash -c "\"$DOTS_CONF/hypr/foot_sync.sh\" || true" || true
+fi
 
 # SwayNC
 SWAYNC_DIR="$DOTS_CONF/swaync"

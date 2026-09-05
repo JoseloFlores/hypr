@@ -69,12 +69,12 @@ if [ ! -f "$WAYBAR_STYLE" ]; then
   echo "Creando $WAYBAR_STYLE desde plantilla..."
   mkdir -p "$(dirname "$WAYBAR_STYLE")"
   cp "$THEME_WAYBAR_PATH" "$WAYBAR_STYLE.tmp.head"
-  cat "$REPO_WAYBAR_DIR/style.css" 2>/dev/null | sed '/@define-color/d' > "$WAYBAR_STYLE.tmp.tail" || echo "/* tail */" > "$WAYBAR_STYLE.tmp.tail"
+  cat "$REPO_WAYBAR_DIR/style.css" 2>/dev/null | sed -e '/@define-color/d' -e '/Waybar theme —/d' > "$WAYBAR_STYLE.tmp.tail" || echo "/* tail */" > "$WAYBAR_STYLE.tmp.tail"
   cat "$WAYBAR_STYLE.tmp.head" "$WAYBAR_STYLE.tmp.tail" > "$WAYBAR_STYLE"
   rm -f "$WAYBAR_STYLE.tmp.head" "$WAYBAR_STYLE.tmp.tail"
 else
   TMP_STYLE="$(mktemp)"
-  grep -v "@define-color" "$WAYBAR_STYLE" > "$TMP_STYLE.body" || true
+  grep -v "@define-color" "$WAYBAR_STYLE" | grep -v "Waybar theme —" > "$TMP_STYLE.body" || true
   cat "$THEME_WAYBAR_PATH" "$TMP_STYLE.body" > "$TMP_STYLE.new"
   mv "$TMP_STYLE.new" "$WAYBAR_STYLE"
   rm -f "$TMP_STYLE.body" "$TMP_STYLE"
