@@ -138,7 +138,7 @@ apt-get install -y --no-install-recommends \
     zsh vim firefox-esr zenity \
     fonts-jetbrains-mono fonts-noto-color-emoji \
     gnome-keyring libpam-gnome-keyring seahorse \
-    polkitd \
+    polkitd pkexec qt6-wayland \
     waybar
 
 # --- 3b. Corregir WiFi unmanaged (dhcpcd/ifupdown -> NetworkManager) ---
@@ -352,11 +352,28 @@ if [ -f /usr/share/applications/Zoom.desktop ]; then
     sudo -u "$REAL_USER" env HOME="$USER_HOME" update-desktop-database "$USER_HOME/.local/share/applications" 2>/dev/null || true
 fi
 
-# Asegurar que hyprland.conf desplegado tenga el fix (por si el repo aún tenía wayland;xcb)
-if grep -q "QT_QPA_PLATFORM,wayland;xcb" "$DOTS_CONF/hypr/hyprland.conf" 2>/dev/null; then
-    sed -i -E "s/env = QT_QPA_PLATFORM,wayland;xcb/env = QT_QPA_PLATFORM,wayland/" "$DOTS_CONF/hypr/hyprland.conf"
-    grep -q "env = LANG," "$DOTS_CONF/hypr/hyprland.conf" || sed -i "/QT_QPA_PLATFORM/a env = LANG,es_AR.UTF-8" "$DOTS_CONF/hypr/hyprland.conf"
+# Fix hyprpolkitagent: requiere qt6-wayland y QT_QPA_PLATFORM con fallback wayland;xcb (evita crash Qt sin plugin wayland)
+if grep -q "env = QT_QPA_PLATFORM,wayland$" "$DOTS_CONF/hypr/hyprland.conf" 2>/dev/null; then
+    sed -i -E "s/env = QT_QPA_PLATFORM,wayland$/env = QT_QPA_PLATFORM,wayland;xcb/" "$DOTS_CONF/hypr/hyprland.conf"
     chown "$REAL_USER":"$REAL_USER" "$DOTS_CONF/hypr/hyprland.conf"
+    echo "-> hyprland.conf: QT_QPA_PLATFORM corregido a wayland;xcb (fix hyprpolkitagent qt6-wayland)"
+fi
+grep -q "env = LANG," "$DOTS_CONF/hypr/hyprland.conf" || sed -i "/QT_QPA_PLATFORM/a env = LANG,es_AR.UTF-8" "$DOTS_CONF/hypr/hyprland.conf"
+# Asegurar autostart polkit con import-environment (requerido para WAYLAND_DISPLAY en systemd user)
+if ! grep -q "import-environment.*QT_QPA_PLATFORM" "$DOTS_CONF/hypr/hyprland.conf" 2>/dev/null; then
+    # eliminar posibles líneas viejas sin QT_QPA_PLATFORM para evitar duplicados
+    sed -i "/exec-once = systemctl --user import-environment/d" "$DOTS_CONF/hypr/hyprland.conf"
+    sed -i "/exec-once = dbus-update-activation-environment.*WAYLAND_DISPLAY/d" "$DOTS_CONF/hypr/hyprland.conf"
+    # insertar las dos líneas correctas antes del start hyprpolkitagent
+    sed -i "s|exec-once = systemctl --user start hyprpolkitagent|exec-once = systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP QT_QPA_PLATFORM\n\exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP QT_QPA_PLATFORM\n\0|" "$DOTS_CONF/hypr/hyprland.conf"
+    chown "$REAL_USER":"$REAL_USER" "$DOTS_CONF/hypr/hyprland.conf"
+    echo "-> hyprland.conf: autostart polkit corregido (import-environment + dbus-update)"
+fi
+# Eliminar duplicados de hyprpolkitagent si existieran (bug previo)
+if [ "$(grep -c "systemctl --user start hyprpolkitagent" "$DOTS_CONF/hypr/hyprland.conf")" -gt 1 ]; then
+    awk 'BEGIN{c=0} /systemctl --user start hyprpolkitagent/{c++; if(c>1) next}1' "$DOTS_CONF/hypr/hyprland.conf" > /tmp/hyprland.tmp && cat /tmp/hyprland.tmp > "$DOTS_CONF/hypr/hyprland.conf"
+    chown "$REAL_USER":"$REAL_USER" "$DOTS_CONF/hypr/hyprland.conf"
+    echo "-> hyprland.conf: duplicado hyprpolkitagent eliminado"
 fi
 
 # --- 8. PAM keyring y Portales ---
