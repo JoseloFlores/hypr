@@ -1,6 +1,6 @@
 # Hyprland • Waybar • Debian 13/14 — Dotfiles Portables
 
-> **Hyprland + Waybar + Nautilus + GNOME comforts** listo para instalación limpia en **Debian 13 `trixie` / 14 `forky`** (sin entorno gráfico previo).  
+> **Hyprland + Waybar + Thunar + GNOME comforts (keyring/polkit)** listo para instalación limpia en **Debian 13 `trixie` / 14 `forky`** (sin entorno gráfico previo).  
 > Resultado: sesión Wayland con blur corregido para Hyprland 0.55, waybar en píldoras transparentes, colores sincronizados (Foot/Fuzzel) y soporte multi-monitor/monitor único.
 
 ![Debian](https://img.shields.io/badge/Debian-13%2F14-A81D33?logo=debian)
@@ -71,13 +71,13 @@ El instalador:
 
 1. **Repos** → `main contrib non-free non-free-firmware` + backports
 2. **Drivers** → microcode + `nvidia`/`amd`/`intel` + firmware
-3. **Base** → `wget curl bc jq`, `network-manager`, `gvfs udisks2 udiskie`, **`nautilus gnome-sushi file-roller`**, `pipewire wireplumber pavucontrol`, `bluez blueman`, `swaync gnome-calendar`, `wl-clipboard cliphist brightnessctl playerctl`, `foot fuzzel swaybg grim slurp swappy wf-recorder`, **`xdg-desktop-portal xdg-desktop-portal-gtk xdg-user-dirs`**, **`nwg-look`**, `fonts-jetbrains-mono`, `waybar`, `gnome-keyring seahorse polkitd`
-   > Tras instalar `nautilus` ejecuta automáticamente:
+3. **Base** → `wget curl bc jq`, `network-manager`, `gvfs gvfs-backends gvfs-fuse gvfs-daemons udisks2 udiskie`, **`thunar thunar-archive-plugin thunar-volman xarchiver tumbler ffmpegthumbnailer`**, **`imv swayimg mpv`**, `pipewire wireplumber pavucontrol`, `bluez blueman`, `swaync gnome-calendar`, `wl-clipboard cliphist brightnessctl playerctl`, `foot fuzzel swaybg grim slurp swappy wf-recorder`, **`xdg-desktop-portal xdg-desktop-portal-gtk xdg-user-dirs`**, **`nwg-look`**, `fonts-jetbrains-mono`, `waybar`, `gnome-keyring seahorse polkitd`
+   > Tras instalar `thunar` ejecuta automáticamente:
    > ```bash
    > LANG=es_ES.UTF-8 xdg-user-dirs-update --force
-   > nautilus -q
+   > thunar -q
    > ```
-   > para forzar `~/Imágenes`, `~/Documentos` etc. en español.
+   > para forzar `~/Imágenes`, `~/Documentos` etc. en español. `swayimg` es opcional en `trixie` (fallback a `imv` si no está).
 4. **Hyprland stack** → `hyprland hyprlock hypridle hyprpolkitagent` + **`hyprland-guiutils`** + `greetd tuigreet` (desde `trixie-backports` si es trixie, nativo si es forky) + `xdg-desktop-portal-hyprland`
 5. **Fuentes** → `Meslo Nerd Font` + `SymbolsOnly` en `~/.local/share/fonts`
 6. **Greetd** → `tuigreet --time --remember --cmd start-hyprland` (con vars NVIDIA si `GPU_TYPE=nvidia`)
@@ -91,7 +91,7 @@ El instalador:
 
 ## 🖥️ Uso
 
-- **SUPER + Return** → `gnome-terminal` | **SUPER + D** → `fuzzel` | **SUPER + X** → `nautilus`
+- **SUPER + Return** → `gnome-terminal` | **SUPER + D** → `fuzzel` | **SUPER + X** → `thunar`
 - **SUPER + SHIFT + B** → `pkill waybar; waybar & foot_sync.sh; waybar-theme.sh` (recarga barra + colores)
 - **Workspaces** → `SUPER + 1..0` / `SHIFT + 1..0` mover, `SUPER + scroll` navegar, `SUPER + S` scratchpad
 - **Brillo/Volumen** → `XF86MonBrightnessUp/Down` (`brightnessctl -e4 -n2 -d intel_backlight set 5%+`), `XF86AudioRaise/LowerVolume` (`wpctl` 2%), scroll sobre `#backlight` / `#pulseaudio`

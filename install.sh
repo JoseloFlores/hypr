@@ -2,7 +2,7 @@
 # =============================================================================
 #  Hyprland & Waybar Installer - Debian 13 (Trixie) / 14 (Forky)
 #  Instalación Limpia sin entorno gráfico
-#  Resultado: Hyprland + Waybar + Nautilus + GNOME comforts
+#  Resultado: Hyprland + Waybar + Thunar + GNOME comforts (keyring/polkit)
 # =============================================================================
 
 set -eo pipefail
@@ -127,7 +127,8 @@ apt-get install -y --no-install-recommends \
     wget curl bc jq build-essential pkg-config unzip \
     network-manager network-manager-gnome iw wireless-tools rfkill \
     gvfs gvfs-backends gvfs-fuse gvfs-daemons udisks2 udiskie \
-    nautilus gnome-sushi file-roller \
+    thunar thunar-archive-plugin thunar-volman xarchiver tumbler ffmpegthumbnailer \
+    imv mpv \
     pipewire pipewire-alsa pipewire-audio pipewire-pulse wireplumber pavucontrol \
     bluez blueman \
     sway-notification-center gnome-calendar \
@@ -140,6 +141,8 @@ apt-get install -y --no-install-recommends \
     gnome-keyring libpam-gnome-keyring seahorse \
     polkitd pkexec qt6-wayland \
     waybar
+# Visor Wayland adicional (opcional en trixie, nativo en forky) - no abortar si no está
+apt-get install -y --no-install-recommends swayimg || echo "WARN: swayimg no disponible en $OS_CODENAME, continuando solo con imv" >&2 || true
 
 # --- 3b. Corregir WiFi unmanaged (dhcpcd/ifupdown -> NetworkManager) ---
 echo "-> Corrigiendo WiFi para NetworkManager (unmanaged -> managed)..."
@@ -177,9 +180,9 @@ fi
 
 systemctl enable bluetooth || true
 
-# Nautilus: forzar directorios en español y recargar (ejecutar tras instalar nautilus)
+# Thunar: forzar directorios en español (xdg-user-dirs) - genérico Nautilus/Thunar
 sudo -u "$REAL_USER" env HOME="$USER_HOME" LANG=es_ES.UTF-8 xdg-user-dirs-update --force || true
-sudo -u "$REAL_USER" env HOME="$USER_HOME" bash -c 'nautilus -q 2>/dev/null || true' || true
+sudo -u "$REAL_USER" env HOME="$USER_HOME" bash -c 'thunar -q 2>/dev/null || nautilus -q 2>/dev/null || true' || true
 
 # --- 4. Hyprland stack ---
 echo ""
