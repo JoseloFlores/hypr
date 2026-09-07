@@ -1,20 +1,18 @@
 #!/bin/bash
 # =============================================================================
 #  Hyprland & Waybar Installer - Debian 13 (Trixie) / 14 (Forky)
-#  Instalación Limpia sin entorno gráfico
-#  Resultado: Hyprland + Waybar + Thunar + GNOME comforts (keyring/polkit)
+#  Instalación limpia sin entorno gráfico previo
+#  Resultado: Hyprland + Waybar + Thunar + greetd/tuigreet
 # =============================================================================
 
 set -eo pipefail
 
-# --- Logging ---
-SCRIPT_DIR_TMP=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
-LOG_FILE="$SCRIPT_DIR_TMP/install.log"
+SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
+LOG_FILE="$SCRIPT_DIR/install.log"
 exec > >(tee -i "$LOG_FILE") 2>&1
 
 echo "=== Hyprland Installer — Debian Trixie/Forky — $(date) ==="
 
-# --- 0. Validaciones y Detección del SO ---
 if [ "$EUID" -ne 0 ]; then
     echo "ERROR: Ejecuta con sudo: sudo ./install.sh" >&2
     exit 1
@@ -30,14 +28,15 @@ if [ ! -d "$USER_HOME" ]; then
     exit 1
 fi
 
-SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" &>/dev/null && pwd)
-CPU_CORES=$(nproc)
+pkg_installed() {
+    dpkg-query -W -f='${Status}' "$1" 2>/dev/null | grep -q "install ok installed"
+}
 
-# Detectar versión de Debian — robusto para trixie/forky, soporta DEB822 y fallback
+# --- Detección del SO ---
+# shellcheck disable=SC1091
 source /etc/os-release
 OS_CODENAME="${VERSION_CODENAME:-}"
 if [ -z "$OS_CODENAME" ]; then
-    # Fallback: extraer de VERSION ("13 (trixie)") si VERSION_CODENAME vacío (containers mínimos)
     OS_CODENAME=$(grep -oE 'trixie|forky|bookworm|sid' <<< "${VERSION:-}" | head -n1 || true)
 fi
 if [ -z "$OS_CODENAME" ]; then
@@ -48,10 +47,18 @@ if [ "${ID:-}" != "debian" ]; then
     echo "ADVERTENCIA: ID detectado es '${ID:-desconocido}', esperado 'debian'. Continuando de todos modos."
 fi
 if [[ "$OS_CODENAME" != "trixie" && "$OS_CODENAME" != "forky" ]]; then
-    echo "ADVERTENCIA: OS detectado es $OS_CODENAME. Este script está optimizado para trixie o forky."
+    echo "ADVERTENCIA: OS detectado es $OS_CODENAME. Este script está pensado para trixie o forky."
 fi
 
-echo "-> Sistema: Debian $OS_CODENAME | Usuario: $REAL_USER | Cores: $CPU_CORES"
+apt_hypr_stack() {
+    if [ "$OS_CODENAME" = "trixie" ]; then
+        apt-get install -y -t trixie-backports --no-install-recommends "$@"
+    else
+        apt-get install -y --no-install-recommends "$@"
+    fi
+}
+
+echo "-> Sistema: Debian $OS_CODENAME | Usuario: $REAL_USER"
 
 if ! ping -c1 -W3 deb.debian.org &>/dev/null; then
     echo "ADVERTENCIA: Sin conectividad a deb.debian.org — intentando continuar..."
@@ -61,33 +68,27 @@ fi
 echo ""
 echo "1/9 Configurando repositorios (contrib non-free non-free-firmware)..."
 
-# Formato clásico sources.list
 if [ -f /etc/apt/sources.list ]; then
     sed -i -E "s/(\b$OS_CODENAME\b\s+)(main|contrib|non-free|non-free-firmware\s*)+/\1main contrib non-free non-free-firmware/g" /etc/apt/sources.list
     sed -i -E "s/(\b$OS_CODENAME-updates\b\s+)(main|contrib|non-free|non-free-firmware\s*)+/\1main contrib non-free non-free-firmware/g" /etc/apt/sources.list
     sed -i -E "s/(\b$OS_CODENAME-security\b\s+)(main|contrib|non-free|non-free-firmware\s*)+/\1main contrib non-free non-free-firmware/g" /etc/apt/sources.list
 fi
 
-# Formato DEB822 debian.sources (Debian 12+ por defecto)
 if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-    # Asegurar Components: main contrib non-free non-free-firmware (idempotente)
     if grep -q "^Components:" /etc/apt/sources.list.d/debian.sources; then
         sed -i -E "s/^Components:.*/Components: main contrib non-free non-free-firmware/" /etc/apt/sources.list.d/debian.sources
     fi
     echo "-> debian.sources parcheado para contrib/non-free"
 fi
-# También parchear cualquier otro .sources con Suites: trixie/forky
 for src in /etc/apt/sources.list.d/*.sources; do
     [ -f "$src" ] || continue
-    # Solo tocar si es del codename actual y tiene Components:
     if grep -q "Suites:.*$OS_CODENAME" "$src" 2>/dev/null && grep -q "^Components:" "$src"; then
         sed -i -E "s/^Components:.*/Components: main contrib non-free non-free-firmware/" "$src" || true
     fi
 done
 
 if [ "$OS_CODENAME" = "trixie" ]; then
-    BACKPORTS_FILE="/etc/apt/sources.list.d/trixie-backports.list"
-    cat > "$BACKPORTS_FILE" <<EOF
+    cat > /etc/apt/sources.list.d/trixie-backports.list <<EOF
 deb http://deb.debian.org/debian trixie-backports main contrib non-free non-free-firmware
 deb-src http://deb.debian.org/debian trixie-backports main contrib non-free non-free-firmware
 EOF
@@ -110,7 +111,7 @@ GPU_TYPE="generic"
 if lspci 2>/dev/null | grep -iq "nvidia"; then
     apt-get install -y nvidia-driver nvidia-vaapi-driver libva-nvidia-driver || true
     GPU_TYPE="nvidia"
-elif lspci 2>/dev/null | grep -iq "amd.*\(vga\|display\|graphics\)\|Advanced Micro Devices" ; then
+elif lspci 2>/dev/null | grep -iq "amd.*\(vga\|display\|graphics\)\|Advanced Micro Devices"; then
     apt-get install -y mesa-va-drivers mesa-vdpau-drivers libgl1-mesa-dri va-driver-all || true
     GPU_TYPE="amd"
 elif lspci 2>/dev/null | grep -iq "intel.*\(graphics\|display\|vga\)"; then
@@ -119,13 +120,14 @@ elif lspci 2>/dev/null | grep -iq "intel.*\(graphics\|display\|vga\)"; then
 fi
 apt-get install -y firmware-linux-nonfree || true
 
-# --- 3. Paquetes base e interfaz ---
+# --- 3. Paquetes base ---
 echo ""
-echo "3/9 Instalando herramientas base + comforts GNOME + Waybar..."
+echo "3/9 Instalando herramientas base + Waybar..."
 
 apt-get install -y --no-install-recommends \
-    wget curl bc jq build-essential pkg-config unzip \
-    network-manager iw wireless-tools rfkill \
+    wget curl bc jq python3 fontconfig libnotify-bin dbus-user-session xdg-utils \
+    build-essential pkg-config unzip \
+    network-manager network-manager-gnome iw wireless-tools rfkill \
     gvfs gvfs-backends gvfs-fuse gvfs-daemons udisks2 udiskie \
     thunar thunar-archive-plugin thunar-volman xarchiver tumbler ffmpegthumbnailer \
     imv mpv \
@@ -141,60 +143,73 @@ apt-get install -y --no-install-recommends \
     gnome-keyring libpam-gnome-keyring seahorse \
     polkitd pkexec qt6-wayland \
     waybar
-# Visor Wayland adicional (opcional en trixie, nativo en forky) - no abortar si no está
-apt-get install -y --no-install-recommends swayimg || echo "WARN: swayimg no disponible en $OS_CODENAME, continuando solo con imv" >&2 || true
+apt-get install -y --no-install-recommends swayimg || echo "WARN: swayimg no disponible en $OS_CODENAME, continuando con imv" >&2 || true
 
-# --- 3b. Corregir WiFi unmanaged (dhcpcd/ifupdown -> NetworkManager) ---
-echo "-> Corrigiendo WiFi para NetworkManager (unmanaged -> managed)..."
+echo "-> Corrigiendo WiFi para NetworkManager..."
 mkdir -p /etc/NetworkManager/conf.d
 cat > /etc/NetworkManager/conf.d/10-globally-managed-devices.conf <<'NMCONF'
 [keyfile]
 unmanaged-devices=none
 NMCONF
-# Forzar managed=true en NetworkManager.conf (si existe)
 if [ -f /etc/NetworkManager/NetworkManager.conf ]; then
     sed -i -E "s/managed=false/managed=true/" /etc/NetworkManager/NetworkManager.conf || true
     grep -q "^\[ifupdown\]" /etc/NetworkManager/NetworkManager.conf || echo -e "\n[ifupdown]\nmanaged=true" >> /etc/NetworkManager/NetworkManager.conf
 fi
-# Dejar /etc/network/interfaces solo con loopback para que NM gestione wifi/eth
 if [ -f /etc/network/interfaces ] && grep -qE "wlp|wlan|eth|enp|ens" /etc/network/interfaces 2>/dev/null; then
-    cp /etc/network/interfaces /etc/network/interfaces.bak.$(date +%s)
+    cp /etc/network/interfaces "/etc/network/interfaces.bak.$(date +%s)"
     cat > /etc/network/interfaces <<'IFACE'
 auto lo
 iface lo inet loopback
 IFACE
     echo "-> /etc/network/interfaces reseteado a solo lo (backup creado)"
 fi
-# Evitar que dhcpcd interfiera con NM (denyinterfaces si dhcpcd existe)
 if [ -f /etc/dhcpcd.conf ] && ! grep -q "denyinterfaces" /etc/dhcpcd.conf 2>/dev/null; then
     echo "denyinterfaces wlan* wlp* eth* enp* ens*" >> /etc/dhcpcd.conf || true
 fi
 systemctl enable NetworkManager 2>/dev/null || true
 systemctl restart NetworkManager 2>/dev/null || true
 
-if [ "$OS_CODENAME" = "trixie" ]; then
-    apt-get install -y -t trixie-backports --no-install-recommends xdg-desktop-portal-hyprland || true
-else
-    apt-get install -y --no-install-recommends xdg-desktop-portal-hyprland || true
-fi
+apt_hypr_stack xdg-desktop-portal-hyprland || true
 
 systemctl enable bluetooth || true
 
-# Thunar: forzar directorios en español (xdg-user-dirs) - genérico Nautilus/Thunar
-sudo -u "$REAL_USER" env HOME="$USER_HOME" LANG=es_ES.UTF-8 xdg-user-dirs-update --force || true
-sudo -u "$REAL_USER" env HOME="$USER_HOME" bash -c 'thunar -q 2>/dev/null || nautilus -q 2>/dev/null || true' || true
+cat > /etc/udev/rules.d/90-backlight.rules <<'UDEV'
+SUBSYSTEM=="backlight", ACTION=="add", RUN+="/bin/chgrp video /sys/class/backlight/%k/brightness", RUN+="/bin/chmod g+w /sys/class/backlight/%k/brightness"
+UDEV
+udevadm control --reload-rules 2>/dev/null || true
+udevadm trigger --subsystem-match=backlight --action=add 2>/dev/null || true
+for bl in /sys/class/backlight/*/brightness; do
+    [ -e "$bl" ] || continue
+    chgrp video "$bl" 2>/dev/null || true
+    chmod g+w "$bl" 2>/dev/null || true
+done
+
+if command -v locale-gen >/dev/null 2>&1; then
+    for loc in es_ES.UTF-8 es_AR.UTF-8; do
+        if ! locale -a 2>/dev/null | grep -qi "^${loc}$\|^${loc%%.*}"; then
+            sed -i -E "s/^# *${loc}/${loc}/" /etc/locale.gen 2>/dev/null || true
+            grep -q "^${loc}" /etc/locale.gen 2>/dev/null || echo "${loc} UTF-8" >> /etc/locale.gen
+        fi
+    done
+    locale-gen es_ES.UTF-8 es_AR.UTF-8 >/dev/null 2>&1 || locale-gen || true
+fi
+
+USER_LANG="$(sudo -u "$REAL_USER" bash -lc 'printf %s "${LANG:-}"' 2>/dev/null || true)"
+if locale -a 2>/dev/null | grep -qi 'es_ES'; then
+    XDG_LANG="es_ES.UTF-8"
+elif [ -n "$USER_LANG" ]; then
+    XDG_LANG="$USER_LANG"
+else
+    XDG_LANG="C.UTF-8"
+fi
+sudo -u "$REAL_USER" env HOME="$USER_HOME" LANG="$XDG_LANG" xdg-user-dirs-update --force || true
+sudo -u "$REAL_USER" env HOME="$USER_HOME" bash -c 'thunar -q 2>/dev/null || true' || true
 
 # --- 4. Hyprland stack ---
 echo ""
 echo "4/9 Instalando Hyprland..."
 
-if [ "$OS_CODENAME" = "trixie" ]; then
-    apt-get install -y -t trixie-backports --no-install-recommends \
-        hyprland hyprlock hypridle hyprpolkitagent hyprland-guiutils greetd tuigreet
-else
-    apt-get install -y --no-install-recommends \
-        hyprland hyprlock hypridle hyprpolkitagent hyprland-guiutils greetd tuigreet
-fi
+apt_hypr_stack hyprland hyprlock hypridle hyprpolkitagent hyprland-guiutils greetd tuigreet
 
 # --- 5. Fuentes ---
 echo ""
@@ -219,7 +234,6 @@ install_nerd_font() {
 [ -z "$(ls -A "$MESLO_DIR" 2>/dev/null)" ] && install_nerd_font "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.zip" "$MESLO_DIR"
 [ -z "$(ls -A "$SYMBOLS_DIR" 2>/dev/null)" ] && install_nerd_font "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/NerdFontsSymbolsOnly.zip" "$SYMBOLS_DIR"
 
-# fc-cache debe correr como usuario para indexar $USER_HOME/.local/share/fonts (fix log mostraba solo /root)
 sudo -u "$REAL_USER" env HOME="$USER_HOME" fc-cache -fv "$FONT_DIR" 2>&1 | tail -n 20 || true
 fc-cache -fv 2>&1 | tail -n 5 || true
 chown -R "$REAL_USER":"$REAL_USER" "$FONT_DIR" || true
@@ -232,14 +246,11 @@ mkdir -p /etc/greetd
 mkdir -p /var/cache/tuigreet
 chown -R _greetd: /var/cache/tuigreet || true
 
-ENV_VARS="start-hyprland"
-[ "$GPU_TYPE" = "nvidia" ] && ENV_VARS="env LIBVA_DRIVER_NAME=nvidia GBM_BACKEND=nvidia-drm __GLX_VENDOR_LIBRARY_NAME=nvidia WLR_NO_HARDWARE_CURSORS=1 start-hyprland"
-
-cat > /etc/greetd/config.toml <<EOF
+cat > /etc/greetd/config.toml <<'EOF'
 [terminal]
 vt = 1
 [default_session]
-command = "/usr/bin/tuigreet --time --remember --asterisks --cmd '$ENV_VARS'"
+command = "/usr/bin/tuigreet --time --remember --asterisks --cmd start-hyprland"
 user = "_greetd"
 EOF
 
@@ -254,32 +265,31 @@ RestartSec=5
 EOF
 systemctl daemon-reload
 
-# --- 7. Despliegue de configuraciones (dots) ---
+# --- 7. Dots ---
 echo ""
 echo "7/9 Desplegando configuraciones en $USER_HOME/.config..."
 
 DOTS_CONF="$USER_HOME/.config"
-sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p "$DOTS_CONF/hypr" "$DOTS_CONF/waybar/themes" "$DOTS_CONF/waybar/scripts"
+sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p \
+    "$DOTS_CONF/hypr" "$DOTS_CONF/waybar/themes" "$DOTS_CONF/waybar/scripts" \
+    "$DOTS_CONF/swaync" "$DOTS_CONF/foot" "$DOTS_CONF/fuzzel"
 
-for src in "hyprland.conf" "hyprlock.conf" "hypridle.conf" "wallpaper.jpg" "power_menu.sh"; do
+for src in hyprland.conf hyprlock.conf hypridle.conf wallpaper.jpg; do
     if [ -f "$SCRIPT_DIR/$src" ]; then
         sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/$src" "$DOTS_CONF/hypr/"
     fi
 done
 
-# Helpers Hyprland / Waybar (scripts que usa waybar y binds)
-for src in "waybar_network.sh" "wifi_click.sh" "check_updates.sh" "check_updates_count.sh" "confirm_power.sh" "foot_sync.sh" "power_menu.sh"; do
+for src in waybar_network.sh wifi_click.sh check_updates.sh check_updates_count.sh confirm_power.sh foot_sync.sh power_menu.sh; do
     if [ -f "$SCRIPT_DIR/$src" ]; then
         sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/$src" "$DOTS_CONF/hypr/"
-        sudo -u "$REAL_USER" env HOME="$USER_HOME" chmod +x "$DOTS_CONF/hypr/$src" 2>/dev/null || true
+        chmod +x "$DOTS_CONF/hypr/$src" 2>/dev/null || true
     fi
 done
 
-# Desplegar Waybar (desde waybar/ subdirectorio)
 if [ -d "$SCRIPT_DIR/waybar" ]; then
     if [ -f "$SCRIPT_DIR/waybar/config.jsonc" ]; then
         sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/waybar/config.jsonc" "$DOTS_CONF/waybar/config.jsonc"
-        # Waybar lee 'config' (sin extensión) también; copiar ambas para compatibilidad
         sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/waybar/config.jsonc" "$DOTS_CONF/waybar/config"
     fi
     if [ -f "$SCRIPT_DIR/waybar/style.css" ]; then
@@ -292,96 +302,39 @@ if [ -d "$SCRIPT_DIR/waybar" ]; then
     for sh in "$SCRIPT_DIR/waybar/scripts"/*.sh; do
         [ -f "$sh" ] || continue
         sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$sh" "$DOTS_CONF/waybar/scripts/"
-        sudo -u "$REAL_USER" env HOME="$USER_HOME" chmod +x "$DOTS_CONF/waybar/scripts/$(basename "$sh")"
+        chmod +x "$DOTS_CONF/waybar/scripts/$(basename "$sh")"
     done
-    # Sincronizar tema inicial
-    if [ -x "$DOTS_CONF/waybar/scripts/waybar-theme.sh" ]; then
-        sudo -u "$REAL_USER" env HOME="$USER_HOME" bash -c "\"$DOTS_CONF/waybar/scripts/waybar-theme.sh\" || true" || true
-    fi
 else
     echo "WARN: No se encontró $SCRIPT_DIR/waybar, se omite despliegue Waybar"
 fi
 
-# Foot / Fuzzel — despliegue de plantillas (ahora existen en repo)
 for app in foot fuzzel; do
     if [ -f "$SCRIPT_DIR/$app.ini" ]; then
-        sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p "$DOTS_CONF/$app"
         sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/$app.ini" "$DOTS_CONF/$app/$app.ini"
         echo "-> $app.ini desplegado en $DOTS_CONF/$app/"
     fi
 done
-# Sincronizar Foot/Fuzzel con tema Waybar activo (translúcido e6)
-if [ -x "$DOTS_CONF/hypr/foot_sync.sh" ]; then
-    sudo -u "$REAL_USER" env HOME="$USER_HOME" bash -c "\"$DOTS_CONF/hypr/foot_sync.sh\" || true" || true
-fi
 
-# SwayNC
-SWAYNC_DIR="$DOTS_CONF/swaync"
-sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p "$SWAYNC_DIR"
 if [ -f "$SCRIPT_DIR/swaync_config.json" ]; then
-    sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/swaync_config.json" "$SWAYNC_DIR/config.json"
+    sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/swaync_config.json" "$DOTS_CONF/swaync/config.json"
 fi
 if [ -f "$SCRIPT_DIR/swaync_style.css" ]; then
-    sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/swaync_style.css" "$SWAYNC_DIR/style.css"
+    sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/swaync_style.css" "$DOTS_CONF/swaync/style.css"
 fi
 
-# Sanitizar hardcodes /home/... -> $USER_HOME en dots desplegados
+HYPR_CONF="$DOTS_CONF/hypr/hyprland.conf"
+if [ "$GPU_TYPE" = "nvidia" ] && [ -f "$HYPR_CONF" ]; then
+    sed -i '/^# NVIDIA_ENV_BEGIN/,/^# NVIDIA_ENV_END/{s/^# env =/env =/;}' "$HYPR_CONF"
+    echo "-> hyprland.conf: variables NVIDIA activadas"
+fi
+
 find "$DOTS_CONF/hypr" "$DOTS_CONF/waybar" "$DOTS_CONF/swaync" -type f \( -name "*.sh" -o -name "*.jsonc" -o -name "config" -o -name "*.conf" -o -name "*.css" -o -name "*.ini" \) \
     -exec sed -i -E "s|/home/[^/]+|$USER_HOME|g" {} + 2>/dev/null || true
 
 chown -R "$REAL_USER":"$REAL_USER" "$DOTS_CONF"
 find "$DOTS_CONF" -name "*.sh" -exec chmod +x {} + 2>/dev/null || true
-chmod +x "$DOTS_CONF/waybar/scripts"/*.sh 2>/dev/null || true
 
-# --- 7b. Fix Zoom Wayland sin XWayland (evita instalar xwayland que rompe Hyprland) ---
-echo ""
-echo "7b/9 Configurando Zoom para Wayland nativo (sin XWayland)..."
-
-# Wrapper que fuerza wayland + LANG + LD_LIBRARY_PATH (Zoom trae Qt bundled en /opt/zoom/Qt/lib)
-sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p "$USER_HOME/.local/bin" "$USER_HOME/.local/share/applications"
-sudo -u "$REAL_USER" env HOME="$USER_HOME" bash -c "cat > \"$USER_HOME/.local/bin/zoom-wayland\" <<'ZWAYLAND'
-#!/bin/bash
-export QT_QPA_PLATFORM=wayland
-export LANG=es_AR.UTF-8
-export LC_ALL=es_AR.UTF-8
-export LD_LIBRARY_PATH=/opt/zoom:/opt/zoom/Qt/lib:/opt/zoom/cef:\$LD_LIBRARY_PATH
-exec /opt/zoom/zoom \"\$@\"
-ZWAYLAND
-"
-sudo -u "$REAL_USER" env HOME="$USER_HOME" chmod +x "$USER_HOME/.local/bin/zoom-wayland"
-
-# Desktop override para que el menú use el wrapper y no /usr/bin/zoom (ZoomLauncher -> xcb)
-if [ -f /usr/share/applications/Zoom.desktop ]; then
-    sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f /usr/share/applications/Zoom.desktop "$USER_HOME/.local/share/applications/Zoom.desktop"
-    sudo -u "$REAL_USER" env HOME="$USER_HOME" sed -i -E "s|^Exec=.*zoom.*|Exec=$USER_HOME/.local/bin/zoom-wayland %U|" "$USER_HOME/.local/share/applications/Zoom.desktop"
-    sudo -u "$REAL_USER" env HOME="$USER_HOME" update-desktop-database "$USER_HOME/.local/share/applications" 2>/dev/null || true
-fi
-
-# Fix hyprpolkitagent: requiere qt6-wayland y QT_QPA_PLATFORM con fallback wayland;xcb (evita crash Qt sin plugin wayland)
-if grep -q "env = QT_QPA_PLATFORM,wayland$" "$DOTS_CONF/hypr/hyprland.conf" 2>/dev/null; then
-    sed -i -E "s/env = QT_QPA_PLATFORM,wayland$/env = QT_QPA_PLATFORM,wayland;xcb/" "$DOTS_CONF/hypr/hyprland.conf"
-    chown "$REAL_USER":"$REAL_USER" "$DOTS_CONF/hypr/hyprland.conf"
-    echo "-> hyprland.conf: QT_QPA_PLATFORM corregido a wayland;xcb (fix hyprpolkitagent qt6-wayland)"
-fi
-grep -q "env = LANG," "$DOTS_CONF/hypr/hyprland.conf" || sed -i "/QT_QPA_PLATFORM/a env = LANG,es_AR.UTF-8" "$DOTS_CONF/hypr/hyprland.conf"
-# Asegurar autostart polkit con import-environment (requerido para WAYLAND_DISPLAY en systemd user)
-if ! grep -q "import-environment.*QT_QPA_PLATFORM" "$DOTS_CONF/hypr/hyprland.conf" 2>/dev/null; then
-    # eliminar posibles líneas viejas sin QT_QPA_PLATFORM para evitar duplicados
-    sed -i "/exec-once = systemctl --user import-environment/d" "$DOTS_CONF/hypr/hyprland.conf"
-    sed -i "/exec-once = dbus-update-activation-environment.*WAYLAND_DISPLAY/d" "$DOTS_CONF/hypr/hyprland.conf"
-    # insertar las dos líneas correctas antes del start hyprpolkitagent
-    sed -i "s|exec-once = systemctl --user start hyprpolkitagent|exec-once = systemctl --user import-environment WAYLAND_DISPLAY XDG_CURRENT_DESKTOP QT_QPA_PLATFORM\n\exec-once = dbus-update-activation-environment --systemd WAYLAND_DISPLAY XDG_CURRENT_DESKTOP QT_QPA_PLATFORM\n\0|" "$DOTS_CONF/hypr/hyprland.conf"
-    chown "$REAL_USER":"$REAL_USER" "$DOTS_CONF/hypr/hyprland.conf"
-    echo "-> hyprland.conf: autostart polkit corregido (import-environment + dbus-update)"
-fi
-# Eliminar duplicados de hyprpolkitagent si existieran (bug previo)
-if [ "$(grep -c "systemctl --user start hyprpolkitagent" "$DOTS_CONF/hypr/hyprland.conf")" -gt 1 ]; then
-    awk 'BEGIN{c=0} /systemctl --user start hyprpolkitagent/{c++; if(c>1) next}1' "$DOTS_CONF/hypr/hyprland.conf" > /tmp/hyprland.tmp && cat /tmp/hyprland.tmp > "$DOTS_CONF/hypr/hyprland.conf"
-    chown "$REAL_USER":"$REAL_USER" "$DOTS_CONF/hypr/hyprland.conf"
-    echo "-> hyprland.conf: duplicado hyprpolkitagent eliminado"
-fi
-
-# --- 8. PAM keyring y Portales ---
+# --- 8. PAM y portales ---
 echo ""
 echo "8/9 Finalizando permisos y PAM..."
 
@@ -426,61 +379,35 @@ echo ""
 echo "--- DIAGNÓSTICO FINAL ---"
 echo "Sistema: Debian $OS_CODENAME"
 
-# Waybar: no requiere XDG_RUNTIME_DIR, pero usamos dpkg para consistencia
-if dpkg-query -W waybar &>/dev/null; then
-    WAYBAR_VER=$(dpkg-query -W -f='${Version}' waybar 2>/dev/null)
-    WAYBAR_BIN=$(command -v waybar 2>/dev/null || echo "/usr/bin/waybar")
-    # waybar --version no necesita runtime, es seguro ejecutarlo
-    WAYBAR_RUN=$("$WAYBAR_BIN" --version 2>&1 | head -n1 || echo "Waybar v$WAYBAR_VER")
-    echo "Waybar instalado: $WAYBAR_RUN ($WAYBAR_BIN)"
+if pkg_installed waybar; then
+    echo "Waybar: $(dpkg-query -W -f='${Version}' waybar) ($(command -v waybar || echo /usr/bin/waybar))"
 else
-    echo "Waybar instalado: No (dpkg waybar no instalado)"
+    echo "Waybar: no instalado"
 fi
 
-# Hyprland: NO ejecutar Hyprland --version sin XDG_RUNTIME_DIR como root (CRIT falso positivo).
-# Usar dpkg-query que no necesita runtime. Solo intentar --version con runtime fake si el binario existe.
-HYPR_BIN=$(command -v Hyprland 2>/dev/null || command -v hyprland 2>/dev/null || echo "/usr/bin/Hyprland")
-if dpkg -l hyprland 2>/dev/null | grep -q "^ii"; then
-    HYPR_VER=$(dpkg-query -W -f='${Version}' hyprland 2>/dev/null)
-    echo "Hyprland instalado: $HYPR_VER ($HYPR_BIN)"
-    # Verificación opcional no fatal: probar binario con XDG_RUNTIME_DIR fake (evita CRIT)
-    if [ -x "$HYPR_BIN" ]; then
-        HYPR_RUNTIME_DIR="/run/user/$(id -u "$REAL_USER" 2>/dev/null || echo 1000)"
-        HYPR_VER_RUN=$(XDG_RUNTIME_DIR="$HYPR_RUNTIME_DIR" "$HYPR_BIN" --version 2>&1 | head -n1 || true)
-        if echo "$HYPR_VER_RUN" | grep -q "CRIT.*XDG_RUNTIME_DIR"; then
-            echo "  -> Hyprland --version: OK (binario ejecutable, check omitido sin sesión - esperado)"
-        elif [ -n "$HYPR_VER_RUN" ]; then
-            echo "  -> Hyprland --version: $HYPR_VER_RUN"
-        else
-            echo "  -> Hyprland --version: OK (binario ejecutable)"
-        fi
-    fi
+if pkg_installed hyprland; then
+    echo "Hyprland: $(dpkg-query -W -f='${Version}' hyprland) ($(command -v Hyprland || command -v start-hyprland || echo /usr/bin/Hyprland))"
 else
-    echo "Hyprland instalado: No (dpkg hyprland no instalado) — REVISAR apt logs arriba"
+    echo "Hyprland: no instalado — REVISAR apt logs arriba"
 fi
 
-# Greetd / tuigreet (no ejecutar tuigreet --version sin TTY — paniquea crossterm)
-echo "Greetd: $(systemctl is-enabled greetd 2>&1 || echo 'no habilitado') | $(systemctl is-active greetd 2>&1 | sed 's/^/estado: /' || true)"
-if dpkg -l tuigreet 2>/dev/null | grep -q "^ii"; then
-    echo "Tuigreet: $(dpkg-query -W -f='${Version}' tuigreet 2>/dev/null) ($(command -v tuigreet 2>/dev/null || echo '/usr/bin/tuigreet'))"
-elif command -v tuigreet &>/dev/null; then
-    echo "Tuigreet: instalado ($(command -v tuigreet))"
+echo "Greetd: $(systemctl is-enabled greetd 2>&1 || echo 'no habilitado')"
+if pkg_installed tuigreet; then
+    echo "Tuigreet: $(dpkg-query -W -f='${Version}' tuigreet)"
 else
-    echo "Tuigreet: No instalado"
+    echo "Tuigreet: no instalado"
 fi
-# xdg-desktop-portal-hyprland
-if dpkg -l xdg-desktop-portal-hyprland 2>/dev/null | grep -q "^ii"; then
-    echo "Portal Hyprland: $(dpkg-query -W -f='${Version}' xdg-desktop-portal-hyprland 2>/dev/null)"
+if pkg_installed xdg-desktop-portal-hyprland; then
+    echo "Portal Hyprland: $(dpkg-query -W -f='${Version}' xdg-desktop-portal-hyprland)"
 else
-    echo "Portal Hyprland: No instalado (advertencia)"
+    echo "Portal Hyprland: no instalado (advertencia)"
 fi
 
 echo "-------------------------------------------------------"
-# Solo declarar éxito si hyprland realmente está instalado vía dpkg
-if dpkg -l hyprland 2>/dev/null | grep -q "^ii"; then
+if pkg_installed hyprland && pkg_installed waybar; then
     echo "¡INSTALACIÓN COMPLETADA!"
 else
-    echo "¡INSTALACIÓN INCOMPLETA! Hyprland no se instaló — revisa errores de apt arriba."
+    echo "¡INSTALACIÓN INCOMPLETA! Revisa errores de apt arriba."
     exit 1
 fi
 if [ "$GPU_TYPE" = "nvidia" ]; then

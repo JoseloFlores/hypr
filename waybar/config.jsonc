@@ -33,8 +33,7 @@
   // Si viajas, cambia con: sudo timedatectl set-timezone <Zona>  y Waybar seguirá automáticamente (o usa "timezones": ["", "Etc/UTC"] para scroll)
   "clock": {
     "interval": 1,
-    "locale": "es_AR.UTF-8",
-    "timezone": "America/Argentina/Buenos_Aires",
+    "timezone": "",
     "format": " {0:%H:%M}   {0:%d/%m}",
     "tooltip-format": "{:%A, %d de %B de %Y}",
     "on-click": "swaync-client -t -sw || gnome-calendar &",
@@ -47,7 +46,7 @@
     "return-type": "json",
     "format": "{}",
     "tooltip": true,
-    "on-click": "foot sh -c 'sudo apt update && sudo apt upgrade -y; pkill -SIGRTMIN+8 waybar' &",
+    "on-click": "foot sh -c 'sudo apt update && sudo apt upgrade -y; pkill -x -SIGRTMIN+8 waybar' &",
     "signal": 8
   },
   // Audio — pulseaudio nativo
@@ -98,17 +97,16 @@
     "format-plugged": "󱐋 {capacity}%",
     "format-icons": ["", "", "", "", ""],
     "tooltip-format": "Batería: {capacity}%",
-    "on-click": "gnome-power-statistics &",
+    "on-click": "notify-send \"Batería\" \"$(cat /sys/class/power_supply/BAT*/status 2>/dev/null | head -n1): $(cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -n1)%\"",
     "on-click-right": "notify-send \"Batería\" \"$(cat /sys/class/power_supply/BAT*/status 2>/dev/null | head -n1): $(cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -n1)%\""
   },
   // Brillo
   "backlight": {
-    "device": "intel_backlight",
     "format": "{icon}",
     "format-icons": ["󰃞", "󰃝", "󰃟", "󰃠"],
     "tooltip-format": "Brillo: {percent}%",
-    "on-scroll-up": "brightnessctl -d intel_backlight -e4 -n2 set 5%+",
-    "on-scroll-down": "brightnessctl -d intel_backlight -e4 -n2 set 5%-",
+    "on-scroll-up": "brightnessctl -e4 -n2 set 5%+",
+    "on-scroll-down": "brightnessctl -e4 -n2 set 5%-",
     "scroll-step": 5
   },
   // Power — grupo drawer slideleft 300ms
@@ -130,12 +128,12 @@
   "custom/power-main": {
     "format": "⏻",
     "tooltip-format": "Menú de energía — click expandir / click apagar",
-    "on-click": "WAYLAND_DISPLAY=wayland-1 XDG_RUNTIME_DIR=/run/user/1000 GTK_A11Y=none ~/.config/hypr/confirm_power.sh 'Apagar el sistema?' 'systemctl poweroff'"
+    "on-click": "~/.config/hypr/confirm_power.sh 'Apagar el sistema?' 'systemctl poweroff'"
   },
   "custom/power-suspend": {
     "format": "󰤄",
     "tooltip-format": "Suspender",
-    "on-click": "WAYLAND_DISPLAY=wayland-1 XDG_RUNTIME_DIR=/run/user/1000 GTK_A11Y=none ~/.config/hypr/confirm_power.sh 'Suspender el sistema?' 'loginctl lock-session && sleep 1 && systemctl suspend'"
+    "on-click": "~/.config/hypr/confirm_power.sh 'Suspender el sistema?' 'loginctl lock-session && sleep 1 && systemctl suspend'"
   },
   "custom/power-lock": {
     "format": "󰌾",
@@ -145,11 +143,11 @@
   "custom/power-reboot": {
     "format": "󰜉",
     "tooltip-format": "Reiniciar",
-    "on-click": "WAYLAND_DISPLAY=wayland-1 XDG_RUNTIME_DIR=/run/user/1000 GTK_A11Y=none ~/.config/hypr/confirm_power.sh 'Reiniciar el sistema?' 'systemctl reboot'"
+    "on-click": "~/.config/hypr/confirm_power.sh 'Reiniciar el sistema?' 'systemctl reboot'"
   },
   "custom/power-logout": {
     "format": "󰍃",
     "tooltip-format": "Cerrar sesión",
-    "on-click": "WAYLAND_DISPLAY=wayland-1 XDG_RUNTIME_DIR=/run/user/1000 GTK_A11Y=none ~/.config/hypr/confirm_power.sh 'Cerrar sesion?' 'hyprctl dispatch exit'"
+    "on-click": "~/.config/hypr/confirm_power.sh 'Cerrar sesion?' 'hyprctl dispatch exit'"
   }
 }
