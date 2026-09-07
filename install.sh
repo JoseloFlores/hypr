@@ -125,7 +125,7 @@ echo "3/9 Instalando herramientas base + comforts GNOME + Waybar..."
 
 apt-get install -y --no-install-recommends \
     wget curl bc jq build-essential pkg-config unzip \
-    network-manager network-manager-gnome iw wireless-tools rfkill \
+    network-manager iw wireless-tools rfkill \
     gvfs gvfs-backends gvfs-fuse gvfs-daemons udisks2 udiskie \
     thunar thunar-archive-plugin thunar-volman xarchiver tumbler ffmpegthumbnailer \
     imv mpv \
