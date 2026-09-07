@@ -123,7 +123,7 @@ echo "Tema Waybar aplicado: $THEME_NAME"
 # 3. Recargar waybar si corre
 if pgrep -x waybar >/dev/null 2>&1; then
   echo "Recargando waybar..."
-  pkill -x -SIGUSR2 waybar 2>/dev/null || true
+  pkill -x -SIGUSR2 waybar 2>/dev/null || killall -SIGUSR2 waybar 2>/dev/null || true
   sleep 0.5
   if ! pgrep -x waybar >/dev/null 2>&1; then
     waybar >/dev/null 2>&1 &
