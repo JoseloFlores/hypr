@@ -219,7 +219,9 @@ install_nerd_font() {
 [ -z "$(ls -A "$MESLO_DIR" 2>/dev/null)" ] && install_nerd_font "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.zip" "$MESLO_DIR"
 [ -z "$(ls -A "$SYMBOLS_DIR" 2>/dev/null)" ] && install_nerd_font "https://github.com/ryanoasis/nerd-fonts/releases/latest/download/NerdFontsSymbolsOnly.zip" "$SYMBOLS_DIR"
 
-fc-cache -fv || true
+# fc-cache debe correr como usuario para indexar $USER_HOME/.local/share/fonts (fix log mostraba solo /root)
+sudo -u "$REAL_USER" env HOME="$USER_HOME" fc-cache -fv "$FONT_DIR" 2>&1 | tail -n 20 || true
+fc-cache -fv 2>&1 | tail -n 5 || true
 chown -R "$REAL_USER":"$REAL_USER" "$FONT_DIR" || true
 
 # --- 6. Greetd + tuigreet ---
@@ -423,10 +425,64 @@ systemctl enable greetd
 echo ""
 echo "--- DIAGNÓSTICO FINAL ---"
 echo "Sistema: Debian $OS_CODENAME"
-echo "Waybar instalado: $(command -v waybar &>/dev/null && waybar --version 2>&1 | head -n1 || echo 'No')"
-echo "Hyprland instalado: $(command -v Hyprland &>/dev/null && Hyprland --version 2>&1 | head -n1 || echo 'No')"
+
+# Waybar: no requiere XDG_RUNTIME_DIR, pero usamos dpkg para consistencia
+if dpkg-query -W waybar &>/dev/null; then
+    WAYBAR_VER=$(dpkg-query -W -f='${Version}' waybar 2>/dev/null)
+    WAYBAR_BIN=$(command -v waybar 2>/dev/null || echo "/usr/bin/waybar")
+    # waybar --version no necesita runtime, es seguro ejecutarlo
+    WAYBAR_RUN=$("$WAYBAR_BIN" --version 2>&1 | head -n1 || echo "Waybar v$WAYBAR_VER")
+    echo "Waybar instalado: $WAYBAR_RUN ($WAYBAR_BIN)"
+else
+    echo "Waybar instalado: No (dpkg waybar no instalado)"
+fi
+
+# Hyprland: NO ejecutar Hyprland --version sin XDG_RUNTIME_DIR como root (CRIT falso positivo).
+# Usar dpkg-query que no necesita runtime. Solo intentar --version con runtime fake si el binario existe.
+HYPR_BIN=$(command -v Hyprland 2>/dev/null || command -v hyprland 2>/dev/null || echo "/usr/bin/Hyprland")
+if dpkg -l hyprland 2>/dev/null | grep -q "^ii"; then
+    HYPR_VER=$(dpkg-query -W -f='${Version}' hyprland 2>/dev/null)
+    echo "Hyprland instalado: $HYPR_VER ($HYPR_BIN)"
+    # Verificación opcional no fatal: probar binario con XDG_RUNTIME_DIR fake (evita CRIT)
+    if [ -x "$HYPR_BIN" ]; then
+        HYPR_RUNTIME_DIR="/run/user/$(id -u "$REAL_USER" 2>/dev/null || echo 1000)"
+        HYPR_VER_RUN=$(XDG_RUNTIME_DIR="$HYPR_RUNTIME_DIR" "$HYPR_BIN" --version 2>&1 | head -n1 || true)
+        if echo "$HYPR_VER_RUN" | grep -q "CRIT.*XDG_RUNTIME_DIR"; then
+            echo "  -> Hyprland --version: OK (binario ejecutable, check omitido sin sesión - esperado)"
+        elif [ -n "$HYPR_VER_RUN" ]; then
+            echo "  -> Hyprland --version: $HYPR_VER_RUN"
+        else
+            echo "  -> Hyprland --version: OK (binario ejecutable)"
+        fi
+    fi
+else
+    echo "Hyprland instalado: No (dpkg hyprland no instalado) — REVISAR apt logs arriba"
+fi
+
+# Greetd / tuigreet (no ejecutar tuigreet --version sin TTY — paniquea crossterm)
+echo "Greetd: $(systemctl is-enabled greetd 2>&1 || echo 'no habilitado') | $(systemctl is-active greetd 2>&1 | sed 's/^/estado: /' || true)"
+if dpkg -l tuigreet 2>/dev/null | grep -q "^ii"; then
+    echo "Tuigreet: $(dpkg-query -W -f='${Version}' tuigreet 2>/dev/null) ($(command -v tuigreet 2>/dev/null || echo '/usr/bin/tuigreet'))"
+elif command -v tuigreet &>/dev/null; then
+    echo "Tuigreet: instalado ($(command -v tuigreet))"
+else
+    echo "Tuigreet: No instalado"
+fi
+# xdg-desktop-portal-hyprland
+if dpkg -l xdg-desktop-portal-hyprland 2>/dev/null | grep -q "^ii"; then
+    echo "Portal Hyprland: $(dpkg-query -W -f='${Version}' xdg-desktop-portal-hyprland 2>/dev/null)"
+else
+    echo "Portal Hyprland: No instalado (advertencia)"
+fi
+
 echo "-------------------------------------------------------"
-echo "¡INSTALACIÓN COMPLETADA!"
+# Solo declarar éxito si hyprland realmente está instalado vía dpkg
+if dpkg -l hyprland 2>/dev/null | grep -q "^ii"; then
+    echo "¡INSTALACIÓN COMPLETADA!"
+else
+    echo "¡INSTALACIÓN INCOMPLETA! Hyprland no se instaló — revisa errores de apt arriba."
+    exit 1
+fi
 if [ "$GPU_TYPE" = "nvidia" ]; then
     echo "AVISO NVIDIA: añade 'nvidia-drm.modeset=1' a GRUB_CMDLINE_LINUX en /etc/default/grub y ejecuta: update-grub"
 fi
