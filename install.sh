@@ -50,11 +50,55 @@ if [[ "$OS_CODENAME" != "trixie" && "$OS_CODENAME" != "forky" ]]; then
     echo "ADVERTENCIA: OS detectado es $OS_CODENAME. Este script está pensado para trixie o forky."
 fi
 
+# Configuración de resiliencia para APT (reintentos automáticos y timeouts)
+mkdir -p /etc/apt/apt.conf.d
+cat > /etc/apt/apt.conf.d/99resilient <<'EOF'
+Acquire::Retries "5";
+Acquire::http::Timeout "20";
+Acquire::https::Timeout "20";
+APT::Get::Assume-Yes "true";
+EOF
+
+apt_install_resilient() {
+    local max_attempts=5
+    local attempt=1
+    local delay=4
+    until apt-get install -y --no-install-recommends "$@"; do
+        if [ "$attempt" -ge "$max_attempts" ]; then
+            echo "ERROR: Falló 'apt-get install' tras $max_attempts intentos para: $*" >&2
+            return 1
+        fi
+        echo "WARN: Falló descarga/instalación (intento $attempt/$max_attempts). Reintentando en ${delay}s..." >&2
+        sleep "$delay"
+        dpkg --configure -a || true
+        apt-get --fix-broken install -y || true
+        apt-get update -o Acquire::Retries=3 || true
+        attempt=$((attempt + 1))
+        delay=$((delay * 2))
+    done
+}
+
+apt_update_resilient() {
+    local max_attempts=5
+    local attempt=1
+    local delay=4
+    until apt-get update; do
+        if [ "$attempt" -ge "$max_attempts" ]; then
+            echo "ERROR: Falló 'apt-get update' tras $max_attempts intentos." >&2
+            return 1
+        fi
+        echo "WARN: Falló 'apt-get update' (intento $attempt/$max_attempts). Reintentando en ${delay}s..." >&2
+        sleep "$delay"
+        attempt=$((attempt + 1))
+        delay=$((delay * 2))
+    done
+}
+
 apt_hypr_stack() {
     if [ "$OS_CODENAME" = "trixie" ]; then
-        apt-get install -y -t trixie-backports --no-install-recommends "$@"
+        apt_install_resilient -t trixie-backports "$@"
     else
-        apt-get install -y --no-install-recommends "$@"
+        apt_install_resilient "$@"
     fi
 }
 
@@ -69,21 +113,17 @@ echo ""
 echo "1/9 Configurando repositorios (contrib non-free non-free-firmware)..."
 
 if [ -f /etc/apt/sources.list ]; then
-    sed -i -E "s/(\b$OS_CODENAME\b\s+)(main|contrib|non-free|non-free-firmware\s*)+/\1main contrib non-free non-free-firmware/g" /etc/apt/sources.list
-    sed -i -E "s/(\b$OS_CODENAME-updates\b\s+)(main|contrib|non-free|non-free-firmware\s*)+/\1main contrib non-free non-free-firmware/g" /etc/apt/sources.list
-    sed -i -E "s/(\b$OS_CODENAME-security\b\s+)(main|contrib|non-free|non-free-firmware\s*)+/\1main contrib non-free non-free-firmware/g" /etc/apt/sources.list
+    sed -i -E '/^deb(-src)?\s+http/ {
+        /contrib/! s/main/main contrib/
+        /non-free-firmware/! s/main/main non-free-firmware/
+        /non-free/! s/main/main non-free/
+    }' /etc/apt/sources.list
 fi
 
-if [ -f /etc/apt/sources.list.d/debian.sources ]; then
-    if grep -q "^Components:" /etc/apt/sources.list.d/debian.sources; then
-        sed -i -E "s/^Components:.*/Components: main contrib non-free non-free-firmware/" /etc/apt/sources.list.d/debian.sources
-    fi
-    echo "-> debian.sources parcheado para contrib/non-free"
-fi
 for src in /etc/apt/sources.list.d/*.sources; do
     [ -f "$src" ] || continue
-    if grep -q "Suites:.*$OS_CODENAME" "$src" 2>/dev/null && grep -q "^Components:" "$src"; then
-        sed -i -E "s/^Components:.*/Components: main contrib non-free non-free-firmware/" "$src" || true
+    if grep -q "^Components:" "$src"; then
+        sed -i -E 's/^Components:.*/Components: main contrib non-free non-free-firmware/' "$src" || true
     fi
 done
 
@@ -95,39 +135,42 @@ EOF
     echo "-> Backports asegurado para Trixie"
 fi
 
-apt-get update
+apt_update_resilient
 
 # --- 2. Hardware y drivers ---
 echo ""
-echo "2/9 Detectando hardware..."
+echo "2/9 Detectando hardware e instalando drivers gráficos..."
+
+# Base gráfica y DRM/Seat esencial para cualquier entorno (físico o VM)
+apt_install_resilient libgl1-mesa-dri mesa-vulkan-drivers libegl-mesa0 libglx-mesa0 xwayland seatd libseat1 || true
 
 if grep -qi "GenuineIntel" /proc/cpuinfo; then
-    apt-get install -y intel-microcode || true
+    apt_install_resilient intel-microcode || true
 elif grep -qi "AuthenticAMD" /proc/cpuinfo; then
-    apt-get install -y amd64-microcode || true
+    apt_install_resilient amd64-microcode || true
 fi
 
 GPU_TYPE="generic"
 if lspci 2>/dev/null | grep -iq "nvidia"; then
-    apt-get install -y nvidia-driver nvidia-vaapi-driver libva-nvidia-driver || true
+    apt_install_resilient nvidia-driver nvidia-vaapi-driver || true
     GPU_TYPE="nvidia"
 elif lspci 2>/dev/null | grep -iq "amd.*\(vga\|display\|graphics\)\|Advanced Micro Devices"; then
-    apt-get install -y mesa-va-drivers mesa-vdpau-drivers libgl1-mesa-dri va-driver-all || true
+    apt_install_resilient mesa-va-drivers mesa-vdpau-drivers va-driver-all || true
     GPU_TYPE="amd"
 elif lspci 2>/dev/null | grep -iq "intel.*\(graphics\|display\|vga\)"; then
-    apt-get install -y intel-media-va-driver-non-free libgl1-mesa-dri va-driver-all || true
+    apt_install_resilient intel-media-va-driver-non-free va-driver-all || true
     GPU_TYPE="intel"
 fi
-apt-get install -y firmware-linux-nonfree || true
+apt_install_resilient firmware-linux-nonfree || true
 
 # --- 3. Paquetes base ---
 echo ""
 echo "3/9 Instalando herramientas base + Waybar..."
 
-apt-get install -y --no-install-recommends \
+apt_install_resilient \
     wget curl bc jq python3 fontconfig libnotify-bin dbus-user-session xdg-utils \
     build-essential pkg-config unzip \
-    network-manager network-manager-gnome iw wireless-tools rfkill \
+    network-manager network-manager-applet nm-connection-editor iw rfkill \
     gvfs gvfs-backends gvfs-fuse gvfs-daemons udisks2 udiskie \
     thunar thunar-archive-plugin thunar-volman xarchiver tumbler ffmpegthumbnailer \
     imv mpv \
@@ -141,33 +184,9 @@ apt-get install -y --no-install-recommends \
     zsh vim firefox-esr zenity \
     fonts-jetbrains-mono fonts-noto-color-emoji \
     gnome-keyring libpam-gnome-keyring seahorse \
-    polkitd pkexec qt6-wayland \
+    polkitd pkexec qt6-wayland libpam-systemd \
     waybar
-apt-get install -y --no-install-recommends swayimg || echo "WARN: swayimg no disponible en $OS_CODENAME, continuando con imv" >&2 || true
-
-echo "-> Corrigiendo WiFi para NetworkManager..."
-mkdir -p /etc/NetworkManager/conf.d
-cat > /etc/NetworkManager/conf.d/10-globally-managed-devices.conf <<'NMCONF'
-[keyfile]
-unmanaged-devices=none
-NMCONF
-if [ -f /etc/NetworkManager/NetworkManager.conf ]; then
-    sed -i -E "s/managed=false/managed=true/" /etc/NetworkManager/NetworkManager.conf || true
-    grep -q "^\[ifupdown\]" /etc/NetworkManager/NetworkManager.conf || echo -e "\n[ifupdown]\nmanaged=true" >> /etc/NetworkManager/NetworkManager.conf
-fi
-if [ -f /etc/network/interfaces ] && grep -qE "wlp|wlan|eth|enp|ens" /etc/network/interfaces 2>/dev/null; then
-    cp /etc/network/interfaces "/etc/network/interfaces.bak.$(date +%s)"
-    cat > /etc/network/interfaces <<'IFACE'
-auto lo
-iface lo inet loopback
-IFACE
-    echo "-> /etc/network/interfaces reseteado a solo lo (backup creado)"
-fi
-if [ -f /etc/dhcpcd.conf ] && ! grep -q "denyinterfaces" /etc/dhcpcd.conf 2>/dev/null; then
-    echo "denyinterfaces wlan* wlp* eth* enp* ens*" >> /etc/dhcpcd.conf || true
-fi
-systemctl enable NetworkManager 2>/dev/null || true
-systemctl restart NetworkManager 2>/dev/null || true
+apt_install_resilient swayimg || echo "WARN: swayimg no disponible en $OS_CODENAME, continuando con imv" >&2 || true
 
 apt_hypr_stack xdg-desktop-portal-hyprland || true
 
@@ -209,7 +228,7 @@ sudo -u "$REAL_USER" env HOME="$USER_HOME" bash -c 'thunar -q 2>/dev/null || tru
 echo ""
 echo "4/9 Instalando Hyprland..."
 
-apt_hypr_stack hyprland hyprlock hypridle hyprpolkitagent hyprland-guiutils greetd tuigreet
+apt_hypr_stack hyprland hyprlock hypridle hyprpolkitagent hyprland-guiutils greetd tuigreet uwsm
 
 # --- 5. Fuentes ---
 echo ""
@@ -225,7 +244,7 @@ install_nerd_font() {
     local url="$1"
     local dest="$2"
     local tmpzip="/tmp/$(basename "$dest").zip"
-    if sudo -u "$REAL_USER" env HOME="$USER_HOME" wget -q --show-progress -O "$tmpzip" "$url"; then
+    if sudo -u "$REAL_USER" env HOME="$USER_HOME" wget -q --show-progress --tries=5 --waitretry=3 --timeout=15 -O "$tmpzip" "$url"; then
         sudo -u "$REAL_USER" env HOME="$USER_HOME" unzip -o -q "$tmpzip" -d "$dest"
         rm -f "$tmpzip"
     fi
@@ -245,16 +264,17 @@ echo "6/9 Configurando greetd..."
 mkdir -p /etc/greetd
 mkdir -p /var/cache/tuigreet
 chown -R _greetd: /var/cache/tuigreet || true
+chmod 0755 /var/cache/tuigreet || true
 
 cat > /etc/greetd/config.toml <<'EOF'
 [terminal]
 vt = 1
 [default_session]
-command = "/usr/bin/tuigreet --time --remember --asterisks --cmd start-hyprland"
+command = "/usr/bin/tuigreet --time --remember --remember-session --asterisks --sessions /usr/share/wayland-sessions --cmd Hyprland"
 user = "_greetd"
 EOF
 
-usermod -aG video,render _greetd || true
+usermod -aG video,render,input _greetd || true
 usermod -aG video,render,input "$REAL_USER" || true
 
 mkdir -p /etc/systemd/system/greetd.service.d/
@@ -365,14 +385,38 @@ org.freedesktop.impl.portal.FileChooser=gtk
 PORTAL
 fi
 
-# --- 9. Servicios ---
+# --- 9. Servicios y configuración de red ---
 echo ""
-echo "9/9 Habilitando servicios..."
+echo "9/9 Configurando servicios y preparación de red..."
 
-systemctl disable sddm lightdm gdm gdm3 getty@tty1.service 2>/dev/null || true
-if systemctl is-enabled greetd &>/dev/null; then
-    systemctl mask getty@tty1.service 2>/dev/null || true
+# Configurar NetworkManager para que administre interfaces tras reiniciar, sin interrumpir la red actual
+echo "-> Preparando configuración de NetworkManager para el próximo arranque..."
+mkdir -p /etc/NetworkManager/conf.d
+cat > /etc/NetworkManager/conf.d/10-globally-managed-devices.conf <<'NMCONF'
+[keyfile]
+unmanaged-devices=none
+NMCONF
+if [ -f /etc/NetworkManager/NetworkManager.conf ]; then
+    sed -i -E "s/managed=false/managed=true/" /etc/NetworkManager/NetworkManager.conf || true
+    grep -q "^\[ifupdown\]" /etc/NetworkManager/NetworkManager.conf || echo -e "\n[ifupdown]\nmanaged=true" >> /etc/NetworkManager/NetworkManager.conf
 fi
+if [ -f /etc/network/interfaces ] && grep -qE "wlp|wlan|eth|enp|ens" /etc/network/interfaces 2>/dev/null; then
+    cp /etc/network/interfaces "/etc/network/interfaces.bak.$(date +%s)"
+    cat > /etc/network/interfaces <<'IFACE'
+auto lo
+iface lo inet loopback
+IFACE
+    echo "-> /etc/network/interfaces reseteado a solo lo (backup creado, tomará efecto tras reboot)"
+fi
+if [ -f /etc/dhcpcd.conf ] && ! grep -q "denyinterfaces" /etc/dhcpcd.conf 2>/dev/null; then
+    echo "denyinterfaces wlan* wlp* eth* enp* ens*" >> /etc/dhcpcd.conf || true
+fi
+systemctl enable NetworkManager 2>/dev/null || true
+systemctl enable bluetooth 2>/dev/null || true
+rfkill unblock all 2>/dev/null || true
+
+systemctl disable sddm lightdm gdm gdm3 2>/dev/null || true
+systemctl mask getty@tty1.service 2>/dev/null || true
 systemctl enable greetd
 
 echo ""
