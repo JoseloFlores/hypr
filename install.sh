@@ -158,10 +158,13 @@ elif lspci 2>/dev/null | grep -iq "amd.*\(vga\|display\|graphics\)\|Advanced Mic
     apt_install_resilient mesa-va-drivers mesa-vdpau-drivers va-driver-all || true
     GPU_TYPE="amd"
 elif lspci 2>/dev/null | grep -iq "intel.*\(graphics\|display\|vga\)"; then
-    apt_install_resilient intel-media-va-driver-non-free va-driver-all || true
+    apt_install_resilient intel-media-va-driver i965-va-driver va-driver-all || true
+    if apt-cache show intel-media-va-driver-non-free &>/dev/null; then
+        apt_install_resilient intel-media-va-driver-non-free || true
+    fi
     GPU_TYPE="intel"
 fi
-apt_install_resilient firmware-linux-nonfree || true
+apt_install_resilient firmware-linux-nonfree firmware-sof-signed || true
 
 # --- 3. Paquetes base ---
 echo ""
@@ -173,8 +176,9 @@ apt_install_resilient \
     network-manager network-manager-applet nm-connection-editor iw rfkill \
     gvfs gvfs-backends gvfs-fuse gvfs-daemons udisks2 udiskie \
     thunar thunar-archive-plugin thunar-volman xarchiver tumbler ffmpegthumbnailer \
-    imv mpv \
+    imv swayimg mpv \
     pipewire pipewire-alsa pipewire-audio pipewire-pulse wireplumber pavucontrol \
+    alsa-utils alsa-ucm-conf libspa-0.2-bluetooth \
     bluez blueman \
     sway-notification-center gnome-calendar \
     wl-clipboard cliphist brightnessctl playerctl \
@@ -182,11 +186,10 @@ apt_install_resilient \
     xdg-desktop-portal xdg-desktop-portal-gtk xdg-user-dirs \
     nwg-look \
     zsh vim firefox-esr zenity \
-    fonts-jetbrains-mono fonts-noto-color-emoji \
+    fonts-jetbrains-mono fonts-noto-color-emoji fonts-firacode \
     gnome-keyring libpam-gnome-keyring seahorse \
     polkitd pkexec qt6-wayland libpam-systemd \
     waybar
-apt_install_resilient swayimg || echo "WARN: swayimg no disponible en $OS_CODENAME, continuando con imv" >&2 || true
 
 apt_hypr_stack xdg-desktop-portal-hyprland || true
 
@@ -275,7 +278,7 @@ user = "_greetd"
 EOF
 
 usermod -aG video,render,input _greetd || true
-usermod -aG video,render,input "$REAL_USER" || true
+usermod -aG video,render,input,audio "$REAL_USER" || true
 
 mkdir -p /etc/systemd/system/greetd.service.d/
 cat > /etc/systemd/system/greetd.service.d/override.conf <<EOF
@@ -294,7 +297,7 @@ sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p \
     "$DOTS_CONF/hypr" "$DOTS_CONF/waybar/themes" "$DOTS_CONF/waybar/scripts" \
     "$DOTS_CONF/swaync" "$DOTS_CONF/foot" "$DOTS_CONF/fuzzel"
 
-for src in hyprland.conf hyprlock.conf hypridle.conf wallpaper.jpg; do
+for src in hyprland.conf hyprlock.conf hypridle.conf wallpaper.jpg b440.jpg; do
     if [ -f "$SCRIPT_DIR/$src" ]; then
         sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/$src" "$DOTS_CONF/hypr/"
     fi
@@ -353,6 +356,12 @@ find "$DOTS_CONF/hypr" "$DOTS_CONF/waybar" "$DOTS_CONF/swaync" -type f \( -name 
 
 chown -R "$REAL_USER":"$REAL_USER" "$DOTS_CONF"
 find "$DOTS_CONF" -name "*.sh" -exec chmod +x {} + 2>/dev/null || true
+
+# Generar paleta de color inicial para Foot y Fuzzel
+if [ -f "$DOTS_CONF/hypr/foot_sync.sh" ]; then
+    echo "-> Sincronizando paleta inicial para Foot y Fuzzel..."
+    sudo -u "$REAL_USER" env HOME="$USER_HOME" bash "$DOTS_CONF/hypr/foot_sync.sh" || true
+fi
 
 # --- 8. PAM y portales ---
 echo ""
