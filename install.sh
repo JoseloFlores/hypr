@@ -113,7 +113,8 @@ echo ""
 echo "1/9 Configurando repositorios (contrib non-free non-free-firmware)..."
 
 if [ -f /etc/apt/sources.list ]; then
-    sed -i -E '/^deb(-src)?\s+http/ {
+    # Solo agregar componentes a fuentes de Debian (evita warnings en repos de terceros)
+    sed -i -E '/^deb(-src)?\s+http:\/\/(deb\.debian\.org|security\.debian\.org)/ {
         /contrib/! s/main/main contrib/
         /non-free-firmware/! s/main/main non-free-firmware/
         /non-free/! s/main/main non-free/
@@ -122,7 +123,7 @@ fi
 
 for src in /etc/apt/sources.list.d/*.sources; do
     [ -f "$src" ] || continue
-    if grep -q "^Components:" "$src"; then
+    if grep -q "^Components:" "$src" && grep -qE "(deb\.debian\.org|security\.debian\.org)" "$src"; then
         sed -i -E 's/^Components:.*/Components: main contrib non-free non-free-firmware/' "$src" || true
     fi
 done
@@ -159,9 +160,9 @@ elif lspci 2>/dev/null | grep -iq "amd.*\(vga\|display\|graphics\)\|Advanced Mic
     GPU_TYPE="amd"
 elif lspci 2>/dev/null | grep -iq "intel.*\(graphics\|display\|vga\)"; then
     apt_install_resilient intel-media-va-driver i965-va-driver va-driver-all || true
-    if apt-cache show intel-media-va-driver-non-free &>/dev/null; then
-        apt_install_resilient intel-media-va-driver-non-free || true
-    fi
+    # Driver VA-API non-free — verificar candidato real y NO reintentar si no existe
+    apt-cache madison intel-media-va-driver-non-free &>/dev/null \
+        && apt-get install -y --no-install-recommends intel-media-va-driver-non-free || true
     GPU_TYPE="intel"
 fi
 apt_install_resilient firmware-linux-nonfree firmware-sof-signed || true
@@ -351,8 +352,7 @@ if [ "$GPU_TYPE" = "nvidia" ] && [ -f "$HYPR_CONF" ]; then
     echo "-> hyprland.conf: variables NVIDIA activadas"
 fi
 
-find "$DOTS_CONF/hypr" "$DOTS_CONF/waybar" "$DOTS_CONF/swaync" -type f \( -name "*.sh" -o -name "*.jsonc" -o -name "config" -o -name "*.conf" -o -name "*.css" -o -name "*.ini" \) \
-    -exec sed -i -E "s|/home/[^/]+|$USER_HOME|g" {} + 2>/dev/null || true
+# Los dots usa $HOME/~ de forma portable — sin sed de reescritura de rutas
 
 chown -R "$REAL_USER":"$REAL_USER" "$DOTS_CONF"
 find "$DOTS_CONF" -name "*.sh" -exec chmod +x {} + 2>/dev/null || true
