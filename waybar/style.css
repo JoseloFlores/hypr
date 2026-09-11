@@ -30,26 +30,43 @@ tooltip label {
   font-size: 12px;
 }
 
-/* === Módulos base — pildoras con color, fondo entre pills transparente === */
+/* === Módulos base — pildoras con color === */
 #workspaces,
-#clock,
+#clock {
+  background-color: rgba(35, 37, 48, 0.6);
+  padding: 0 5px;
+  margin: 2px 2px;
+  border-radius: 10px;
+  color: @fg;
+  transition: background-color 150ms;
+}
+
+/* === Derecha — una sola píldora === */
 #custom-updates,
 #pulseaudio,
 #custom-network,
 #bluetooth,
 #battery,
-#backlight,
-#custom-power-main,
-#custom-power-suspend,
-#custom-power-lock,
-#custom-power-reboot,
-#custom-power-logout {
+#backlight {
   background-color: rgba(35, 37, 48, 0.6);
   padding: 0 5px;
-  margin: 2px 2px;
-  border-radius: 4px;
+  margin: 0;
+  border-radius: 0;
   color: @fg;
   transition: background-color 150ms;
+}
+#custom-updates,
+#pulseaudio {
+  border-radius: 10px 0 0 10px;
+}
+#pulseaudio {
+  padding-left: 8px;
+}
+#custom-updates {
+  padding-left: 8px;
+}
+#backlight {
+  border-radius: 0;
 }
 
 /* Workspaces — pill como demás módulos */
@@ -57,14 +74,14 @@ tooltip label {
   background-color: rgba(35, 37, 48, 0.6);
   padding: 0 3px;
   margin: 2px 2px;
-  border-radius: 4px;
+  border-radius: 10px;
 }
 #workspaces button {
   padding: 0 6px;
   margin: 1px 1px;
   min-width: 18px;
   background-color: transparent;
-  border-radius: 3px;
+  border-radius: 6px;
   border: none;
   color: @fg;
   transition: all 150ms;
@@ -85,15 +102,15 @@ tooltip label {
 }
 /* active = único marcado = workspace con foco. Sin bordes, solo fondo @blue. */
 #workspaces button.active {
-  background-color: alpha(@blue, 0.30);
+  background-color: alpha(@blue, 0.12);
   color: @fg;
   font-weight: bold;
   border: none;
-  border-radius: 3px;
+  border-radius: 6px;
   box-shadow: none;
 }
 #workspaces button.active.visible {
-  background-color: alpha(@blue, 0.30);
+  background-color: alpha(@blue, 0.12);
   box-shadow: none;
 }
 #workspaces button.persistent {
@@ -168,7 +185,7 @@ tooltip label {
 #custom-updates {
   color: @yellow;
   font-weight: bold;
-  padding: 0 6px;
+  padding: 0 6px 0 8px;
 }
 #custom-updates.pending {
   color: @yellow;
@@ -183,6 +200,7 @@ tooltip label {
 
 /* === Power === */
 #custom-power-main {
+  background-color: rgba(35, 37, 48, 0.6);
   color: @red;
   font-size: 16px;
   padding: 0 8px;
@@ -210,15 +228,29 @@ tooltip label {
   background-color: rgba(200, 201, 209, 0.15);
 }
 
-/* Drawer del power */
+/* Power — integrado en píldora derecha */
 #group-power {
   background-color: transparent;
   padding: 0;
-  margin: 2px 2px;
+  margin: 0 2px 2px 0;
 }
 .power-drawer {
   background-color: transparent;
-  padding-left: 8px;
+  padding-left: 0;
+}
+/* Drawer items — parte de la píldora, sin píldoras individuales */
+#custom-power-suspend,
+#custom-power-lock,
+#custom-power-reboot,
+#custom-power-logout {
+  background-color: rgba(35, 37, 48, 0.6);
+  padding: 0 5px;
+  margin: 0;
+  border-radius: 0;
+}
+#custom-power-main {
+  border-radius: 0 10px 10px 0;
+  padding-right: 8px;
 }
 
 /* Estados generales hover — leve gris, sin morado */

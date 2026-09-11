@@ -3,7 +3,7 @@
   // Portabilidad: Debian 13 trixie (waybar 0.12.0-1) y Debian 14 forky (0.15.0-1)
   "layer": "top",
   "position": "top",
-  "height": 30,
+  "height": 32,
   "exclusive": true,
   "passthrough": false,
   "spacing": 0,

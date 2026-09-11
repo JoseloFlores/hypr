@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Configuración de temas para Waybar, Foot y Fuzzel
+# Configuración de temas para Waybar, Foot, Fuzzel y Swaync
 # Fuente de verdad: ~/.config/waybar/themes/<nombre>.css  (y style.css @import "themes/<tema>.css")
 
 WAYBAR_STYLE="$HOME/.config/waybar/style.css"
@@ -320,9 +320,39 @@ else
   pkill -SIGUSR2 waybar 2>/dev/null || true
 fi
 
-# 5. Propagar a gsettings si existe (para que nwg-look/lxappearance no rompa Waybar en Wayland)
+# 5. Sincronizar swaync — reemplaza @define-color del tema activo
+SWAYNC_STYLE="$HOME/.config/swaync/style.css"
+if [ -f "$SWAYNC_STYLE" ]; then
+  python3 - "$SWAYNC_STYLE" "$THEME_NAME" "$THEME_PATH" <<'PYEOF'
+import sys, re
+style_path, theme_name, theme_path = sys.argv[1:4]
+
+colors = {}
+for line in open(theme_path):
+    m = re.match(r'@define-color\s+(\S+)\s+(#[0-9a-fA-F]+);', line)
+    if m:
+        colors[m.group(1)] = m.group(2)
+
+lines = open(style_path).readlines()
+out = []
+i = 0
+if lines and lines[0].strip().startswith('/*') and lines[0].strip().endswith('*/'):
+    out.append(f'/* swaync — tema {theme_name} (sincronizado con waybar) */\n')
+    i = 1
+while i < len(lines) and lines[i].strip().startswith('@define-color'):
+    i += 1
+for name, hex_val in colors.items():
+    out.append(f'@define-color {name} {hex_val};\n')
+out.extend(lines[i:])
+open(style_path, 'w').writelines(out)
+print(f"Swaync sincronizado con tema: {theme_name}")
+PYEOF
+  echo "Swaync sincronizado: $THEME_NAME -> $SWAYNC_STYLE"
+fi
+
+# 6. Propagar a gsettings si existe (para que nwg-look/lxappearance no rompa Waybar en Wayland)
 if command -v gsettings &>/dev/null && [ -n "${XDG_RUNTIME_DIR:-}" ]; then
   echo "Tip Wayland: usa 'nwg-look' en vez de lxappearance para temas GTK sin romper Waybar (Wayland native)"
 fi
 
-echo "Sincronización completada con éxito (Waybar + Foot + Fuzzel)."
+echo "Sincronización completada con éxito (Waybar + Foot + Fuzzel + Swaync)."
