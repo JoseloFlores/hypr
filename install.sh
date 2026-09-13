@@ -110,7 +110,7 @@ fi
 
 # --- 1. Repositorios ---
 echo ""
-echo "1/9 Configurando repositorios (contrib non-free non-free-firmware)..."
+echo "1/10 Configurando repositorios (contrib non-free non-free-firmware)..."
 
 if [ -f /etc/apt/sources.list ]; then
     # Solo agregar componentes a fuentes de Debian (evita warnings en repos de terceros)
@@ -140,7 +140,7 @@ apt_update_resilient
 
 # --- 2. Hardware y drivers ---
 echo ""
-echo "2/9 Detectando hardware e instalando drivers gráficos..."
+echo "2/10 Detectando hardware e instalando drivers gráficos..."
 
 # Base gráfica y DRM/Seat esencial para cualquier entorno (físico o VM)
 apt_install_resilient libgl1-mesa-dri mesa-vulkan-drivers libegl-mesa0 libglx-mesa0 xwayland seatd libseat1 || true
@@ -169,7 +169,7 @@ apt_install_resilient firmware-linux-nonfree firmware-sof-signed || true
 
 # --- 3. Paquetes base ---
 echo ""
-echo "3/9 Instalando herramientas base + Waybar..."
+echo "3/10 Instalando herramientas base + Waybar..."
 
 apt_install_resilient \
     wget curl bc jq python3 fontconfig libnotify-bin dbus-user-session xdg-utils \
@@ -230,13 +230,13 @@ sudo -u "$REAL_USER" env HOME="$USER_HOME" bash -c 'thunar -q 2>/dev/null || tru
 
 # --- 4. Hyprland stack ---
 echo ""
-echo "4/9 Instalando Hyprland..."
+echo "4/10 Instalando Hyprland..."
 
 apt_hypr_stack hyprland hyprlock hypridle hyprpolkitagent hyprland-guiutils greetd tuigreet uwsm
 
 # --- 5. Fuentes ---
 echo ""
-echo "5/9 Instalando fuentes (Meslo + Symbols)..."
+echo "5/10 Instalando fuentes (Meslo + Symbols)..."
 
 FONT_DIR="$USER_HOME/.local/share/fonts"
 MESLO_DIR="$FONT_DIR/Meslo"
@@ -263,7 +263,7 @@ chown -R "$REAL_USER":"$REAL_USER" "$FONT_DIR" || true
 
 # --- 6. Greetd + tuigreet ---
 echo ""
-echo "6/9 Configurando greetd..."
+echo "6/10 Configurando greetd..."
 
 mkdir -p /etc/greetd
 mkdir -p /var/cache/tuigreet
@@ -291,7 +291,7 @@ systemctl daemon-reload
 
 # --- 7. Dots ---
 echo ""
-echo "7/9 Desplegando configuraciones en $USER_HOME/.config..."
+echo "7/10 Desplegando configuraciones en $USER_HOME/.config..."
 
 DOTS_CONF="$USER_HOME/.config"
 sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p \
@@ -365,7 +365,7 @@ fi
 
 # --- 8. PAM y portales ---
 echo ""
-echo "8/9 Finalizando permisos y PAM..."
+echo "8/10 Finalizando permisos y PAM..."
 
 if command -v pam-auth-update &>/dev/null; then
     pam-auth-update --enable gnome-keyring || true
@@ -396,7 +396,7 @@ fi
 
 # --- 9. Servicios y configuración de red ---
 echo ""
-echo "9/9 Configurando servicios y preparación de red..."
+echo "9/10 Configurando servicios y preparación de red..."
 
 # Configurar NetworkManager para que administre interfaces tras reiniciar, sin interrumpir la red actual
 echo "-> Preparando configuración de NetworkManager para el próximo arranque..."
@@ -427,6 +427,17 @@ rfkill unblock all 2>/dev/null || true
 systemctl disable sddm lightdm gdm gdm3 2>/dev/null || true
 systemctl mask getty@tty1.service 2>/dev/null || true
 systemctl enable greetd
+
+# --- 10. GRUB gráfico (desktop-base) ---
+echo ""
+echo "10/10 Forzando tema GRUB gráfico de Debian..."
+if command -v update-grub &>/dev/null; then
+    apt_install_resilient desktop-base || true
+    update-grub || true
+    echo "-> GRUB actualizado con tema gráfico (desktop-base)"
+else
+    echo "ADVERTENCIA: update-grub no disponible (bootloader distinto). Se omite el tema GRUB."
+fi
 
 echo ""
 echo "--- DIAGNÓSTICO FINAL ---"

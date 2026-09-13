@@ -84,6 +84,7 @@ El instalador:
 7. **Dots** → copia `hyprland.conf`, `waybar/*`, `swaync/*`, `foot.ini`/`fuzzel.ini` a `~/.config` y sanitiza `/home/...` → `$USER_HOME`
 8. **PAM + Portales** → `pam_gnome_keyring`, `/etc/xdg/xdg-desktop-portal/hyprland-portals.conf`
 9. **Servicios** → `systemctl enable greetd bluetooth`, `mask getty@tty1` si greetd activo
+10. **GRUB gráfico** → instala `desktop-base` y ejecuta `update-grub` para activar el menú GRUB con el fondo azul artístico de Debian (si `update-grub` no existe, lo omite)
 
 > Post-instalación: `hyprland --verify-config` y `waybar -l debug` deben dar `config ok` / `Bar configured 1280x30`.
 
