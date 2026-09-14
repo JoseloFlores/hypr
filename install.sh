@@ -296,7 +296,8 @@ echo "7/10 Desplegando configuraciones en $USER_HOME/.config..."
 DOTS_CONF="$USER_HOME/.config"
 sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p \
     "$DOTS_CONF/hypr" "$DOTS_CONF/waybar/themes" "$DOTS_CONF/waybar/scripts" \
-    "$DOTS_CONF/swaync" "$DOTS_CONF/foot" "$DOTS_CONF/fuzzel"
+    "$DOTS_CONF/swaync" "$DOTS_CONF/foot" "$DOTS_CONF/fuzzel" \
+    "$DOTS_CONF/systemd/user"
 
 for src in hyprland.conf hyprlock.conf hypridle.conf wallpaper.jpg b440.jpg; do
     if [ -f "$SCRIPT_DIR/$src" ]; then
@@ -304,7 +305,7 @@ for src in hyprland.conf hyprlock.conf hypridle.conf wallpaper.jpg b440.jpg; do
     fi
 done
 
-for src in waybar_network.sh wifi_click.sh check_updates.sh check_updates_count.sh confirm_power.sh foot_sync.sh power_menu.sh waybar-launcher.sh; do
+for src in waybar_network.sh wifi_click.sh check_updates.sh check_updates_count.sh confirm_power.sh foot_sync.sh power_menu.sh waybar-launcher.sh auto_timezone.sh; do
     if [ -f "$SCRIPT_DIR/$src" ]; then
         sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/$src" "$DOTS_CONF/hypr/"
         chmod +x "$DOTS_CONF/hypr/$src" 2>/dev/null || true
@@ -330,6 +331,21 @@ if [ -d "$SCRIPT_DIR/waybar" ]; then
     done
 else
     echo "WARN: No se encontró $SCRIPT_DIR/waybar, se omite despliegue Waybar"
+fi
+
+# Zona horaria automática: unidades systemd de usuario (auto-timezone.timer)
+if [ -d "$SCRIPT_DIR/systemd/user" ]; then
+    for u in "$SCRIPT_DIR/systemd/user"/*; do
+        [ -f "$u" ] || continue
+        sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$u" "$DOTS_CONF/systemd/user/"
+    done
+    if sudo -u "$REAL_USER" env HOME="$USER_HOME" systemctl --user enable auto-timezone.timer 2>/dev/null; then
+        sudo -u "$REAL_USER" env HOME="$USER_HOME" systemctl --user start auto-timezone.timer 2>/dev/null || true
+        echo "-> auto-timezone.timer habilitado (zona horaria automática cada 30 min)"
+    else
+        echo "AVISO: auto-timezone.timer no se pudo habilitar ahora (sin sesión de usuario activa)."
+        echo "       En el primer inicio con Hyprland ejecuta: systemctl --user enable --now auto-timezone.timer"
+    fi
 fi
 
 for app in foot fuzzel; do

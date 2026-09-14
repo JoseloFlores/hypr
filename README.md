@@ -36,7 +36,10 @@ hypr/
 ├── hyprlock.conf
 ├── hypridle.conf
 ├── wallpaper.jpg
-├── power_menu.sh / confirm_power.sh / foot_sync.sh / waybar_network.sh / check_updates*.sh
+├── power_menu.sh / confirm_power.sh / foot_sync.sh / waybar_network.sh / check_updates*.sh / auto_timezone.sh
+├── systemd/
+│   └── user/
+│       └── auto-timezone.{service,timer}  # detecta zona por IP (cada 30 min) y recarga Waybar
 └── waybar/
     ├── config.jsonc         # waybar principal (portable trixie/forky)
     ├── style.css            # pill + transparente entre pills, sin morado
@@ -98,6 +101,12 @@ El instalador:
 - **Brillo/Volumen** → `XF86MonBrightnessUp/Down` (`brightnessctl -e4 -n2 -d intel_backlight set 5%+`), `XF86AudioRaise/LowerVolume` (`wpctl` 2%), scroll sobre `#backlight` / `#pulseaudio`
 - **Capturas** → `Print` área/slurp, `ALT+Print` ventana activa (`hyprctl activewindow` + `jq`), `SUPER+Print` monitor, `SHIFT+Print`/`CTRL+Print` `wf-recorder`
 - **Power** → `SUPER + L` / drawer `⏻` → `confirm_power.sh` + `group/power`
+- **Zona horaria automática** → `auto_timezone.sh` detecta tu zona por IP (`ipwho.is`/`ip-api.com`) y si cambia aplica `timedatectl set-timezone` y recarga Waybar:
+  ```bash
+  systemctl --user list-timers auto-timezone.timer          # estado
+  systemctl --user enable --now auto-timezone.timer         # si no está activo
+  ```
+  Sin zonas hardcodeadas: la zona se lee de `/etc/localtime` en cada arranque de Waybar (`waybar-launcher.sh` exporta `TZ` desde el symlink; necesario porque el `std::chrono::current_zone()` de waybar 0.12 cae a UTC sin él).
 
 ### Temas
 

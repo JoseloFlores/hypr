@@ -1,0 +1,10 @@
+[Unit]
+Description=Ajusta la zona horaria automáticamente segun la ubicación
+
+[Timer]
+OnBootSec=5min
+OnUnitActiveSec=30min
+Persistent=true
+
+[Install]
+WantedBy=timers.target

@@ -29,8 +29,8 @@
     "show-special": false,
     "persistent-workspaces": {}
   },
-  // Reloj — timezone sigue /etc/localtime (America/Argentina/Buenos_Aires) vía sistema; "" = local según waybar-clock(5)
-  // Si viajas, cambia con: sudo timedatectl set-timezone <Zona>  y Waybar seguirá automáticamente (o usa "timezones": ["", "Etc/UTC"] para scroll)
+  // Reloj — "" = zona local del sistema según waybar-clock(5), sin hardcodear.
+  // Si viajas: auto_timezone.sh detecta tu zona por IP y actualiza /etc/localtime (timer cada 30 min).
   "clock": {
     "interval": 1,
     "timezone": "",
