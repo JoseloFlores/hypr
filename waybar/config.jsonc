@@ -17,8 +17,8 @@
     "format": "{icon}",
     "format-icons": {
       "active": "󰮯",
-      "default": "",
-      "empty": ""
+      "default": "󰊠",
+      "empty": "󰇘"
     },
     "on-click": "hyprctl dispatch workspace {id}",
     "on-scroll-up": "hyprctl dispatch workspace e+1",
@@ -34,7 +34,7 @@
   "clock": {
     "interval": 1,
     "timezone": "",
-    "format": " {0:%H:%M}   {0:%d/%m}",
+    "format": "󰥔 {0:%H:%M}  󰃭 {0:%d/%m}",
     "tooltip-format": "{:%A, %d de %B de %Y}",
     "on-click": "swaync-client -t -sw || gnome-calendar &",
     "on-click-right": "gnome-calendar &"
@@ -93,9 +93,9 @@
       "critical": 15
     },
     "format": "{icon} {capacity}%",
-    "format-charging": "󱐋 {capacity}%",
-    "format-plugged": "󱐋 {capacity}%",
-    "format-icons": ["", "", "", "", ""],
+    "format-charging": "󰂅 {capacity}%",
+    "format-plugged": "󰂅 {capacity}%",
+    "format-icons": ["󰂁", "󰁿", "󰁽", "󰁻", "󰁹"],
     "tooltip-format": "Batería: {capacity}%",
     "on-click": "notify-send \"Batería\" \"$(cat /sys/class/power_supply/BAT*/status 2>/dev/null | head -n1): $(cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -n1)%\"",
     "on-click-right": "notify-send \"Batería\" \"$(cat /sys/class/power_supply/BAT*/status 2>/dev/null | head -n1): $(cat /sys/class/power_supply/BAT*/capacity 2>/dev/null | head -n1)%\""
@@ -126,7 +126,7 @@
     ]
   },
   "custom/power-main": {
-    "format": "⏻",
+    "format": "󰐥",
     "tooltip-format": "Menú de energía — click expandir / click apagar",
     "on-click": "~/.config/hypr/confirm_power.sh 'Apagar el sistema?' 'systemctl poweroff'"
   },

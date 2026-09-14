@@ -202,9 +202,7 @@ tooltip label {
 #custom-power-main {
   background-color: rgba(35, 37, 48, 0.6);
   color: @red;
-  font-size: 16px;
   padding: 0 8px;
-  font-weight: bold;
 }
 #custom-power-main:hover {
   background-color: rgba(200, 201, 209, 0.15);

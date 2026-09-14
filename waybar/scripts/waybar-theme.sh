@@ -126,7 +126,7 @@ if pgrep -x waybar >/dev/null 2>&1; then
   pkill -x -SIGUSR2 waybar 2>/dev/null || killall -SIGUSR2 waybar 2>/dev/null || true
   sleep 0.5
   if ! pgrep -x waybar >/dev/null 2>&1; then
-    waybar >/dev/null 2>&1 &
+    "$HOME/.config/hypr/waybar-launcher.sh" >/dev/null 2>&1 &
   fi
 fi
 

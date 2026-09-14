@@ -304,7 +304,7 @@ for src in hyprland.conf hyprlock.conf hypridle.conf wallpaper.jpg b440.jpg; do
     fi
 done
 
-for src in waybar_network.sh wifi_click.sh check_updates.sh check_updates_count.sh confirm_power.sh foot_sync.sh power_menu.sh; do
+for src in waybar_network.sh wifi_click.sh check_updates.sh check_updates_count.sh confirm_power.sh foot_sync.sh power_menu.sh waybar-launcher.sh; do
     if [ -f "$SCRIPT_DIR/$src" ]; then
         sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/$src" "$DOTS_CONF/hypr/"
         chmod +x "$DOTS_CONF/hypr/$src" 2>/dev/null || true
