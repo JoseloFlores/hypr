@@ -8,6 +8,14 @@
 ![Waybar](https://img.shields.io/badge/Waybar-0.12%20%2F%200.15-7AA2F7)
 ![Portability](https://img.shields.io/badge/portable-%E2%9C%93-8DA68A)
 
+## 🖼️ Vista previa
+
+<a href="preview.png">
+  <img src="preview.png" alt="Hyprland Desktop" width="900">
+</a>
+
+> Entorno completo: waybar en píldoras, workspaces en gris, fondo sincronizado y terminal foot con el tema activo.
+
 ---
 
 ## ✨ Características
