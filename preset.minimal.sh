@@ -1,0 +1,19 @@
+# =============================================================================
+#  preset.minimal.sh — Solo dots + checks, sin tocar sistema (para VM/pruebas)
+# =============================================================================
+REPOS="OFF"
+DRIVERS="OFF"
+BASE="OFF"
+HYPR="OFF"
+FONTS="OFF"
+GREETD="OFF"
+DOTS="ON"
+PAM="OFF"
+SERVICES="OFF"
+GRUB="OFF"
+NVIDIA_MODE="OFF"
+INSTALL_THUNAR="OFF"
+INSTALL_MEDIA="OFF"
+INSTALL_INPUT_GROUP="OFF"
+INSTALL_GRUB_THEME="OFF"
+INSTALL_SDDM="OFF"
