@@ -10,11 +10,9 @@
 ![Waybar](https://img.shields.io/badge/Waybar-0.12%20%2F%200.15-7AA2F7)
 ![Portability](https://img.shields.io/badge/portable-%E2%9C%93-8DA68A)
 
-## 🖼️ Vista previa
+## 👀 Vista previa
 
-<a href="preview.png">
-  <img src="preview.png" alt="Hyprland Desktop" width="900">
-</a>
+<video src="preview.mp4" controls muted loop playsinline width="900"></video>
 
 > Entorno completo: waybar en píldoras, workspaces en gris, fondo sincronizado y terminal foot con el tema activo.
 
@@ -62,7 +60,7 @@ hypr/
 ├── power_menu.sh / confirm_power.sh / foot_sync.sh / waybar_network.sh
 ├── wifi_click.sh / check_updates*.sh / auto_timezone.sh / screen_recorder.sh
 ├── waybar-launcher.sh       # exporta TZ desde /etc/localtime (fix waybar 0.12)
-├── wallpaper.jpg / b440.jpg / preview.png
+├── wallpaper.jpg / b440.jpg / preview.mp4
 ├── systemd/
 │   └── user/
 │       └── auto-timezone.{service,timer}  # detecta zona por IP (cada 30 min) y recarga Waybar
