@@ -20,7 +20,7 @@ cat > /etc/greetd/config.toml <<'EOF'
 [terminal]
 vt = 1
 [default_session]
-command = "/usr/bin/tuigreet --time --remember --remember-session --asterisks --sessions /usr/share/wayland-sessions --cmd Hyprland"
+command = "/usr/bin/tuigreet --time --remember --remember-session --asterisks --sessions /usr/share/wayland-sessions --cmd start-hyprland"
 user = "_greetd"
 EOF
 
