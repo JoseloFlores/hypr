@@ -17,7 +17,7 @@ sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p \
     "$DOTS_CONF/swaync" "$DOTS_CONF/foot" "$DOTS_CONF/fuzzel" \
     "$DOTS_CONF/systemd/user"
 
-for src in hyprland.conf hyprlock.conf hypridle.conf wallpaper.jpg b440.jpg; do
+for src in hyprland.conf hyprlock.conf hypridle.conf wallpaper.jpg; do
     if [ -f "$SCRIPT_DIR/$src" ]; then
         sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/$src" "$DOTS_CONF/hypr/"
     fi

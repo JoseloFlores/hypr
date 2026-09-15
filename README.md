@@ -12,9 +12,10 @@
 
 ## 👀 Vista previa
 
-<video src="preview.mp4" controls muted loop playsinline width="900"></video>
+https://github.com/user-attachments/assets/ae336086-9837-4481-bdb6-8b1fac6b10e6
 
 > Entorno completo: waybar en píldoras, workspaces en gris, fondo sincronizado y terminal foot con el tema activo.
+> Copia local del video en [`preview.mp4`](preview.mp4).
 
 ---
 
@@ -60,7 +61,7 @@ hypr/
 ├── power_menu.sh / confirm_power.sh / foot_sync.sh / waybar_network.sh
 ├── wifi_click.sh / check_updates*.sh / auto_timezone.sh / screen_recorder.sh
 ├── waybar-launcher.sh       # exporta TZ desde /etc/localtime (fix waybar 0.12)
-├── wallpaper.jpg / b440.jpg / preview.mp4
+├── wallpaper.jpg / preview.mp4
 ├── systemd/
 │   └── user/
 │       └── auto-timezone.{service,timer}  # detecta zona por IP (cada 30 min) y recarga Waybar
