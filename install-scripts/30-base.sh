@@ -14,7 +14,7 @@ BASE_PKGS=(
     pipewire pipewire-alsa pipewire-audio pipewire-pulse wireplumber pavucontrol
     alsa-utils alsa-ucm-conf libspa-0.2-bluetooth
     bluez blueman
-    sway-notification-center gnome-calendar
+    sway-notification-center thunderbird
     wl-clipboard cliphist brightnessctl playerctl
     foot fuzzel swaybg grim slurp swappy wf-recorder
     xdg-desktop-portal xdg-desktop-portal-gtk xdg-user-dirs
