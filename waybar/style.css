@@ -122,49 +122,55 @@ tooltip label {
   color: @bg;
 }
 
-/* Workspaces — colores Pac-Man clásico, ciclo infinito 5n, color siempre */
-/* 1 Pac-Man amarillo, 2 Blinky rojo, 3 Pinky rosa, 4 Inky cyan, 5 Clyde naranja */
-#workspaces button:nth-child(5n+1),
-#workspaces button:nth-child(5n+1).empty,
-#workspaces button:nth-child(5n+1).visible,
-#workspaces button:nth-child(5n+1).persistent,
-#workspaces button:nth-child(5n+1):hover {
-  color: #FFE600;
+/* Workspaces — colores del tema, ciclo infinito 6n, color siempre */
+#workspaces button:nth-child(6n+1),
+#workspaces button:nth-child(6n+1).empty,
+#workspaces button:nth-child(6n+1).visible,
+#workspaces button:nth-child(6n+1).persistent,
+#workspaces button:nth-child(6n+1):hover {
+  color: @yellow;
 }
-#workspaces button:nth-child(5n+2),
-#workspaces button:nth-child(5n+2).empty,
-#workspaces button:nth-child(5n+2).visible,
-#workspaces button:nth-child(5n+2).persistent,
-#workspaces button:nth-child(5n+2):hover {
-  color: #FF0000;
+#workspaces button:nth-child(6n+2),
+#workspaces button:nth-child(6n+2).empty,
+#workspaces button:nth-child(6n+2).visible,
+#workspaces button:nth-child(6n+2).persistent,
+#workspaces button:nth-child(6n+2):hover {
+  color: @red;
 }
-#workspaces button:nth-child(5n+3),
-#workspaces button:nth-child(5n+3).empty,
-#workspaces button:nth-child(5n+3).visible,
-#workspaces button:nth-child(5n+3).persistent,
-#workspaces button:nth-child(5n+3):hover {
-  color: #FFB8FF;
+#workspaces button:nth-child(6n+3),
+#workspaces button:nth-child(6n+3).empty,
+#workspaces button:nth-child(6n+3).visible,
+#workspaces button:nth-child(6n+3).persistent,
+#workspaces button:nth-child(6n+3):hover {
+  color: @purple;
 }
-#workspaces button:nth-child(5n+4),
-#workspaces button:nth-child(5n+4).empty,
-#workspaces button:nth-child(5n+4).visible,
-#workspaces button:nth-child(5n+4).persistent,
-#workspaces button:nth-child(5n+4):hover {
-  color: #00FFFF;
+#workspaces button:nth-child(6n+4),
+#workspaces button:nth-child(6n+4).empty,
+#workspaces button:nth-child(6n+4).visible,
+#workspaces button:nth-child(6n+4).persistent,
+#workspaces button:nth-child(6n+4):hover {
+  color: @blue;
 }
-#workspaces button:nth-child(5n+5),
-#workspaces button:nth-child(5n+5).empty,
-#workspaces button:nth-child(5n+5).visible,
-#workspaces button:nth-child(5n+5).persistent,
-#workspaces button:nth-child(5n+5):hover {
-  color: #FFB847;
+#workspaces button:nth-child(6n+5),
+#workspaces button:nth-child(6n+5).empty,
+#workspaces button:nth-child(6n+5).visible,
+#workspaces button:nth-child(6n+5).persistent,
+#workspaces button:nth-child(6n+5):hover {
+  color: @green;
 }
-/* Foco: siempre Pac-Man amarillo */
+#workspaces button:nth-child(6n+6),
+#workspaces button:nth-child(6n+6).empty,
+#workspaces button:nth-child(6n+6).visible,
+#workspaces button:nth-child(6n+6).persistent,
+#workspaces button:nth-child(6n+6):hover {
+  color: @cyan;
+}
+/* Foco: siempre @yellow del tema */
 #workspaces button.active,
 #workspaces button.active.visible,
 #workspaces button.active:nth-child(n) {
-  color: #FFE600;
-  background-color: alpha(#FFE600, 0.15);
+  color: @yellow;
+  background-color: alpha(@yellow, 0.15);
   font-weight: bold;
 }
 /* Urgent siempre por encima de los colores */
