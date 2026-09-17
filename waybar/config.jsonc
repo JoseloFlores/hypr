@@ -39,14 +39,17 @@
     "on-click": "thunderbird -calendar & sleep 0.3; hyprctl dispatch focuswindow 'class:thunderbird'",
     "on-click-right": "swaync-client -t -sw"
   },
-  // Updates — solo visible si pending (class updated -> oculto por CSS)
+  // Updates — solo visible si pending (class updated -> oculto por CSS + hide-empty-text)
   "custom/updates": {
     "exec": "~/.config/hypr/check_updates.sh",
-    "interval": 3600,
+    "interval": 300,
     "return-type": "json",
     "format": "{}",
     "tooltip": true,
-    "on-click": "foot sh -c 'sudo apt update && sudo apt upgrade -y; pkill -x -SIGRTMIN+8 waybar' &",
+    "tooltip-format": "{tooltip}",
+    "hide-empty-text": true,
+    "exec-on-event": true,
+    "on-click": "foot sh -c 'sudo apt update && sudo apt upgrade -y; rm -f ~/.cache/waybar-updates-count; pkill -x -SIGRTMIN+8 waybar' &",
     "signal": 8
   },
   // Audio — pulseaudio nativo
