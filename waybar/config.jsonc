@@ -36,8 +36,8 @@
     "timezone": "",
     "format": "󰥔 {0:%H:%M}  󰃭 {0:%d/%m}",
     "tooltip-format": "{:%A, %d de %B de %Y}",
-    "on-click": "swaync-client -t -sw || thunderbird -calendar &",
-    "on-click-right": "thunderbird -calendar &"
+    "on-click": "thunderbird -calendar & sleep 0.3; hyprctl dispatch focuswindow 'class:thunderbird'",
+    "on-click-right": "swaync-client -t -sw"
   },
   // Updates — solo visible si pending (class updated -> oculto por CSS)
   "custom/updates": {
