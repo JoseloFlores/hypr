@@ -1,10 +1,10 @@
 /* Waybar theme import — managed by waybar-theme.sh, no editar manualmente */
-@import "themes/ash-dark.css";
+@import "themes/dracula.css";
 
 /* Waybar — estilo principal */
 * {
   font-family: "MesloLGM Nerd Font Mono", "JetBrainsMono Nerd Font", monospace;
-  font-size: 12px;
+  font-size: 14px;
   border: none;
   border-radius: 0;
   min-height: 0;
@@ -41,14 +41,27 @@ tooltip label {
   transition: background-color 150ms;
 }
 
-/* === Derecha — una sola píldora === */
+/* === Derecha — una sola píldora (el contenedor es la píldora) === */
+/* El fondo y el radio viven en .modules-right: da igual que updates se oculte
+   o que el drawer power se expanda, la pastilla siempre queda perfecta. */
+.modules-right {
+  background-color: rgba(35, 37, 48, 0.6);
+  border-radius: 10px;
+  margin: 2px 2px;
+  padding: 0 2px;
+}
 #custom-updates,
 #pulseaudio,
 #custom-network,
 #bluetooth,
 #battery,
-#backlight {
-  background-color: rgba(35, 37, 48, 0.6);
+#backlight,
+#custom-power-main,
+#custom-power-suspend,
+#custom-power-lock,
+#custom-power-reboot,
+#custom-power-logout {
+  background-color: transparent;
   padding: 0 5px;
   margin: 0;
   border-radius: 0;
@@ -57,16 +70,11 @@ tooltip label {
 }
 #custom-updates,
 #pulseaudio {
-  border-radius: 10px 0 0 10px;
-}
-#pulseaudio {
   padding-left: 8px;
 }
-#custom-updates {
-  padding-left: 8px;
-}
-#backlight {
-  border-radius: 0;
+#custom-power-main {
+  color: @red;
+  padding: 0 8px;
 }
 
 /* Workspaces — pill como demás módulos */
@@ -128,7 +136,7 @@ tooltip label {
 #workspaces button:nth-child(6n+1).visible,
 #workspaces button:nth-child(6n+1).persistent,
 #workspaces button:nth-child(6n+1):hover {
-  color: @yellow;
+  color: @green;
 }
 #workspaces button:nth-child(6n+2),
 #workspaces button:nth-child(6n+2).empty,
@@ -156,7 +164,7 @@ tooltip label {
 #workspaces button:nth-child(6n+5).visible,
 #workspaces button:nth-child(6n+5).persistent,
 #workspaces button:nth-child(6n+5):hover {
-  color: @green;
+  color: @orange;
 }
 #workspaces button:nth-child(6n+6),
 #workspaces button:nth-child(6n+6).empty,
@@ -239,32 +247,25 @@ tooltip label {
   color: @yellow;
 }
 
-/* Updates — visible solo si pending */
+/* Updates — visible solo si pending (en .updated colapsa a cero) */
 #custom-updates {
   color: @yellow;
   font-weight: bold;
-  padding: 0 6px 0 8px;
 }
 #custom-updates.pending {
   color: @yellow;
-  background-color: rgba(35, 37, 48, 0.6);
 }
 #custom-updates.updated {
   opacity: 0;
+  background-color: transparent;
+  border: 0;
   min-width: 0;
+  font-size: 0;
   padding: 0;
   margin: 0;
 }
 
-/* === Power === */
-#custom-power-main {
-  background-color: rgba(35, 37, 48, 0.6);
-  color: @red;
-  padding: 0 8px;
-}
-#custom-power-main:hover {
-  background-color: rgba(200, 201, 209, 0.15);
-}
+/* === Power (colores de texto; el fondo lo pone .modules-right) === */
 #custom-power-suspend {
   color: @yellow;
 }
@@ -277,52 +278,33 @@ tooltip label {
 #custom-power-logout {
   color: @purple;
 }
-#custom-power-suspend:hover,
-#custom-power-lock:hover,
-#custom-power-reboot:hover,
-#custom-power-logout:hover {
-  background-color: rgba(200, 201, 209, 0.15);
-}
-
-/* Power — integrado en píldora derecha */
-#group-power {
-  background-color: transparent;
-  padding: 0;
-  margin: 0 2px 2px 0;
-}
-.power-drawer {
-  background-color: transparent;
-  padding-left: 0;
-}
-/* Drawer items — parte de la píldora, sin píldoras individuales */
-#custom-power-suspend,
-#custom-power-lock,
-#custom-power-reboot,
-#custom-power-logout {
-  background-color: rgba(35, 37, 48, 0.6);
-  padding: 0 5px;
-  margin: 0;
-  border-radius: 0;
-}
-#custom-power-main {
-  border-radius: 0 10px 10px 0;
-  padding-right: 8px;
-}
-
-/* Estados generales hover — leve gris, sin morado */
+/* Hovers derechos — chips redondeados flotando sobre la píldora.
+   Sin tapas por módulo: los bordes siempre los da .modules-right. */
+#custom-updates:hover,
 #custom-network:hover,
 #pulseaudio:hover,
 #bluetooth:hover,
 #battery:hover,
 #backlight:hover,
-#custom-updates:hover {
+#custom-power-main:hover,
+#custom-power-suspend:hover,
+#custom-power-lock:hover,
+#custom-power-reboot:hover,
+#custom-power-logout:hover {
   background-color: rgba(200, 201, 209, 0.12);
+  border-radius: 6px;
+  box-shadow: inset 0 0 0 1px rgba(200, 201, 209, 0.08);
 }
 
-#workspaces button.active,
-#clock,
-#custom-updates.pending {
-  /* sin borde en barra para mantener proporción fina */
+/* Power — dentro de la píldora .modules-right, sin fondos ni tapas propias */
+#group-power {
+  background-color: transparent;
+  padding: 0;
+  margin: 0;
+}
+.power-drawer {
+  background-color: transparent;
+  padding-left: 0;
 }
 
 /* Animación global suave */
