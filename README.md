@@ -3,7 +3,7 @@
 > **Hyprland + Waybar + Thunar + GNOME comforts (keyring/polkit)** listo para instalación limpia en **Debian 13 `trixie` / 14 `forky`** (sin entorno gráfico previo).  
 > Resultado: sesión Wayland con blur corregido para Hyprland 0.55, waybar en píldoras transparentes, colores sincronizados (Foot/Fuzzel) y soporte multi-monitor/monitor único.
 >
-> Instalador **modular**: `install.sh` orquesta 11 módulos re-ejecutables en `install-scripts/`, con presets, `dry-run` y verificación final.
+> Instalador **modular**: `install.sh` orquesta 12 módulos re-ejecutables en `install-scripts/`, con presets, `dry-run` y verificación final.
 
 ![Debian](https://img.shields.io/badge/Debian-13%2F14-A81D33?logo=debian)
 ![Hyprland](https://img.shields.io/badge/Hyprland-0.55-00A8F4?logo=hyprland)
@@ -27,7 +27,8 @@ https://github.com/user-attachments/assets/ae336086-9837-4481-bdb6-8b1fac6b10e6
 - **Workspaces** sin morado — `active` y `visible` en gris `rgba(200,201,209,0.15)` sobre `fg #c8c9d1`
 - **Reloj** automático: `timezone: ""` (sigue `/etc/localtime`), `format: " {0:%H:%M}   {0:%d/%m}"` compatible con Waybar 0.12 (`fmt` requiere `{0:...}` para 2 placeholders)
 - **19 temas sincronizados**: `ash-dark`, `ash-light`, `catppuccin-latte/mocha`, `dracula`, `everforest-dark/light`, `gruvbox-dark/light`, `kanagawa`, `monokai`, `nebula`, `nord`, `onedark`, `rose-pine/dawn`, `solarized-dark/light`, `tokyonight` → `waybar/style.css` + `foot` + `fuzzel` + `swaync` vía `waybar/scripts/waybar-theme.sh` y `foot_sync.sh`
-- **Instalador modular + presets + dry-run**: 11 módulos en `install-scripts/`, `preset.example.sh` / `preset.minimal.sh`, `./dry-run-build.sh` (PASS/FAIL por módulo), `99-final-check.sh` y `uninstall-lite.sh`
+- **QuickShell** `0.3` (trixie-backports) como barra por defecto — config en `~/quickshell` (clon + `patches/quickshell-local.patch`), arranque con `quickshell-launcher.sh`, rollback a Waybar con `volver-waybar.sh`, menú de apagado con `wlogout`, paleta pywal (`wal`+`colorz`) y fondo unificado con `set-wallpaper.sh` (SUPER+SHIFT+W aleatorio)
+- **Instalador modular + presets + dry-run**: 12 módulos en `install-scripts/`, `preset.example.sh` / `preset.minimal.sh`, `./dry-run-build.sh` (PASS/FAIL por módulo), `99-final-check.sh` y `uninstall-lite.sh`
 - **Portales**: `xdg-desktop-portal`, `xdg-desktop-portal-hyprland`, `xdg-desktop-portal-gtk` + `hyprland-portals.conf` (`default=hyprland;gtk`, `FileChooser=gtk`)
 - **Gestión color/tema GTK Wayland**: `nwg-look` (reemplaza `lxappearance` que rompe Wayland) + `xdg-desktop-portal-gtk`
 - **Comforts GNOME sin Mutter**: `hyprpolkitagent`, `gnome-keyring`, `udiskie`, `blueman-applet`, `swaync`, `wl-paste + cliphist`
@@ -50,7 +51,7 @@ hypr/
 ├── install-scripts/         # un script por fase, re-ejecutables por separado
 │   ├── Global_functions.sh  # logging Install-Logs/, apt resiliente, DRY_RUN
 │   ├── 10-repos.sh / 20-drivers.sh / 30-base.sh / 40-hypr.sh
-│   ├── 50-fonts.sh / 60-greetd.sh / 70-dots.sh
+│   ├── 50-fonts.sh / 60-greetd.sh / 70-dots.sh / 71-quickshell.sh
 │   └── 80-pam-portals.sh / 90-services.sh / 95-grub.sh / 99-final-check.sh
 ├── Install-Logs/            # un log por módulo + resumen dry-run (ignorado por git)
 ├── hyprland.conf            # config Hyprland 0.55 (layerrule nuevo)
@@ -59,6 +60,11 @@ hypr/
 ├── foot.ini / fuzzel.ini   # terminal y launcher (foot_sync.sh los re-colorea)
 ├── swaync_config.json / swaync_style.css
 ├── power_menu.sh / confirm_power.sh / foot_sync.sh / waybar_network.sh
+├── quickshell-launcher.sh / volver-waybar.sh / probar-quickshell.sh
+├── set-wallpaper.sh / QUICKSHELL_COMANDOS.md  # fondo unificado + guía quickshell
+├── wlogout/                   # layout + style.css base (set-wallpaper.sh lo re-tintea)
+├── patches/
+│   └── quickshell-local.patch # ajustes locales sobre el clon de quickshell
 ├── wifi_click.sh / check_updates*.sh / auto_timezone.sh / screen_recorder.sh
 ├── waybar-launcher.sh       # exporta TZ desde /etc/localtime (fix waybar 0.12)
 ├── wallpaper.jpg / preview.mp4
@@ -98,7 +104,7 @@ sudo ./install.sh --preset preset.example.sh      # todo ON (comportamiento clá
 sudo ./install.sh --only 70-dots,99-final-check   # solo re-desplegar dots + verificar
 ./install.sh --dry-run --only 70-dots             # simulación sin root ni cambios
 ./install.sh --check                              # lista módulos sin ejecutar
-./dry-run-build.sh                                # PASS/FAIL de los 11 módulos
+./dry-run-build.sh                                # PASS/FAIL de los 12 módulos
 ./dry-run-build.sh --only 70-dots,99-final-check
 ./dry-run-build.sh --skip 20-drivers,95-grub
 sudo ./install-scripts/70-dots.sh                 # módulo suelto (cualquiera es re-ejecutable)

@@ -7,7 +7,7 @@ common_init "70-dots"
 log "7/10 Desplegando configuraciones en $USER_HOME/.config..."
 
 if [ "$DRY_RUN" = "1" ]; then
-    echo "[DRY-RUN] cp hyprland.conf waybar/* swaync/* foot.ini fuzzel.ini systemd/user/* a $USER_HOME/.config + foot_sync.sh" | tee -a "$LOG"
+    echo "[DRY-RUN] cp hyprland.conf waybar/* swaync/* foot.ini fuzzel.ini systemd/user/* wlogout/* launchers/set-wallpaper a $USER_HOME/.config + foot_sync.sh" | tee -a "$LOG"
     exit 0
 fi
 
@@ -15,7 +15,7 @@ DOTS_CONF="$USER_HOME/.config"
 sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p \
     "$DOTS_CONF/hypr" "$DOTS_CONF/waybar/themes" "$DOTS_CONF/waybar/scripts" \
     "$DOTS_CONF/swaync" "$DOTS_CONF/foot" "$DOTS_CONF/fuzzel" \
-    "$DOTS_CONF/systemd/user"
+    "$DOTS_CONF/systemd/user" "$DOTS_CONF/wlogout" "$DOTS_CONF/quickshell"
 
 for src in hyprland.conf hyprlock.conf hypridle.conf wallpaper.jpg; do
     if [ -f "$SCRIPT_DIR/$src" ]; then
@@ -23,12 +23,27 @@ for src in hyprland.conf hyprlock.conf hypridle.conf wallpaper.jpg; do
     fi
 done
 
-for src in waybar_network.sh wifi_click.sh check_updates.sh check_updates_count.sh confirm_power.sh foot_sync.sh power_menu.sh waybar-launcher.sh auto_timezone.sh screen_recorder.sh; do
+for src in waybar_network.sh wifi_click.sh check_updates.sh check_updates_count.sh confirm_power.sh foot_sync.sh power_menu.sh waybar-launcher.sh auto_timezone.sh screen_recorder.sh quickshell-launcher.sh volver-waybar.sh probar-quickshell.sh set-wallpaper.sh; do
     if [ -f "$SCRIPT_DIR/$src" ]; then
         sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/$src" "$DOTS_CONF/hypr/"
         chmod +x "$DOTS_CONF/hypr/$src" 2>/dev/null || true
     fi
 done
+
+# wlogout (layout + estilo base; set-wallpaper.sh lo regenera al tono de la paleta)
+if [ -d "$SCRIPT_DIR/wlogout" ]; then
+    for wl in layout style.css; do
+        if [ -f "$SCRIPT_DIR/wlogout/$wl" ]; then
+            sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/wlogout/$wl" "$DOTS_CONF/wlogout/"
+        fi
+    done
+    log "-> wlogout desplegado en $DOTS_CONF/wlogout/"
+fi
+
+# Guía rápida quickshell (solo docs)
+if [ -f "$SCRIPT_DIR/QUICKSHELL_COMANDOS.md" ]; then
+    sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/QUICKSHELL_COMANDOS.md" "$DOTS_CONF/hypr/"
+fi
 
 if [ -d "$SCRIPT_DIR/waybar" ]; then
     if [ -f "$SCRIPT_DIR/waybar/config.jsonc" ]; then

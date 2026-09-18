@@ -1,0 +1,2015 @@
+diff --git a/components/Anim.qml b/components/Anim.qml
+index 4af8a9a..6883a79 100644
+--- a/components/Anim.qml
++++ b/components/Anim.qml
+@@ -1,5 +1,5 @@
+ import qs.config
+-import QtQuick 6.10
++import QtQuick
+ 
+ NumberAnimation {
+     duration: Appearance.anim.durations.normal
+diff --git a/components/AuroraSurface.qml b/components/AuroraSurface.qml
+index 35cf114..7fc7832 100644
+--- a/components/AuroraSurface.qml
++++ b/components/AuroraSurface.qml
+@@ -1,4 +1,4 @@
+-import QtQuick 6.10
++import QtQuick
+ import "../services" as QsServices
+ 
+ Item {
+diff --git a/components/Elevation.qml b/components/Elevation.qml
+index 66f4675..96c83b0 100644
+--- a/components/Elevation.qml
++++ b/components/Elevation.qml
+@@ -2,7 +2,7 @@
+ // Provides consistent shadow effects across the UI
+ // Based on Material Design 3 elevation tokens
+ 
+-import QtQuick 6.10
++import QtQuick
+ import QtQuick.Effects
+ 
+ Item {
+diff --git a/components/IconButton.qml b/components/IconButton.qml
+index ecd2ce4..9a584a6 100644
+--- a/components/IconButton.qml
++++ b/components/IconButton.qml
+@@ -1,7 +1,7 @@
+ // IconButton.qml - Material 3 Icon Button with micro-interactions
+ // Scale squish on press, hover state, focus ring, icon fill animation
+ 
+-import QtQuick 6.10
++import QtQuick
+ import "effects"
+ import "../services" as QsServices
+ 
+diff --git a/components/Material3Popup.qml b/components/Material3Popup.qml
+index 46dd039..011c67b 100644
+--- a/components/Material3Popup.qml
++++ b/components/Material3Popup.qml
+@@ -1,7 +1,7 @@
+ // Material 3 Expressive Popup Component
+ // Reusable bouncy animated popup with modern Material 3 styling
+ 
+-import QtQuick 6.10
++import QtQuick
+ import QtQuick.Effects
+ import "effects"
+ import "../services" as QsServices
+diff --git a/components/NetworkGraph.qml b/components/NetworkGraph.qml
+index 5dd9eb6..1576a6c 100644
+--- a/components/NetworkGraph.qml
++++ b/components/NetworkGraph.qml
+@@ -1,6 +1,6 @@
+ // NetworkGraph.qml - Mini line graph for network traffic
+ // Enhanced with Material 3 styling, antialiasing, and gradient fills
+-import QtQuick 6.10
++import QtQuick
+ import "../services" as QsServices
+ 
+ Canvas {
+diff --git a/components/NotificationCard.qml b/components/NotificationCard.qml
+index abc29dd..d0d253a 100644
+--- a/components/NotificationCard.qml
++++ b/components/NotificationCard.qml
+@@ -1,4 +1,4 @@
+-import QtQuick 6.10
++import QtQuick
+ import QtQuick.Layouts
+ import "../services" as QsServices
+ import "../config" as QsConfig
+diff --git a/components/PopupButton.qml b/components/PopupButton.qml
+index df86b28..e5c842d 100644
+--- a/components/PopupButton.qml
++++ b/components/PopupButton.qml
+@@ -1,6 +1,6 @@
+ // Reusable bar button component with popup support
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
++import QtQuick
++import QtQuick.Layouts
+ import "../services" as QsServices
+ import "effects"
+ 
+diff --git a/components/StateLayer.qml b/components/StateLayer.qml
+index 78e0d99..8d93434 100644
+--- a/components/StateLayer.qml
++++ b/components/StateLayer.qml
+@@ -1,4 +1,4 @@
+-import QtQuick 6.10
++import QtQuick
+ import QtQuick.Effects
+ import "effects"
+ 
+diff --git a/components/StyledFlickable.qml b/components/StyledFlickable.qml
+index 978830d..8a5cee1 100644
+--- a/components/StyledFlickable.qml
++++ b/components/StyledFlickable.qml
+@@ -1,7 +1,7 @@
+ // StyledFlickable.qml - Material 3 Optimized Flickable
+ // Tuned scroll physics for native-feeling interactions
+ 
+-import QtQuick 6.10
++import QtQuick
+ import "effects"
+ 
+ Flickable {
+diff --git a/components/StyledListView.qml b/components/StyledListView.qml
+index da0033f..b189d6f 100644
+--- a/components/StyledListView.qml
++++ b/components/StyledListView.qml
+@@ -1,7 +1,7 @@
+ // StyledListView.qml - Material 3 Optimized ListView
+ // With tuned scroll physics, smooth scroll bar, and stagger animations
+ 
+-import QtQuick 6.10
++import QtQuick
+ import "effects"
+ 
+ ListView {
+diff --git a/components/SwipeGesture.qml b/components/SwipeGesture.qml
+index c75d973..51e9997 100644
+--- a/components/SwipeGesture.qml
++++ b/components/SwipeGesture.qml
+@@ -1,7 +1,7 @@
+ // SwipeGesture.qml - Swipe gesture handler for dismissible items
+ // Material 3 swipe-to-dismiss with velocity-based animation
+ 
+-import QtQuick 6.10
++import QtQuick
+ import "effects"
+ 
+ Item {
+diff --git a/config/AppearanceConfig.qml b/config/AppearanceConfig.qml
+index c7f535b..bd9d7f4 100644
+--- a/config/AppearanceConfig.qml
++++ b/config/AppearanceConfig.qml
+@@ -1,4 +1,4 @@
+-import QtQuick 6.10
++import QtQuick
+ 
+ QtObject {
+     readonly property var rounding: QtObject {
+diff --git a/config/BarConfig.qml b/config/BarConfig.qml
+index fdec3b2..69d13c5 100644
+--- a/config/BarConfig.qml
++++ b/config/BarConfig.qml
+@@ -1,4 +1,4 @@
+-import QtQuick 6.10
++import QtQuick
+ 
+ QtObject {
+     readonly property var workspaces: QtObject {
+diff --git a/config/Config.qml b/config/Config.qml
+index a026a91..f2fdaa9 100644
+--- a/config/Config.qml
++++ b/config/Config.qml
+@@ -77,6 +77,10 @@ Singleton {
+     readonly property BarConfig bar: BarConfig {}
+     readonly property AppearanceConfig appearanceTokens: AppearanceConfig {}
+ 
++    // Bar visibility: list of output names (e.g. ["eDP-1"]) where the bar shows.
++    // Empty list = show on all screens. Hot-reloaded from shell.json -> data.bar.screens.
++    readonly property var barScreens: data.bar?.screens ?? []
++
+     FileView {
+         id: file
+         path: {
+diff --git a/modules/bar/Bar.qml b/modules/bar/Bar.qml
+index 4655432..037f109 100644
+--- a/modules/bar/Bar.qml
++++ b/modules/bar/Bar.qml
+@@ -1,6 +1,6 @@
+ import Quickshell
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
++import QtQuick
++import QtQuick.Layouts
+ import QtQuick.Effects
+ import "components" as BarComponents
+ import "../../components"
+diff --git a/modules/bar/BarWrapper.qml b/modules/bar/BarWrapper.qml
+index e0eac06..99822d4 100644
+--- a/modules/bar/BarWrapper.qml
++++ b/modules/bar/BarWrapper.qml
+@@ -1,6 +1,6 @@
+ import Quickshell
+ import Quickshell.Wayland
+-import QtQuick 6.10
++import QtQuick
+ import "../../config" as QsConfig
+ import "../../services" as QsServices
+ 
+@@ -60,9 +60,19 @@ Scope {
+ 
+         PanelWindow {
+             id: window
+-            
++
+             property var modelData
+-            
++
++            // Only show the bar on the configured outputs.
++            // config.barScreens = [] means all screens (see shell.json -> bar.screens).
++            readonly property bool barVisible: {
++                const only = config.barScreens ?? []
++                if (!only || only.length === 0) return true
++                return !!modelData && only.includes(modelData.name)
++            }
++
++            visible: barVisible
++
+             screen: modelData
+             anchors {
+                 top: true
+@@ -70,8 +80,8 @@ Scope {
+                 right: true
+             }
+             
+-            // Fixed exclusive zone: only the bar strip reserves space
+-            exclusiveZone: config.bar.height
++            // Fixed exclusive zone: only the bar strip reserves space (0 on hidden screens)
++            exclusiveZone: barVisible ? config.bar.height : 0
+             
+             // Dynamic height: bar + inline popup area
+             implicitHeight: config.bar.height + (barLoader.item?.popupAreaHeight ?? 0)
+diff --git a/modules/bar/components/Battery.qml b/modules/bar/components/Battery.qml
+index 625ed66..06d001d 100644
+--- a/modules/bar/components/Battery.qml
++++ b/modules/bar/components/Battery.qml
+@@ -1,5 +1,5 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
++import QtQuick
++import QtQuick.Layouts
+ import Quickshell
+ import Quickshell.Services.UPower
+ import "../../../services" as QsServices
+diff --git a/modules/bar/components/Bluetooth.qml b/modules/bar/components/Bluetooth.qml
+index e6eb667..9f7af29 100644
+--- a/modules/bar/components/Bluetooth.qml
++++ b/modules/bar/components/Bluetooth.qml
+@@ -1,5 +1,5 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
++import QtQuick
++import QtQuick.Layouts
+ import Quickshell
+ import Quickshell.Bluetooth
+ import "../../../services" as QsServices
+diff --git a/modules/bar/components/BluetoothPanel.qml b/modules/bar/components/BluetoothPanel.qml
+index 48056bd..feef013 100644
+--- a/modules/bar/components/BluetoothPanel.qml
++++ b/modules/bar/components/BluetoothPanel.qml
+@@ -1,5 +1,5 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
++import QtQuick
++import QtQuick.Layouts
+ import Quickshell.Bluetooth
+ import Quickshell.Io
+ import "../../../services" as QsServices
+diff --git a/modules/bar/components/Brightness.qml b/modules/bar/components/Brightness.qml
+index f09b4f5..ac62e99 100644
+--- a/modules/bar/components/Brightness.qml
++++ b/modules/bar/components/Brightness.qml
+@@ -1,5 +1,5 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
++import QtQuick
++import QtQuick.Layouts
+ import Quickshell
+ import "../../../services" as QsServices
+ import "../../../components/effects"
+diff --git a/modules/bar/components/Clock.qml b/modules/bar/components/Clock.qml
+index f9dd735..5d7a5c9 100644
+--- a/modules/bar/components/Clock.qml
++++ b/modules/bar/components/Clock.qml
+@@ -1,5 +1,5 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
++import QtQuick
++import QtQuick.Layouts
+ import qs.services
+ import "../../../components/effects"
+ 
+diff --git a/modules/bar/components/ControlCenterToggle.qml b/modules/bar/components/ControlCenterToggle.qml
+index 9144850..04504e1 100644
+--- a/modules/bar/components/ControlCenterToggle.qml
++++ b/modules/bar/components/ControlCenterToggle.qml
+@@ -1,5 +1,5 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
++import QtQuick
++import QtQuick.Layouts
+ import Quickshell
+ import "../../../services" as QsServices
+ import "../../../components/effects"
+diff --git a/modules/bar/components/MediaPlayer.qml b/modules/bar/components/MediaPlayer.qml
+index ff26cc2..9f8e4e0 100644
+--- a/modules/bar/components/MediaPlayer.qml
++++ b/modules/bar/components/MediaPlayer.qml
+@@ -1,5 +1,5 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
++import QtQuick
++import QtQuick.Layouts
+ import Quickshell
+ import Quickshell.Io
+ import qs.services
+diff --git a/modules/bar/components/Network.qml b/modules/bar/components/Network.qml
+index 1a2e965..2621077 100644
+--- a/modules/bar/components/Network.qml
++++ b/modules/bar/components/Network.qml
+@@ -1,5 +1,5 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
++import QtQuick
++import QtQuick.Layouts
+ import Quickshell
+ import "../../../services" as QsServices
+ 
+diff --git a/modules/bar/components/NetworkPanel.qml b/modules/bar/components/NetworkPanel.qml
+index ab8eff6..f753499 100644
+--- a/modules/bar/components/NetworkPanel.qml
++++ b/modules/bar/components/NetworkPanel.qml
+@@ -1,6 +1,6 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
+-import QtQuick.Controls 6.10 as QQC
++import QtQuick
++import QtQuick.Layouts
++import QtQuick.Controls as QQC
+ import Quickshell.Io
+ import "../../../services" as QsServices
+ 
+diff --git a/modules/bar/components/NotificationCenterToggle.qml b/modules/bar/components/NotificationCenterToggle.qml
+index 2dd2585..d1a662f 100644
+--- a/modules/bar/components/NotificationCenterToggle.qml
++++ b/modules/bar/components/NotificationCenterToggle.qml
+@@ -1,4 +1,4 @@
+-import QtQuick 6.10
++import QtQuick
+ import Quickshell
+ import "../../../services" as QsServices
+ import "../../../components/effects"
+diff --git a/modules/bar/components/NotificationPopups.qml b/modules/bar/components/NotificationPopups.qml
+index 47f59b3..9200620 100644
+--- a/modules/bar/components/NotificationPopups.qml
++++ b/modules/bar/components/NotificationPopups.qml
+@@ -1,5 +1,5 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
++import QtQuick
++import QtQuick.Layouts
+ import QtQuick.Effects
+ import Quickshell
+ import Quickshell.Services.Notifications
+diff --git a/modules/bar/components/PowerButton.qml b/modules/bar/components/PowerButton.qml
+index ae649b7..9f84498 100644
+--- a/modules/bar/components/PowerButton.qml
++++ b/modules/bar/components/PowerButton.qml
+@@ -1,6 +1,7 @@
+-import QtQuick 6.10
++import QtQuick
+ import Quickshell
+-import qs.services
++import Quickshell.Io
++import "../../../services" as QsServices
+ import "../../../components/effects"
+ 
+ Item {
+@@ -18,13 +19,13 @@ Item {
+         radius: 14
+         
+         color: {
+-            if (mouseArea.pressed) return Qt.alpha(Pywal.error, 0.3)
+-            if (mouseArea.containsMouse) return Qt.alpha(Pywal.error, 0.2)
+-            return Qt.alpha(Pywal.error, 0.12)
++            if (mouseArea.pressed) return Qt.alpha(QsServices.Pywal.error, 0.3)
++            if (mouseArea.containsMouse) return Qt.alpha(QsServices.Pywal.error, 0.2)
++            return Qt.alpha(QsServices.Pywal.error, 0.12)
+         }
+         
+         border.width: 0
+-        border.color: Qt.alpha(Pywal.error, mouseArea.containsMouse ? 0.4 : 0.2)
++        border.color: Qt.alpha(QsServices.Pywal.error, mouseArea.containsMouse ? 0.4 : 0.2)
+         
+         scale: mouseArea.pressed ? 0.92 : (mouseArea.containsMouse ? 1.05 : 1.0)
+         
+@@ -56,10 +57,16 @@ Item {
+         anchors.centerIn: parent
+         text: "󰐥"
+         font.family: "Material Design Icons"
+-        color: Pywal.error
++        color: QsServices.Pywal.error
+         font.pixelSize: 16
+         font.bold: true
+     }
++
++    Process {
++        id: wlogoutProc
++        command: ["wlogout"]
++        onExited: (exitCode, exitStatus) => QsServices.Logger.debug("PowerButton", `wlogout exited: ${exitCode}`)
++    }
+     
+     MouseArea {
+         id: mouseArea
+@@ -68,8 +75,9 @@ Item {
+         cursorShape: Qt.PointingHandCursor
+         
+         onClicked: {
+-            // Execute shutdown command
+-            Quickshell.execDetached(["systemctl", "poweroff"])
++            // Open wlogout power menu (shutdown/reboot/suspend/logout/lock)
++            QsServices.Logger.debug("PowerButton", "Launching wlogout power menu")
++            wlogoutProc.running = true
+         }
+     }
+ }
+diff --git a/modules/bar/components/StatusIndicators.qml b/modules/bar/components/StatusIndicators.qml
+index 1208bfb..0f9ad86 100644
+--- a/modules/bar/components/StatusIndicators.qml
++++ b/modules/bar/components/StatusIndicators.qml
+@@ -1,6 +1,6 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
+-import QtQuick.Controls 6.10
++import QtQuick
++import QtQuick.Layouts
++import QtQuick.Controls
+ import "../../../services" as QsServices
+ import "../../../config" as QsConfig
+ 
+diff --git a/modules/bar/components/SystemTray.qml b/modules/bar/components/SystemTray.qml
+index 7e147ac..dc93e18 100644
+--- a/modules/bar/components/SystemTray.qml
++++ b/modules/bar/components/SystemTray.qml
+@@ -1,5 +1,5 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
++import QtQuick
++import QtQuick.Layouts
+ import Quickshell
+ import Quickshell.Services.SystemTray
+ 
+diff --git a/modules/bar/components/SystemUsage.qml b/modules/bar/components/SystemUsage.qml
+index 1273d00..4a3f656 100644
+--- a/modules/bar/components/SystemUsage.qml
++++ b/modules/bar/components/SystemUsage.qml
+@@ -1,5 +1,5 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
++import QtQuick
++import QtQuick.Layouts
+ import Quickshell
+ import "../../../services" as QsServices
+ 
+diff --git a/modules/bar/components/Volume.qml b/modules/bar/components/Volume.qml
+index cd438d5..21f98ae 100644
+--- a/modules/bar/components/Volume.qml
++++ b/modules/bar/components/Volume.qml
+@@ -1,5 +1,5 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
++import QtQuick
++import QtQuick.Layouts
+ import Quickshell
+ import "../../../services" as QsServices
+ import "../../../components/effects"
+diff --git a/modules/bar/components/Workspace.qml b/modules/bar/components/Workspace.qml
+index aeacad4..149c439 100644
+--- a/modules/bar/components/Workspace.qml
++++ b/modules/bar/components/Workspace.qml
+@@ -1,5 +1,5 @@
+ import Quickshell
+-import QtQuick 6.10
++import QtQuick
+ import "../../../config" as QsConfig
+ import "../../../services" as QsServices
+ import "../../../components/effects"
+diff --git a/modules/bar/components/Workspaces.qml b/modules/bar/components/Workspaces.qml
+index a2b1a6a..0ac5a3b 100644
+--- a/modules/bar/components/Workspaces.qml
++++ b/modules/bar/components/Workspaces.qml
+@@ -1,6 +1,6 @@
+ import Quickshell
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
++import QtQuick
++import QtQuick.Layouts
+ import "../../../config" as QsConfig
+ import "../../../services" as QsServices
+ 
+diff --git a/modules/controlcenter/ControlCenterWindow.qml b/modules/controlcenter/ControlCenterWindow.qml
+index 38845d7..76ff9a9 100644
+--- a/modules/controlcenter/ControlCenterWindow.qml
++++ b/modules/controlcenter/ControlCenterWindow.qml
+@@ -1,6 +1,6 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
+-import QtQuick.Controls 6.10
++import QtQuick
++import QtQuick.Layouts
++import QtQuick.Controls
+ import Quickshell
+ import Quickshell.Wayland
+ import Quickshell.Io
+@@ -41,7 +41,12 @@ PanelWindow {
+ 
+     Process { id: settingsProcess; command: ["nm-connection-editor"] }
+     Process { id: lockProcess; command: ["loginctl", "lock-session"] }
+-    Process { id: powerProcess; command: ["wlogout"] }
++    Process {
++        id: powerProcess
++        command: ["wlogout"]
++        onStarted: root.shouldShow = false
++        onExited: (exitCode, exitStatus) => QsServices.Logger.debug("ControlCenter", `wlogout exited: ${exitCode}`)
++    }
+     Process {
+         id: screenshotsProcess
+         command: ["xdg-open", root.screenshot.screenshotsDir]
+@@ -158,7 +163,16 @@ PanelWindow {
+                             Behavior on scale { NumberAnimation { duration: 100; easing.bezierCurve: Material3Anim.springGentle } }
+ 
+                             Text { anchors.centerIn: parent; text: "󰐥"; font.family: "Material Design Icons"; font.pixelSize: 24; color: root.cOnSurfaceVariant }
+-                            MouseArea { id: powerBtnMouse; anchors.fill: parent; cursorShape: Qt.PointingHandCursor; hoverEnabled: true; onClicked: powerProcess.running = true }
++                            MouseArea {
++                                id: powerBtnMouse
++                                anchors.fill: parent
++                                cursorShape: Qt.PointingHandCursor
++                                hoverEnabled: true
++                                onClicked: {
++                                    QsServices.Logger.debug("ControlCenter", "Launching wlogout power menu")
++                                    powerProcess.running = true
++                                }
++                            }
+                         }
+                     }
+                 }
+diff --git a/modules/controlcenter/components/BrightnessSlider.qml b/modules/controlcenter/components/BrightnessSlider.qml
+index 5b85729..83354ec 100644
+--- a/modules/controlcenter/components/BrightnessSlider.qml
++++ b/modules/controlcenter/components/BrightnessSlider.qml
+@@ -1,6 +1,6 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
+-import QtQuick.Controls 6.10
++import QtQuick
++import QtQuick.Layouts
++import QtQuick.Controls
+ import "../../../components/effects"
+ 
+ Item {
+diff --git a/modules/controlcenter/components/MediaCard.qml b/modules/controlcenter/components/MediaCard.qml
+index ae612c7..6ab0697 100644
+--- a/modules/controlcenter/components/MediaCard.qml
++++ b/modules/controlcenter/components/MediaCard.qml
+@@ -1,6 +1,6 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
+-import QtQuick.Controls 6.10
++import QtQuick
++import QtQuick.Layouts
++import QtQuick.Controls
+ import Quickshell
+ import "../../../components/effects"
+ 
+diff --git a/modules/controlcenter/components/NotificationList.qml b/modules/controlcenter/components/NotificationList.qml
+index 16e1bc8..b6e0c2d 100644
+--- a/modules/controlcenter/components/NotificationList.qml
++++ b/modules/controlcenter/components/NotificationList.qml
+@@ -1,5 +1,5 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
++import QtQuick
++import QtQuick.Layouts
+ import Quickshell
+ import "../../../components"
+ import "../../../components/effects"
+diff --git a/modules/controlcenter/components/QuickToggle.qml b/modules/controlcenter/components/QuickToggle.qml
+index f980754..bbc996f 100644
+--- a/modules/controlcenter/components/QuickToggle.qml
++++ b/modules/controlcenter/components/QuickToggle.qml
+@@ -1,6 +1,6 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
+-import QtQuick.Controls 6.10
++import QtQuick
++import QtQuick.Layouts
++import QtQuick.Controls
+ import "../../../components/effects"
+ 
+ Item {
+diff --git a/modules/controlcenter/components/SystemStats.qml b/modules/controlcenter/components/SystemStats.qml
+index 8c845b4..7b26fa1 100644
+--- a/modules/controlcenter/components/SystemStats.qml
++++ b/modules/controlcenter/components/SystemStats.qml
+@@ -1,5 +1,5 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
++import QtQuick
++import QtQuick.Layouts
+ import Quickshell
+ import "../../../components/effects"
+ 
+diff --git a/modules/controlcenter/components/VolumeSlider.qml b/modules/controlcenter/components/VolumeSlider.qml
+index 31c18ce..564809b 100644
+--- a/modules/controlcenter/components/VolumeSlider.qml
++++ b/modules/controlcenter/components/VolumeSlider.qml
+@@ -1,6 +1,6 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
+-import QtQuick.Controls 6.10
++import QtQuick
++import QtQuick.Layouts
++import QtQuick.Controls
+ import "../../../components/effects"
+ 
+ Item {
+diff --git a/modules/controlcenter/sections/MediaSection.qml b/modules/controlcenter/sections/MediaSection.qml
+index 51511ef..dc8c4a2 100644
+--- a/modules/controlcenter/sections/MediaSection.qml
++++ b/modules/controlcenter/sections/MediaSection.qml
+@@ -1,6 +1,6 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
+-import QtQuick.Controls 6.10
++import QtQuick
++import QtQuick.Layouts
++import QtQuick.Controls
+ import Quickshell
+ import "../../../services" as QsServices
+ 
+diff --git a/modules/controlcenter/sections/NotificationsSection.qml b/modules/controlcenter/sections/NotificationsSection.qml
+index e50aabb..458cc91 100644
+--- a/modules/controlcenter/sections/NotificationsSection.qml
++++ b/modules/controlcenter/sections/NotificationsSection.qml
+@@ -1,6 +1,6 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
+-import QtQuick.Controls 6.10
++import QtQuick
++import QtQuick.Layouts
++import QtQuick.Controls
+ import "../../../services" as QsServices
+ 
+ Item {
+diff --git a/modules/controlcenter/sections/PerformanceSection.qml b/modules/controlcenter/sections/PerformanceSection.qml
+index 2226f9b..836e9fe 100644
+--- a/modules/controlcenter/sections/PerformanceSection.qml
++++ b/modules/controlcenter/sections/PerformanceSection.qml
+@@ -1,5 +1,5 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
++import QtQuick
++import QtQuick.Layouts
+ import "../../../services" as QsServices
+ 
+ Item {
+diff --git a/modules/controlcenter/sections/SettingsSection.qml b/modules/controlcenter/sections/SettingsSection.qml
+index 5b083d3..b8d5647 100644
+--- a/modules/controlcenter/sections/SettingsSection.qml
++++ b/modules/controlcenter/sections/SettingsSection.qml
+@@ -1,6 +1,6 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
+-import QtQuick.Controls 6.10
++import QtQuick
++import QtQuick.Layouts
++import QtQuick.Controls
+ import Quickshell
+ import Quickshell.Io
+ import "../../../services" as QsServices
+@@ -18,6 +18,11 @@ Item {
+     Process { id: lockProc; command: ["loginctl", "lock-session"] }
+     Process { id: logoutProc; command: ["hyprctl", "dispatch", "exit"] }
+     Process { id: sleepProc; command: ["systemctl", "suspend"] }
++    Process {
++        id: powerProc
++        command: ["wlogout"]
++        onExited: (exitCode, exitStatus) => QsServices.Logger.debug("SettingsSection", `wlogout exited: ${exitCode}`)
++    }
+     Process { id: wifiSettingsProc; command: ["nm-connection-editor"] }
+     Process { id: bluetoothSettingsProc; command: ["blueman-manager"] }
+     
+@@ -194,7 +199,8 @@ Item {
+                         anchors.fill: parent
+                         cursorShape: Qt.PointingHandCursor
+                         onClicked: {
+-                            QsServices.Logger.debug("SettingsSection", "Power off")
++                            QsServices.Logger.debug("SettingsSection", "Launching wlogout power menu")
++                            powerProc.running = true
+                         }
+                         
+                         onPressed: parent.color = Qt.rgba(pywal.color1.r, pywal.color1.g, pywal.color1.b, 0.15)
+diff --git a/modules/dashboard/DashboardWindow.qml b/modules/dashboard/DashboardWindow.qml
+index bbcd2be..6ff463e 100644
+--- a/modules/dashboard/DashboardWindow.qml
++++ b/modules/dashboard/DashboardWindow.qml
+@@ -1,6 +1,6 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
+-import QtQuick.Controls 6.10 as QQC
++import QtQuick
++import QtQuick.Layouts
++import QtQuick.Controls as QQC
+ import Quickshell
+ import Quickshell.Wayland
+ import Quickshell.Services.UPower
+@@ -25,6 +25,7 @@ PanelWindow {
+     readonly property var powerProfiles: QsServices.PowerProfiles
+     readonly property var notifs: QsServices.Notifs
+     readonly property var bluetooth: QsServices.Bluetooth
++    readonly property var calendar: QsServices.Calendar
+     readonly property var battery: UPower.displayDevice
+ 
+     readonly property color cSurface: pywal.surfaceContainerHighest
+@@ -41,14 +42,35 @@ PanelWindow {
+     readonly property int currentYear: currentDate.getFullYear()
+     readonly property int currentDay: currentDate.getDate()
+     readonly property var dayLabels: ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
++    // Month navigation: 0 = current month, +1 = next, -1 = previous
++    property int monthOffset: 0
++    // Selected day of the visible month (-1 = none)
++    property int selectedDay: -1
++    readonly property date visibleMonthDate: new Date(currentYear, currentMonth + monthOffset, 1)
++    readonly property int shownMonth: visibleMonthDate.getMonth()
++    readonly property int shownYear: visibleMonthDate.getFullYear()
++    onMonthOffsetChanged: selectedDay = -1
++    // Agenda: Thunderbird events for the selected day (max 3 shown)
++    readonly property var agendaEvents: root.selectedDay > 0
++        ? root.calendar.eventsForDay(root.shownYear, root.shownMonth, root.selectedDay)
++        : []
++    readonly property int agendaShown: Math.min(root.agendaEvents.length, 3)
++    readonly property int agendaExtraH: root.selectedDay > 0
++        ? (16 + 6 + root.agendaShown * 26 + Math.max(0, root.agendaShown - 1) * 6
++           + (root.agendaEvents.length > 3 ? 22 : 0))
++        : 0
++
++    function openCalendarApp() {
++        Quickshell.execDetached(["thunderbird", "-calendar"])
++    }
+     readonly property int calendarOffset: {
+-        const first = new Date(currentYear, currentMonth, 1).getDay()
++        const first = new Date(shownYear, shownMonth, 1).getDay()
+         return (first + 6) % 7
+     }
+-    readonly property int calendarDays: new Date(currentYear, currentMonth + 1, 0).getDate()
++    readonly property int calendarDays: new Date(shownYear, shownMonth + 1, 0).getDate()
+     readonly property var calendarCells: {
+         const cells = []
+-        const prevMonthDays = new Date(currentYear, currentMonth, 0).getDate()
++        const prevMonthDays = new Date(shownYear, shownMonth, 0).getDate()
+         for (let index = 0; index < 42; index++) {
+             const dayNumber = index - calendarOffset + 1
+             if (dayNumber < 1) {
+@@ -56,7 +78,7 @@ PanelWindow {
+             } else if (dayNumber > calendarDays) {
+                 cells.push({ day: dayNumber - calendarDays, current: false, today: false })
+             } else {
+-                cells.push({ day: dayNumber, current: true, today: dayNumber === currentDay })
++                cells.push({ day: dayNumber, current: true, today: monthOffset === 0 && dayNumber === currentDay })
+             }
+         }
+         return cells
+@@ -127,9 +149,13 @@ PanelWindow {
+                     Layout.fillWidth: true
+ 
+                     ColumnLayout {
++                        Layout.fillWidth: true
++                        Layout.minimumWidth: 0
+                         spacing: 2
+ 
+                         Text {
++                            Layout.fillWidth: true
++                            elide: Text.ElideRight
+                             text: time.format("dddd")
+                             font.family: QsConfig.Config.appearance.fontFamily
+                             font.pixelSize: 28
+@@ -138,6 +164,8 @@ PanelWindow {
+                         }
+ 
+                         Text {
++                            Layout.fillWidth: true
++                            elide: Text.ElideRight
+                             text: time.format("MMMM d, yyyy  •  hh:mm")
+                             font.family: QsConfig.Config.appearance.fontFamily
+                             font.pixelSize: 12
+@@ -179,7 +207,7 @@ PanelWindow {
+ 
+                         SurfaceCard {
+                             Layout.fillWidth: true
+-                            Layout.preferredHeight: 254
++                            Layout.preferredHeight: 254 + root.agendaExtraH
+ 
+                             ColumnLayout {
+                                 anchors.fill: parent
+@@ -196,12 +224,22 @@ PanelWindow {
+                                         color: root.cText
+                                     }
+                                     Item { Layout.fillWidth: true }
++                                    CalNavButton {
++                                        navIcon: "󰅁"
++                                        onNavigated: root.monthOffset--
++                                    }
+                                     Text {
+-                                        text: time.format("MMMM yyyy")
++                                        Layout.minimumWidth: 110
++                                        horizontalAlignment: Text.AlignHCenter
++                                        text: Qt.formatDate(root.visibleMonthDate, "MMMM yyyy")
+                                         font.family: QsConfig.Config.appearance.fontFamily
+                                         font.pixelSize: 12
+                                         color: root.cSubText
+                                     }
++                                    CalNavButton {
++                                        navIcon: "󰅂"
++                                        onNavigated: root.monthOffset++
++                                    }
+                                 }
+ 
+                                 GridLayout {
+@@ -233,27 +271,139 @@ PanelWindow {
+                                         Rectangle {
+                                             id: dayCell
+                                             required property var modelData
++                                            readonly property bool isSelected: dayCell.modelData.current && dayCell.modelData.day === root.selectedDay
+                                             Layout.fillWidth: true
+                                             Layout.fillHeight: true
+                                             Layout.preferredHeight: 24
+                                             radius: 12
+-                                            color: dayCell.modelData.today
+-                                                ? Qt.rgba(root.cPrimary.r, root.cPrimary.g, root.cPrimary.b, 0.18)
+-                                                : dayCell.modelData.current
+-                                                    ? "transparent"
+-                                                    : Qt.rgba(root.cText.r, root.cText.g, root.cText.b, 0.03)
+-                                            border.width: dayCell.modelData.today ? 1 : 0
++                                            color: dayCell.isSelected
++                                                ? Qt.rgba(root.cPrimary.r, root.cPrimary.g, root.cPrimary.b, 0.32)
++                                                : dayCell.modelData.today
++                                                    ? Qt.rgba(root.cPrimary.r, root.cPrimary.g, root.cPrimary.b, 0.18)
++                                                    : dayMouse.containsMouse && dayCell.modelData.current
++                                                        ? Qt.rgba(root.cText.r, root.cText.g, root.cText.b, 0.08)
++                                                        : dayCell.modelData.current
++                                                            ? "transparent"
++                                                            : Qt.rgba(root.cText.r, root.cText.g, root.cText.b, 0.03)
++                                            border.width: (dayCell.modelData.today || dayCell.isSelected) ? 1 : 0
+                                             border.color: Qt.rgba(root.cPrimary.r, root.cPrimary.g, root.cPrimary.b, 0.36)
+ 
+                                             Text {
+                                                 anchors.centerIn: parent
++                                                anchors.verticalCenterOffset: dayCell.modelData.current && root.calendar.hasEvents(root.shownYear, root.shownMonth, dayCell.modelData.day) ? -2 : 0
+                                                 text: `${dayCell.modelData.day}`
+                                                 font.family: QsConfig.Config.appearance.fontFamily
+                                                 font.pixelSize: 11
+-                                                font.weight: dayCell.modelData.today ? Font.Bold : Font.Medium
++                                                font.weight: (dayCell.modelData.today || dayCell.isSelected) ? Font.Bold : Font.Medium
+                                                 color: dayCell.modelData.current ? root.cText : root.cSubText
+                                                 opacity: dayCell.modelData.current ? 1.0 : 0.45
+                                             }
++
++                                            // Event dot for days with Thunderbird calendar events
++                                            Rectangle {
++                                                anchors.horizontalCenter: parent.horizontalCenter
++                                                anchors.bottom: parent.bottom
++                                                anchors.bottomMargin: 4
++                                                width: 4
++                                                height: 4
++                                                radius: 2
++                                                color: root.cPrimary
++                                                visible: dayCell.modelData.current && root.calendar.hasEvents(root.shownYear, root.shownMonth, dayCell.modelData.day)
++                                            }
++
++                                            MouseArea {
++                                                id: dayMouse
++                                                anchors.fill: parent
++                                                hoverEnabled: true
++                                                enabled: dayCell.modelData.current
++                                                cursorShape: Qt.PointingHandCursor
++                                                onClicked: {
++                                                    const d = dayCell.modelData.day
++                                                    root.selectedDay = (root.selectedDay === d) ? -1 : d
++                                                }
++                                            }
++                                        }
++                                    }
++                                }
++
++                                // Agenda: Thunderbird events for the selected day
++                                ColumnLayout {
++                                    Layout.fillWidth: true
++                                    spacing: 6
++                                    visible: root.selectedDay > 0
++
++                                    Text {
++                                        Layout.fillWidth: true
++                                        text: root.selectedDay > 0
++                                            ? (root.agendaEvents.length > 0
++                                                ? `${Qt.formatDate(new Date(root.shownYear, root.shownMonth, root.selectedDay), "d MMM")} · ${root.agendaEvents.length}`
++                                                : `${Qt.formatDate(new Date(root.shownYear, root.shownMonth, root.selectedDay), "d MMM")} · sin eventos`)
++                                            : ""
++                                        font.family: QsConfig.Config.appearance.fontFamily
++                                        font.pixelSize: 11
++                                        font.weight: Font.DemiBold
++                                        color: root.cSubText
++                                    }
++
++                                    Repeater {
++                                        model: root.agendaEvents.slice(0, 3)
++
++                                        Rectangle {
++                                            id: eventRow
++                                            required property var modelData
++                                            Layout.fillWidth: true
++                                            Layout.preferredHeight: 26
++                                            radius: 13
++                                            color: eventMouse.containsMouse
++                                                ? Qt.rgba(root.cPrimary.r, root.cPrimary.g, root.cPrimary.b, 0.16)
++                                                : Qt.rgba(root.cText.r, root.cText.g, root.cText.b, 0.04)
++
++                                            RowLayout {
++                                                anchors.fill: parent
++                                                anchors.leftMargin: 12
++                                                anchors.rightMargin: 12
++                                                spacing: 8
++
++                                                Text {
++                                                    Layout.preferredWidth: 62
++                                                    elide: Text.ElideRight
++                                                    text: eventRow.modelData.all ? "Todo el día" : (eventRow.modelData.s ?? "")
++                                                    font.family: QsConfig.Config.appearance.fontFamily
++                                                    font.pixelSize: 11
++                                                    font.weight: Font.Medium
++                                                    color: root.cPrimary
++                                                }
++                                                Text {
++                                                    Layout.fillWidth: true
++                                                    elide: Text.ElideRight
++                                                    text: eventRow.modelData.t ?? ""
++                                                    font.family: QsConfig.Config.appearance.fontFamily
++                                                    font.pixelSize: 11
++                                                    color: root.cText
++                                                }
++                                            }
++
++                                            MouseArea {
++                                                id: eventMouse
++                                                anchors.fill: parent
++                                                hoverEnabled: true
++                                                cursorShape: Qt.PointingHandCursor
++                                                onClicked: root.openCalendarApp()
++                                            }
++                                        }
++                                    }
++
++                                    Text {
++                                        visible: root.agendaEvents.length > 3
++                                        text: `+${root.agendaEvents.length - 3} más en Thunderbird`
++                                        font.family: QsConfig.Config.appearance.fontFamily
++                                        font.pixelSize: 11
++                                        color: root.cPrimary
++
++                                        MouseArea {
++                                            anchors.fill: parent
++                                            cursorShape: Qt.PointingHandCursor
++                                            onClicked: root.openCalendarApp()
+                                         }
+                                     }
+                                 }
+@@ -500,6 +650,32 @@ PanelWindow {
+         }
+     }
+ 
++    component CalNavButton: Rectangle {
++        id: navRoot
++        required property string navIcon
++        signal navigated()
++        width: 26
++        height: 26
++        radius: 13
++        color: navMouse.containsMouse ? Qt.rgba(root.cPrimary.r, root.cPrimary.g, root.cPrimary.b, 0.16) : "transparent"
++
++        Text {
++            anchors.centerIn: parent
++            text: navRoot.navIcon
++            font.family: "Material Design Icons"
++            font.pixelSize: 16
++            color: root.cSubText
++        }
++
++        MouseArea {
++            id: navMouse
++            anchors.fill: parent
++            hoverEnabled: true
++            cursorShape: Qt.PointingHandCursor
++            onClicked: navRoot.navigated()
++        }
++    }
++
+     component SurfaceCard: Rectangle {
+         radius: 22
+         color: root.cSurfaceContainer
+@@ -512,7 +688,11 @@ PanelWindow {
+         required property string icon
+         required property string label
+         required property color accent
+-        width: chipRow.implicitWidth + 18
++        // Fixed width + fill-anchored row + eliding label: every label length
++        // fits by construction. (Width math off implicitWidth proved fragile:
++        // a free RowLayout grants children their full implicit width, so
++        // maximumWidth never constrained and the centered row spilled out.)
++        width: 150
+         height: 34
+         radius: 17
+         color: Qt.rgba(accent.r, accent.g, accent.b, 0.14)
+@@ -520,8 +700,9 @@ PanelWindow {
+         border.color: Qt.rgba(accent.r, accent.g, accent.b, 0.18)
+ 
+         RowLayout {
+-            id: chipRow
+-            anchors.centerIn: parent
++            anchors.fill: parent
++            anchors.leftMargin: 12
++            anchors.rightMargin: 12
+             spacing: 6
+             Text {
+                 text: chipRoot.icon
+@@ -530,6 +711,8 @@ PanelWindow {
+                 color: chipRoot.accent
+             }
+             Text {
++                Layout.fillWidth: true
++                elide: Text.ElideRight
+                 text: chipRoot.label
+                 font.family: QsConfig.Config.appearance.fontFamily
+                 font.pixelSize: 11
+@@ -600,11 +783,14 @@ PanelWindow {
+         required property string value
+         required property string detail
+         required property color accent
++        // Fill the parent column: without this the implicit width is 0 and
++        // the inner row crams icon/column/value on top of each other.
++        Layout.fillWidth: true
+         radius: 16
+         color: root.cSurfaceContainerHigh
+         border.width: 1
+         border.color: Qt.rgba(metricRoot.accent.r, metricRoot.accent.g, metricRoot.accent.b, 0.14)
+-        implicitHeight: 52
++        implicitHeight: 56
+ 
+         RowLayout {
+             anchors.fill: parent
+@@ -649,17 +835,24 @@ PanelWindow {
+         required property string title
+         required property string body
+         required property color accent
++        // Fill the parent column: without this the implicit width is 0 and
++        // title/body stack on top of each other.
++        Layout.fillWidth: true
+         radius: 18
+         color: root.cSurfaceContainerHigh
+         border.width: 1
+         border.color: Qt.rgba(accent.r, accent.g, accent.b, 0.18)
+-        implicitHeight: 74
++        // Adaptive height: fixed 74px clipped wrapped bodies ("Top processes",
++        // long inbox/power lines), which then overlapped the card below.
++        implicitHeight: insightCol.implicitHeight + 24
+ 
+         ColumnLayout {
++            id: insightCol
+             anchors.fill: parent
+             anchors.margins: 12
+             spacing: 4
+             Text {
++                Layout.fillWidth: true
+                 text: insightRoot.title
+                 font.family: QsConfig.Config.appearance.fontFamily
+                 font.pixelSize: 12
+@@ -667,6 +860,7 @@ PanelWindow {
+                 color: insightRoot.accent
+             }
+             Text {
++                Layout.fillWidth: true
+                 text: insightRoot.body
+                 wrapMode: Text.WordWrap
+                 font.family: QsConfig.Config.appearance.fontFamily
+diff --git a/modules/launcher/LauncherWindow.qml b/modules/launcher/LauncherWindow.qml
+index 71f39c2..e976c07 100644
+--- a/modules/launcher/LauncherWindow.qml
++++ b/modules/launcher/LauncherWindow.qml
+@@ -1,6 +1,6 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
+-import QtQuick.Controls 6.10 as QQC
++import QtQuick
++import QtQuick.Layouts
++import QtQuick.Controls as QQC
+ import Quickshell
+ import Quickshell.Wayland
+ import Quickshell.Widgets
+diff --git a/modules/sidebar/SidebarWindow.qml b/modules/sidebar/SidebarWindow.qml
+index 440cf95..aaa7da5 100644
+--- a/modules/sidebar/SidebarWindow.qml
++++ b/modules/sidebar/SidebarWindow.qml
+@@ -1,6 +1,6 @@
+-import QtQuick 6.10
+-import QtQuick.Layouts 6.10
+-import QtQuick.Controls 6.10 as QQC
++import QtQuick
++import QtQuick.Layouts
++import QtQuick.Controls as QQC
+ import Quickshell
+ import Quickshell.Wayland
+ import "../../config" as QsConfig
+diff --git a/plans/016-migracion-waybar-quickshell-trixie.md b/plans/016-migracion-waybar-quickshell-trixie.md
+new file mode 100644
+index 0000000..198aeef
+--- /dev/null
++++ b/plans/016-migracion-waybar-quickshell-trixie.md
+@@ -0,0 +1,139 @@
++# Plan explícito: Waybar → QuickShell completo en Trixie + backports
++
++> No ejecutar hoy. Diseñado para ejecución diferida paso a paso, con rollback a Waybar en cada fase.
++> Estado detectado 2026-09-16: `Trixie Qt 6.8.2`, `hyprland 0.55.2~bpo13+1 OK`, `quickshell NO instalado`, `qml6-module-qtquick-effects NO instalado`, `wal NO`, `~/.cache/wal/colors.json NO existe`, `swaync activo`, `NM managed + wifi conectado`, `backlight intel_backlight + grupo video OK`, `foot OK`, `fuentes Inter/Material Icons NO`.
++
++## Fase 0 – Backup y foto del estado actual (5 min, cero riesgo)
++
++```bash
++mkdir -p ~/backup-waybar-qs ~/.config/quickshell
++cp ~/.config/waybar/config ~/backup-waybar-qs/waybar-config.bak
++cp ~/.config/waybar/config.jsonc ~/backup-waybar-qs/waybar-config.jsonc.bak
++cp ~/.config/hypr/hyprland.conf ~/backup-waybar-qs/hyprland.conf.bak
++cp /home/jo/quickshell/shell.json ~/backup-waybar-qs/shell.json.orig
++hyprctl monitors > ~/backup-waybar-qs/hyprctl-monitors.txt
++nmcli dev status > ~/backup-waybar-qs/nm-status.txt
++ls /sys/class/backlight/ > ~/backup-waybar-qs/backlight.txt
++```
++
++No tocar `exec-once = ~/.config/hypr/waybar-launcher.sh` todavía.
++
++## Fase 1 – Instalar dependencias Debian (15 min)
++
++```bash
++sudo apt update
++# QuickShell + Hyprland desde backports (Hyprland ya lo tienes, QuickShell te falta)
++sudo apt install -t trixie-backports quickshell
++# Qt/QML que exige el repo (nombres Debian, no Arch)
++sudo apt install qt6-base qt6-declarative qt6-svg qt6-wayland \
++  qml6-module-qtquick qml6-module-qtquick-layouts qml6-module-qtquick-controls \
++  qml6-module-qtquick-effects \
++  grim slurp wl-clipboard jq libnotify-bin wf-recorder playerctl brightnessctl \
++  network-manager pavucontrol blueman power-profiles-daemon upower \
++  foot fonts-inter fonts-font-awesome fonts-jetbrains-mono
++# Verificar
++quickshell --version
++dpkg -l | grep qml6-module-qtquick-effects
++```
++
++Qué **NO** instalar: `wlogout` (no está en main, el repo lo usa en `ControlCenterWindow.qml:44` pero es opcional), `pamixer` (listado en `setup.sh` pero código usa `wpctl`, no lo necesitas), `radeontop` (no en main, solo afecta a `SystemUsage.qml` AMD).
++
++## Fase 2 – Parche obligatorio Qt 6.8 (bloqueante, 10 min)
++
++Sin esto no arranca en Trixie aunque todo lo demás esté bien. El repo pinea `6.10` en ~60 ficheros (`shell.qml:7`, `Bar.qml:2-4`, `BarWrapper.qml:3`, `LauncherWindow`, `Dashboard`, etc.).
++
++```bash
++# En /home/jo/quickshell, quitar versión de imports:
++grep -rl 'import QtQuick 6\.10\|import QtQuick\.Layouts 6\.10\|import QtQuick\.Controls 6\.10' --include='*.qml' .
++# Reemplazo esperado (hacer con editor, no sed a ciegas en build):
++# import QtQuick 6.10 -> import QtQuick
++# import QtQuick.Layouts 6.10 -> import QtQuick.Layouts
++# import QtQuick.Controls 6.10 -> import QtQuick.Controls
++# Verificar que no quede ningún 6.10:
++grep -r '6\.10' --include='*.qml' . | wc -l  # debe dar 0
++```
++
++No tocar `import QtQuick.Effects` (sin versión, correcto) ni `Quickshell.*`.
++
++## Fase 3 – Pywal + fuentes (10 min, sin esto se ve sin color/tofu)
++
++```bash
++# Pywal no existe en Debian -> pipx
++sudo apt install pipx
++pipx install pywal16
++export PATH="$HOME/.local/bin:$PATH"
++~/.local/bin/wal -i ~/.config/hypr/wallpaper.jpg
++ls ~/.cache/wal/colors.json  # debe existir
++# Fuentes faltantes (Inter OK por apt, Material Icons + Nerd manual):
++# 1. fonts-inter ya instalado en Fase 1
++# 2. Material Design Icons: descargar MaterialDesignIconsDesktop.ttf desde
++#    https://github.com/templarian/MaterialDesign-Fonts -> ~/.local/share/fonts/ + fc-cache -fv
++# 3. JetBrainsMono Nerd: ya tienes fonts-jetbrains-mono, si ves tofu en iconos (waybar usa FontAwesome/Nerd),
++#    descargar JetBrainsMonoNerdFont-Regular.ttf a ~/.local/share/fonts/
++fc-list | grep -iE 'inter|material.*icon|jetbrains|fontawesome'
++```
++
++## Fase 4 – Adaptar `shell.json` a tu entorno real (5 min)
++
++Editar `/home/jo/quickshell/shell.json` (conservar orig en backup):
++
++* `paths.screenshotsDir`: tienes `~/Pictures/Capturas` en `hyprland.conf:382` (grim|swappy). Quickshell trae `~/Pictures/Screenshots`. Unifica a `~/Pictures/Capturas` o tendrás dos carpetas.
++* `launcher.terminalCommand`: repo trae `["foot"]`. Tu `hyprland.conf:44` usa `gnome-terminal`, pero `foot` sí lo tienes y `wifi_click.sh:11` usa `foot -e`. Deja `["foot"]` para la prueba, cambia luego si prefieres `gnome-terminal`.
++* `launcher.favorites`: trae `firefox,zen-browser,thunar,code,kitty,Alacritty`. Tú usas `google-chrome-stable, nautilus, gnome-terminal, fuzzel`. Añade `google-chrome-stable` y `nautilus` para que el launcher los encuentre.
++* `notifications.registerServer`: deja `false` en la primera prueba (tienes `exec-once = swaync &` en `hyprland.conf:67`). Si lo pones `true` duplicarás con swaync. Solo pon `true` cuando quieras jubilar swaync.
++* `appearance.fontFamily`: deja `Inter`, `materialIconFont`: deja `Material Design Icons` tras Fase 3.
++
++## Fase 5 – Integración Hyprland sin romper Waybar (5 min, reversible)
++
++```bash
++# 1. Añadir al final de ~/.config/hypr/hyprland.conf (NO borrar waybar aún):
++# source = ~/.config/quickshell/hyprland-layer-config.conf
++# 2. Recargar hyprland: hyprctl reload
++# Contenido de ese conf: layerrule blur/ignore_alpha para quickshell.*,
++# animation layersIn/Out, windowrule float/no_blur para quickshell.
++# Tus layerrule waybar (hyprland.conf:471-476) no se tocan.
++```
++
++## Fase 6 – Prueba en paralelo (20 min, Waybar sigue vivo)
++
++```bash
++QS_DEBUG=1 quickshell --path /home/jo/quickshell/shell.qml
++# O si tu quickshell backport usa qs:
++QS_DEBUG=1 qs --path /home/jo/quickshell/shell.qml
++```
++
++Checklist de validación en este orden:
++
++1. Barra aparece por monitor (`BarWrapper.qml:58 Variants Quickshell.screens`, bueno para tu `eDP-1+DP-3`, a diferencia de Waybar `output: eDP-1` vs `*`).
++2. Workspaces Hyprland click + scroll (`Workspaces.qml` vs tu `hyprctl dispatch workspace`).
++3. Reloj: Waybar abre `swaync-client -t -sw || thunderbird -calendar`. Quickshell `Clock.qml` abre launcher/controlcenter/sidebar/dashboard, **no** Thunderbird. Pérdida conocida, decide si te compensa.
++4. Audio: `wpctl` OK, click abre `pavucontrol` igual que Waybar. Scroll volumen igual.
++5. Red: `nmcli` OK (tu wifi está managed). Falta tu lógica custom `waybar_network.sh` (VPN+Tailscale+unmanaged fallback) y `wifi_click.sh` (diagnóstico unmanaged). Quickshell `NetworkPanel` no sabe de VPN/Tailscale. Mantén tus scripts para diagnóstico aunque no salgan en la barra.
++6. BT: `blueman-manager` igual que Waybar. `bluetoothctl power toggle` (click-derecha Waybar) no existe en Quickshell, solo panel.
++7. Batería `UPower` OK. Brillo `brightnessctl` OK (estás en grupo `video`, no necesitas el sudoers `ALL ALL` de `setup.sh:112`, ignóralo).
++8. Tray: `SystemTray.qml` vs Waybar tray. Verifica `blueman-applet`, `udiskie -t`, `thunderbird`.
++9. OSD volumen/brillo con teclas `XF86*` (tus binds `hyprland.conf:353-358` siguen valiendo).
++10. Screenshots: tus binds usan `grim -g "$(slurp)" - | swappy -f -` y `hyprctl activewindow -j | jq`. Quickshell `Screenshot.qml` usa `grim <file> + wl-copy + notify-send` y `wf-recorder -c h264_vaapi -d /dev/dri/renderD128` (tu `screen_recorder.sh` usa `wf-recorder -f/-g` sin vaapi, más portable). Espera doble sistema de capturas hasta que elijas uno.
++11. Power: Waybar usa `confirm_power.sh` (zenity) + `power_menu.sh` (fuzzel) + `hyprctl dispatch exit`. Quickshell `PowerButton/SettingsSection` hace `systemctl poweroff/suspend/reboot + hyprctl dispatch exit` directo sin confirmación. Cambio de comportamiento a asumir.
++
++Si algo falla: `pkill -x quickshell; ~/.config/hypr/waybar-launcher.sh &` y sigues con Waybar.
++
++## Fase 7 – Cutover solo si Fase 6 verde (5 min)
++
++1. En `hyprland.conf`: comenta `exec-once = ~/.config/hypr/waybar-launcher.sh`, añade `exec-once = quickshell --path /home/jo/quickshell/shell.qml` (o `qs ...` según binario backport).
++2. Si `registerServer:true`, comenta `exec-once = swaync &`. Si `false`, deja swaync.
++3. Reboot o `hyprctl dispatch exit` + login. Mantén `~/backup-waybar-qs/` 1 semana.
++
++Rollback instantáneo: revertir esos dos `exec-once` + `hyprctl reload`.
++
++## Mapeo de tus customs Waybar → QuickShell (para no perder nada)
++
++| Waybar actual | QuickShell | Acción |
++|---|---|---|
++| `custom/updates check_updates.sh interval 3600 + click sudo apt upgrade + SIGRTMIN+8` | No existe | Mantener script manual o pedir port como módulo. No bloquea. |
++| `custom/network waybar_network.sh VPN/WiFi/Tailscale/unmanaged` | `Network.qml + NetworkPanel` solo NM básico | Pérdida parcial VPN/Tailscale tooltip. Guarda scripts para diagnóstico. |
++| `clock on-click swaync-client/thunderbird -calendar` | `Clock.qml` abre launcher/dashboard | Pérdida Thunderbird-calendario. Workaround: bind propio `SUPER+T` ya lo tienes. |
++| `group/power drawer + zenity confirm + fuzzel menu` | `PowerButton` directo sin confirm | Acostumbrarse o pedir confirm dialog. |
++| `pulseaudio scroll-step 2 max 100` vs `Audio.qml hasta 150%` | Volumen puede subir a 150% | Ojo a picos, baja a 100% si te molesta. |
++| `backlight scroll 5%` | `Brightness.qml brightnessctl set %` | Equivalente. |
++| `output eDP-1` (config) vs `*` (config.jsonc) | `Quickshell.screens` per-monitor | Mejor que Waybar, verifica en DP-3. |
+diff --git a/reload-quickshell.sh b/reload-quickshell.sh
+index 5a74a3c..a8a4abc 100755
+--- a/reload-quickshell.sh
++++ b/reload-quickshell.sh
+@@ -18,8 +18,8 @@ if pgrep -x quickshell > /dev/null; then
+     fi
+ fi
+ 
+-# Start new instance
++# Start new instance (same entrypoint as Hyprland autostart)
+ echo "Starting QuickShell..."
+-nohup quickshell > /dev/null 2>&1 &
++nohup /home/jo/.config/hypr/quickshell-launcher.sh > /dev/null 2>&1 &
+ 
+ echo "Done."
+diff --git a/scripts/qs-calendar.py b/scripts/qs-calendar.py
+new file mode 100755
+index 0000000..a42d50f
+--- /dev/null
++++ b/scripts/qs-calendar.py
+@@ -0,0 +1,439 @@
++#!/usr/bin/env python3
++"""qs-calendar.py — Thunderbird calendar -> JSON for Quickshell.
++
++Reads the local Thunderbird calendar cache (Google calendars synced by
++Thunderbird), expands RRULE recurrences and prints one JSON object:
++
++    {"YYYY-MM-DD": [{"t": title, "s": "HH:MM", "e": "HH:MM", "all": false}, ...], ...}
++
++Usage: qs-calendar.py --from YYYY-MM-DD --to YYYY-MM-DD
++
++Notes:
++- Uses the sqlite backup API into a temp copy, so it is safe to run while
++  Thunderbird is open (avoids WAL locks).
++- All-day detection: starts at 00:00 with >= 23h duration.
++- Dates/keys use the event's own wall clock (event timezone or floating).
++"""
++
++import argparse
++import calendar
++import datetime as dt
++import glob
++import json
++import os
++import re
++import sqlite3
++import sys
++import tempfile
++from zoneinfo import ZoneInfo
++
++WEEKDAYS = {"MO": 0, "TU": 1, "WE": 2, "TH": 3, "FR": 4, "SA": 5, "SU": 6}
++
++
++def find_tb_cache():
++    cands = glob.glob(os.path.expanduser("~/.thunderbird/*/calendar-data/cache.sqlite"))
++    best, best_n = None, -1
++    for p in cands:
++        try:
++            db = sqlite3.connect(f"file:{p}?mode=ro", uri=True)
++            n = db.execute(
++                "SELECT COUNT(*) FROM sqlite_master WHERE name='cal_events'"
++            ).fetchone()[0]
++            if n:
++                m = db.execute("SELECT COUNT(*) FROM cal_events").fetchone()[0]
++                if m > best_n:
++                    best, best_n = p, m
++            db.close()
++        except sqlite3.Error:
++            continue
++    return best
++
++
++def backup_db(src):
++    fd, tmp = tempfile.mkstemp(prefix="qs-cal-", suffix=".sqlite")
++    os.close(fd)
++    src_db = sqlite3.connect(f"file:{src}?mode=ro", uri=True)
++    dst_db = sqlite3.connect(tmp)
++    with dst_db:
++        src_db.backup(dst_db)
++    src_db.close()
++    dst_db.close()
++    return tmp
++
++
++def parse_dt(value, tzname):
++    """'20220503T200000' or '...Z' -> naive wall datetime in tzname."""
++    value = value.strip().rstrip("Z")
++    m = re.match(r"(\d{8})T(\d{6})", value)
++    if not m:
++        m = re.match(r"(\d{8})", value)
++        if not m:
++            return None
++        d = dt.datetime.strptime(m.group(1), "%Y%m%d")
++        return d
++    d = dt.datetime.strptime(m.group(1) + m.group(2), "%Y%m%d%H%M%S")
++    return d
++
++
++def parse_exdates(ical, tzname):
++    out = set()
++    for line in ical.splitlines():
++        line = line.strip()
++        if not line.upper().startswith("EXDATE"):
++            continue
++        _, _, values = line.partition(":")
++        is_utc = any(v.strip().upper().endswith("Z") for v in values.split(","))
++        for v in values.split(","):
++            v = v.strip()
++            if not v:
++                continue
++            d = parse_dt(v, tzname)
++            if d is None:
++                continue
++            if is_utc and tzname and tzname != "floating":
++                d = d.replace(tzinfo=dt.timezone.utc).astimezone(ZoneInfo(tzname)).replace(tzinfo=None)
++            out.add(d)
++    return out
++
++
++def parse_rrule(ical):
++    rule = {}
++    for line in ical.splitlines():
++        line = line.strip()
++        if not line.upper().startswith("RRULE:"):
++            continue
++        body = line.split(":", 1)[1]
++        for part in body.split(";"):
++            if "=" in part:
++                k, v = part.split("=", 1)
++                rule[k.strip().upper()] = v.strip()
++    return rule
++
++
++def parse_until(value, tzname):
++    value = value.strip()
++    is_utc = value.upper().endswith("Z")
++    d = parse_dt(value, tzname)
++    if d is None:
++        return None
++    if is_utc and tzname and tzname != "floating":
++        d = d.replace(tzinfo=dt.timezone.utc).astimezone(ZoneInfo(tzname)).replace(tzinfo=None)
++    return d
++
++
++def add_months(year, month, delta):
++    idx = (year * 12 + (month - 1)) + delta
++    return idx // 12, idx % 12 + 1
++
++
++def expand(rule, start_wall, win_from, win_to):
++    """Yield naive wall datetimes of occurrences within [win_from, win_to]."""
++    freq = rule.get("FREQ", "").upper()
++    if freq not in ("DAILY", "WEEKLY", "MONTHLY", "YEARLY"):
++        # Unknown frequency: single instance only.
++        if win_from <= start_wall <= win_to:
++            yield start_wall
++        return
++    interval = max(1, int(rule.get("INTERVAL", "1")))
++    count = rule.get("COUNT")
++    count = int(count) if count else None
++    until = parse_until(rule["UNTIL"], None) if "UNTIL" in rule else None
++    # UNTIL in wall clock of the event is approximated by caller passing tz;
++    # here treat naive directly (caller normalizes Z values beforehand is
++    # complex, so UNTIL compares on date granularity below).
++    emitted = 0
++
++    def accept(occ):
++        nonlocal emitted
++        if occ < start_wall:
++            return None
++        if until is not None and occ > until:
++            return "stop"
++        if occ < win_from or occ > win_to:
++            return None
++        emitted += 1
++        if count is not None and emitted > count:
++            return "stop"
++        return occ
++
++    if freq == "DAILY":
++        k = 0
++        while True:
++            occ = start_wall + dt.timedelta(days=k * interval)
++            if occ > win_to:
++                break
++            r = accept(occ)
++            if r == "stop":
++                break
++            if r is not None:
++                yield r
++            k += 1
++            if count is not None and emitted >= count:
++                break
++    elif freq == "WEEKLY":
++        byday = rule.get("BYDAY", "")
++        days = [WEEKDAYS[d] for d in re.findall(r"[A-Z]{2}", byday.upper()) if d in WEEKDAYS]
++        if not days:
++            days = [start_wall.weekday()]
++        days.sort()
++        monday = start_wall - dt.timedelta(days=start_wall.weekday())
++        monday = monday.replace(hour=start_wall.hour, minute=start_wall.minute,
++                                second=start_wall.second, microsecond=0)
++        w = 0
++        while True:
++            base = monday + dt.timedelta(weeks=w * interval)
++            if base > win_to and min(days) >= 0:
++                # earliest this week already past window end
++                if base + dt.timedelta(days=min(days)) > win_to:
++                    break
++            stop = False
++            for dw in days:
++                occ = (base + dt.timedelta(days=dw)).replace(
++                    hour=start_wall.hour, minute=start_wall.minute,
++                    second=start_wall.second, microsecond=0)
++                if occ > win_to and w > 0:
++                    # later weeks only get later; but other weekdays same week
++                    # may still fit, so just skip this one
++                    continue
++                r = accept(occ)
++                if r == "stop":
++                    stop = True
++                    break
++                if r is not None:
++                    yield r
++                if count is not None and emitted >= count:
++                    stop = True
++                    break
++            if stop:
++                break
++            w += 1
++            if monday + dt.timedelta(weeks=w * interval) > win_to + dt.timedelta(days=7):
++                # Verbraucherschutz: never loop forever
++                if count is None:
++                    # check termination by window only
++                    pass
++            if w > 3000:
++                break
++    elif freq == "MONTHLY":
++        bymonthday = rule.get("BYMONTHDAY", "")
++        mdays = [int(x) for x in re.findall(r"-?\d+", bymonthday)] or [start_wall.day]
++        byday = rule.get("BYDAY", "")
++        ord_days = re.findall(r"(-?\d+)?([A-Z]{2})", byday.upper())
++        m = 0
++        while True:
++            y, mo = add_months(start_wall.year, start_wall.month, m * interval)
++            month_start = dt.datetime(y, mo, 1)
++            if month_start > win_to and m > 0:
++                # months only advance; allow one extra for safety
++                if month_start.replace(day=1) > win_to + dt.timedelta(days=31):
++                    break
++            cands = []
++            for md in mdays:
++                if 1 <= md <= calendar.monthrange(y, mo)[1]:
++                    cands.append(dt.datetime(y, mo, md, start_wall.hour,
++                                             start_wall.minute, start_wall.second))
++            for prefix, wd in ord_days:
++                if wd not in WEEKDAYS:
++                    continue
++                target = WEEKDAYS[wd]
++                if prefix:
++                    n = int(prefix)
++                    if n > 0:
++                        first = month_start + dt.timedelta(
++                            days=(target - month_start.weekday()) % 7)
++                        occ = first + dt.timedelta(weeks=n - 1)
++                        if occ.month == mo:
++                            cands.append(occ.replace(hour=start_wall.hour,
++                                                     minute=start_wall.minute,
++                                                     second=start_wall.second))
++                    else:
++                        last_day = calendar.monthrange(y, mo)[1]
++                        last = dt.datetime(y, mo, last_day)
++                        first = last - dt.timedelta(days=(last.weekday() - target) % 7)
++                        occ = first - dt.timedelta(weeks=abs(n) - 1)
++                        if occ.month == mo:
++                            cands.append(occ.replace(hour=start_wall.hour,
++                                                     minute=start_wall.minute,
++                                                     second=start_wall.second))
++                else:
++                    d = month_start
++                    while d.month == mo:
++                        if d.weekday() == target:
++                            cands.append(d.replace(hour=start_wall.hour,
++                                                   minute=start_wall.minute,
++                                                   second=start_wall.second))
++                        d += dt.timedelta(days=1)
++            stop = False
++            for occ in sorted(set(cands)):
++                if occ > win_to and m > 0:
++                    continue
++                r = accept(occ)
++                if r == "stop":
++                    stop = True
++                    break
++                if r is not None:
++                    yield r
++                if count is not None and emitted >= count:
++                    stop = True
++                    break
++            if stop:
++                break
++            m += 1
++            if m > 2400:
++                break
++    elif freq == "YEARLY":
++        bymonth = rule.get("BYMONTH", "")
++        months = [int(x) for x in re.findall(r"\d+", bymonth)] or [start_wall.month]
++        bymonthday = rule.get("BYMONTHDAY", "")
++        mdays = [int(x) for x in re.findall(r"-?\d+", bymonthday)] or [start_wall.day]
++        y = start_wall.year
++        while True:
++            if dt.datetime(y, 1, 1) > win_to and y > start_wall.year:
++                if dt.datetime(y, 1, 1) > win_to + dt.timedelta(days=366):
++                    break
++            stop = False
++            for mo in sorted(set(months)):
++                if not 1 <= mo <= 12:
++                    continue
++                for md in mdays:
++                    if 1 <= md <= calendar.monthrange(y, mo)[1]:
++                        occ = dt.datetime(y, mo, md, start_wall.hour,
++                                          start_wall.minute, start_wall.second)
++                        if occ > win_to and y > start_wall.year:
++                            continue
++                        r = accept(occ)
++                        if r == "stop":
++                            stop = True
++                            break
++                        if r is not None:
++                            yield r
++                        if count is not None and emitted >= count:
++                            stop = True
++                            break
++                    if stop:
++                        break
++                if stop:
++                    break
++            if stop:
++                break
++            y += interval
++            if y - start_wall.year > 200:
++                break
++
++
++def wall_of(start_us, tzname):
++    if tzname and tzname != "floating":
++        try:
++            z = ZoneInfo(tzname)
++        except Exception:
++            z = dt.timezone.utc
++        return dt.datetime.fromtimestamp(start_us / 1e6, tz=z).replace(tzinfo=None), str(tzname)
++    return dt.datetime.fromtimestamp(start_us / 1e6, dt.timezone.utc).replace(tzinfo=None), "floating"
++
++
++def main():
++    ap = argparse.ArgumentParser()
++    ap.add_argument("--from", dest="from_", required=True)
++    ap.add_argument("--to", dest="to_", required=True)
++    args = ap.parse_args()
++    win_from = dt.datetime.strptime(args.from_, "%Y-%m-%d")
++    win_to = dt.datetime.strptime(args.to_, "%Y-%m-%d") + dt.timedelta(hours=23, minutes=59)
++
++    src = find_tb_cache()
++    if not src:
++        print(json.dumps({}))
++        print("qs-calendar: no Thunderbird calendar cache found", file=sys.stderr)
++        return 0
++    tmp = backup_db(src)
++    try:
++        db = sqlite3.connect(tmp)
++        db.row_factory = sqlite3.Row
++        masters = db.execute(
++            "SELECT id, title, event_start, event_end, event_start_tz, ical_status"
++            " FROM cal_events WHERE recurrence_id IS NULL"
++        ).fetchall()
++        overrides = {}
++        for r in db.execute(
++            "SELECT id, title, event_start, event_end, event_start_tz, ical_status,"
++            " recurrence_id FROM cal_events WHERE recurrence_id IS NOT NULL"
++        ):
++            overrides[(r["id"], int(r["recurrence_id"]))] = r
++        recur = {}
++        for r in db.execute("SELECT item_id, icalString FROM cal_recurrence"):
++            recur.setdefault(r["item_id"], []).append(r["icalString"])
++    finally:
++        try:
++            os.unlink(tmp)
++        except OSError:
++            pass
++
++    out = {}
++
++    def add(wall, title, dur_h, allday):
++        if not (win_from <= wall <= win_to):
++            return
++        key = wall.strftime("%Y-%m-%d")
++        end = wall + dt.timedelta(hours=dur_h)
++        entry = {"t": title or "(sin título)",
++                 "s": "Todo el día" if allday else wall.strftime("%H:%M"),
++                 "e": "" if allday else end.strftime("%H:%M"),
++                 "all": allday}
++        day = out.setdefault(key, [])
++        if (entry["t"], entry["s"]) not in [(e["t"], e["s"]) for e in day]:
++            day.append(entry)
++
++    for m in masters:
++        status = (m["ical_status"] or "").upper()
++        if status == "CANCELLED":
++            continue
++        wall, tzname = wall_of(m["event_start"], m["event_start_tz"])
++        dur_h = max(0.0, (m["event_end"] - m["event_start"]) / 3.6e9)
++        allday = wall.hour == 0 and wall.minute == 0 and dur_h >= 23.0
++        rules = [r for r in recur.get(m["id"], []) if "RRULE" in r.upper()]
++        exdates = set()
++        for blob in recur.get(m["id"], []):
++            exdates |= parse_exdates(blob, tzname if tzname != "floating" else None)
++        if not rules:
++            add(wall, m["title"], dur_h, allday)
++            continue
++        for blob in [b for b in recur.get(m["id"], []) if "RRULE" in b.upper()]:
++            rule = parse_rrule(blob)
++            # Normalize UNTIL with event tz for wall-clock compare
++            if "UNTIL" in rule:
++                u = rule["UNTIL"].strip()
++                if u.upper().endswith("Z") and tzname != "floating":
++                    z = ZoneInfo(tzname)
++                    uu = dt.datetime.strptime(u[:-1], "%Y%m%dT%H%M%S").replace(
++                        tzinfo=dt.timezone.utc).astimezone(z).replace(tzinfo=None)
++                    rule = dict(rule)
++                    rule["UNTIL"] = uu.strftime("%Y%m%dT%H%M%S")
++            for occ in expand(rule, wall, win_from, win_to):
++                if occ in exdates:
++                    continue
++                # recurrence override?
++                key_us = None
++                if tzname != "floating":
++                    z = ZoneInfo(tzname)
++                    key_us = int(occ.replace(tzinfo=z).astimezone(
++                        dt.timezone.utc).timestamp() * 1e6)
++                else:
++                    key_us = int(occ.replace(tzinfo=dt.timezone.utc).timestamp() * 1e6)
++                ov = overrides.pop((m["id"], key_us), None)
++                if ov is not None:
++                    if (ov["ical_status"] or "").upper() == "CANCELLED":
++                        continue
++                    ow, _ = wall_of(ov["event_start"], ov["event_start_tz"])
++                    od = max(0.0, (ov["event_end"] - ov["event_start"]) / 3.6e9)
++                    oa = ow.hour == 0 and ow.minute == 0 and od >= 23.0
++                    add(ow, ov["title"], od, oa)
++                else:
++                    add(occ, m["title"], dur_h, allday)
++
++    for v in out.values():
++        v.sort(key=lambda e: (e["all"], e["s"]))
++    print(json.dumps(out, ensure_ascii=False))
++    return 0
++
++
++if __name__ == "__main__":
++    sys.exit(main())
+diff --git a/services/Calendar.qml b/services/Calendar.qml
+new file mode 100644
+index 0000000..bad1dd2
+--- /dev/null
++++ b/services/Calendar.qml
+@@ -0,0 +1,96 @@
++pragma Singleton
++
++import Quickshell
++import Quickshell.Io
++import QtQuick
++import "." as QsServices
++
++// Calendar service — real events from the local Thunderbird cache
++// (Google calendars synced by Thunderbird, offline-friendly).
++// Exposes eventsByDate: { "YYYY-MM-DD": [{t, s, e, all}, ...] }.
++Singleton {
++    id: root
++
++    property var eventsByDate: ({})
++    property string status: "loading" // loading | ready | error
++    property string errorMessage: ""
++
++    // Consumer visibility control - set to false to pause polling when UI is hidden
++    property bool pollingActive: true
++
++    // Wide window so month navigation (±months) still shows dots.
++    readonly property string windowFrom: {
++        const d = new Date()
++        d.setDate(d.getDate() - 120)
++        return Qt.formatDate(d, "yyyy-MM-dd")
++    }
++    readonly property string windowTo: {
++        const d = new Date()
++        d.setDate(d.getDate() + 400)
++        return Qt.formatDate(d, "yyyy-MM-dd")
++    }
++
++    function pad(n) {
++        return (n < 10 ? "0" : "") + n
++    }
++
++    function dateKey(year, monthZeroBased, day) {
++        return `${year}-${root.pad(monthZeroBased + 1)}-${root.pad(day)}`
++    }
++
++    function hasEvents(year, monthZeroBased, day) {
++        const list = root.eventsByDate[root.dateKey(year, monthZeroBased, day)]
++        return !!list && list.length > 0
++    }
++
++    function eventsForDay(year, monthZeroBased, day) {
++        return root.eventsByDate[root.dateKey(year, monthZeroBased, day)] ?? []
++    }
++
++    function refresh() {
++        fetchProc.running = true
++    }
++
++    Process {
++        id: fetchProc
++
++        running: true
++        command: ["python3", `${Quickshell.env("HOME")}/quickshell/scripts/qs-calendar.py`,
++                  "--from", root.windowFrom, "--to", root.windowTo]
++        stdout: StdioCollector {
++            onStreamFinished: {
++                try {
++                    const parsed = JSON.parse(text)
++                    root.eventsByDate = parsed
++                    root.status = "ready"
++                    root.errorMessage = ""
++                    QsServices.Logger.debug("Calendar", `Loaded ${Object.keys(parsed).length} days with events`)
++                } catch (e) {
++                    root.status = "error"
++                    root.errorMessage = "parse"
++                    QsServices.Logger.warn("Calendar", `Failed to parse qs-calendar.py output: ${e?.message ?? e}`)
++                }
++            }
++        }
++        stderr: StdioCollector {
++            onStreamFinished: {
++                if (text.trim().length > 0) {
++                    QsServices.Logger.warn("Calendar", text.trim().slice(0, 300))
++                }
++            }
++        }
++        onExited: (code, status) => {
++            if (code !== 0) {
++                root.status = "error"
++                QsServices.Logger.warn("Calendar", `qs-calendar.py exited code=${code}`)
++            }
++        }
++    }
++
++    Timer {
++        interval: 900000 // Refresh every 15 minutes
++        running: root.pollingActive
++        repeat: true
++        onTriggered: root.refresh()
++    }
++}
+diff --git a/services/Hypr.qml b/services/Hypr.qml
+index 2a8692b..d50d70e 100644
+--- a/services/Hypr.qml
++++ b/services/Hypr.qml
+@@ -2,7 +2,7 @@ pragma Singleton
+ 
+ import Quickshell
+ import Quickshell.Hyprland
+-import QtQuick 6.10
++import QtQuick
+ 
+ Singleton {
+     id: root
+diff --git a/services/Network.qml b/services/Network.qml
+index ad22c9a..20499ea 100644
+--- a/services/Network.qml
++++ b/services/Network.qml
+@@ -216,7 +216,10 @@ Singleton {
+                 const allNetworks = text.trim().split("\n").map(n => {
+                     const net = n.replace(rep, PLACEHOLDER).split(":");
+                     return {
+-                        active: net[0] === "yes",
++                        // ACTIVE is locale-dependent ("yes" in English, "sí" in Spanish, ...),
++                        // and Process.environment overrides are ignored on some builds,
++                        // so accept the common affirmative values case-insensitively.
++                        active: /^(yes|sí|si|y)$/i.test((net[0] ?? "").trim()),
+                         strength: parseInt(net[1]),
+                         frequency: parseInt(net[2]),
+                         ssid: net[3]?.replace(rep2, ":") ?? "",
+diff --git a/services/Notifs.qml b/services/Notifs.qml
+index 07462e9..a6f9caa 100644
+--- a/services/Notifs.qml
++++ b/services/Notifs.qml
+@@ -1,6 +1,6 @@
+ pragma Singleton
+ 
+-import QtQuick 6.10
++import QtQuick
+ import Quickshell
+ import Quickshell.Services.Notifications
+ import "." as QsServices
+@@ -142,9 +142,12 @@ Singleton {
+         QsServices.Logger.info("Notifs", `DND mode: ${dnd ? "enabled" : "disabled"}`)
+     }
+     
+-    // Clear all notifications
++    // Clear all notifications (permanent delete from history)
+     function clearAll() {
+-        notifications.forEach(n => n.close());
++        const copy = [...notifications]
++        for (let i = 0; i < copy.length; i++) {
++            if (copy[i]) deleteNotification(copy[i])
++        }
+         markAllRead()
+         QsServices.Logger.info("Notifs", "All notifications cleared")
+     }
+diff --git a/services/Players.qml b/services/Players.qml
+index babcbd3..27cc7e0 100644
+--- a/services/Players.qml
++++ b/services/Players.qml
+@@ -3,7 +3,7 @@ pragma Singleton
+ import Quickshell
+ import Quickshell.Io
+ import Quickshell.Services.Mpris
+-import QtQuick 6.10
++import QtQuick
+ 
+ Singleton {
+     id: root
+diff --git a/services/PowerProfiles.qml b/services/PowerProfiles.qml
+index fc04938..d911d16 100644
+--- a/services/PowerProfiles.qml
++++ b/services/PowerProfiles.qml
+@@ -1,6 +1,6 @@
+ pragma Singleton
+ 
+-import QtQuick 6.10
++import QtQuick
+ import Quickshell
+ import Quickshell.Io
+ import "." as QsServices
+diff --git a/services/Pywal.qml b/services/Pywal.qml
+index 5c4efac..f544ba9 100644
+--- a/services/Pywal.qml
++++ b/services/Pywal.qml
+@@ -2,7 +2,7 @@ pragma Singleton
+ 
+ import Quickshell
+ import Quickshell.Io
+-import QtQuick 6.10
++import QtQuick
+ import "../config" as QsConfig
+ import "." as QsServices
+ 
+diff --git a/services/Screenshot.qml b/services/Screenshot.qml
+index b037762..2ad3166 100644
+--- a/services/Screenshot.qml
++++ b/services/Screenshot.qml
+@@ -1,6 +1,6 @@
+ pragma Singleton
+ 
+-import QtQuick 6.10
++import QtQuick
+ import Quickshell
+ import Quickshell.Io
+ import "../config" as QsConfig
+diff --git a/services/Settings.qml b/services/Settings.qml
+index d3d1476..c29ee03 100644
+--- a/services/Settings.qml
++++ b/services/Settings.qml
+@@ -1,6 +1,6 @@
+ pragma Singleton
+ 
+-import QtQuick 6.10
++import QtQuick
+ import Quickshell
+ import Quickshell.Io
+ import "." as QsServices
+diff --git a/services/qmldir b/services/qmldir
+index 5fcbeb2..809b6b4 100644
+--- a/services/qmldir
++++ b/services/qmldir
+@@ -15,3 +15,4 @@ singleton PowerProfiles PowerProfiles.qml
+ singleton Screenshot Screenshot.qml
+ singleton Logger Logger.qml
+ singleton Bluetooth Bluetooth.qml
++singleton Calendar Calendar.qml
+diff --git a/setup.sh b/setup.sh
+index 30a27d2..88bd343 100755
+--- a/setup.sh
++++ b/setup.sh
+@@ -38,6 +38,7 @@ if command -v pacman &> /dev/null; then
+         "wl-clipboard"
+         "wf-recorder"
+         "libnotify"
++        "wlogout"
+     )
+ 
+     # Helper to check and install
+diff --git a/shell.json b/shell.json
+index 957be73..737f5e4 100644
+--- a/shell.json
++++ b/shell.json
+@@ -11,6 +11,9 @@
+     "volumeTimeoutMs": 2000,
+     "brightnessTimeoutMs": 2000
+   },
++  "bar": {
++    "screens": ["eDP-1"]
++  },
+   "notifications": {
+     "popupWidth": 340,
+     "maxVisible": 5,
+@@ -42,7 +45,7 @@
+   "dashboard": {
+     "enabled": true,
+     "width": 860,
+-    "height": 640,
++    "height": 860,
+     "margin": 18
+   }
+ }
+diff --git a/shell.qml b/shell.qml
+index 850d378..5dd82c8 100644
+--- a/shell.qml
++++ b/shell.qml
+@@ -4,7 +4,7 @@
+ 
+ import Quickshell
+ import Quickshell.Services.Notifications
+-import QtQuick 6.10
++import QtQuick
+ import "services" as QsServices
+ import "config" as QsConfig
+ import "modules/osd"
+@@ -19,6 +19,7 @@ ShellRoot {
+     readonly property var audio: QsServices.Audio
+     readonly property var brightness: QsServices.Brightness
+     readonly property var gamingMode: QsServices.GamingMode
++    readonly property var calendar: QsServices.Calendar
+     
+     // Only register as a notification daemon if explicitly enabled.
+     // This avoids noisy warnings when another daemon is active.

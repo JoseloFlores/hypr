@@ -8,7 +8,7 @@
 set -u
 set -o pipefail
 REPO_ROOT="$(cd "$(dirname "$(readlink -f "$0")")" && pwd)"
-DEFAULT_MODULES=(10-repos 20-drivers 30-base 40-hypr 50-fonts 60-greetd 70-dots 80-pam-portals 90-services 95-grub 99-final-check)
+DEFAULT_MODULES=(10-repos 20-drivers 30-base 40-hypr 50-fonts 60-greetd 70-dots 71-quickshell 80-pam-portals 90-services 95-grub 99-final-check)
 ONLY_LIST=""; SKIP_LIST=""; CHECK_ONLY=0
 
 usage() { echo "Uso: $0 [--only a,b] [--skip c] [--check]"; }
