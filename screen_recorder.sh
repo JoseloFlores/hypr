@@ -19,8 +19,9 @@ fi
 OUT="$DIR/Video_$(date +%Y%m%d_%H%M%S).mp4"
 
 if [ "$MODE" = "full" ]; then
-    # -o explícito: con 2+ monitores wf-recorder pregunta y falla sin TTY
-    OUT_MON=$(hyprctl monitors -j 2>/dev/null | jq -r '.[] | select(.focused==1) | .name' 2>/dev/null)
+    # -o explícito: con 2+ monitores wf-recorder pregunta y falla sin TTY.
+    # Foco primero, si no el primer monitor disponible (portable entre equipos).
+    OUT_MON=$(hyprctl monitors -j 2>/dev/null | jq -r '((.[] | select(.focused==1) | .name) // .[0].name) // empty' 2>/dev/null)
     [ -z "$OUT_MON" ] && OUT_MON="eDP-1"
     notify-send -e -u low -i video-x-generic "Grabador de Pantalla" "Grabación iniciada ($OUT_MON)"
     exec wf-recorder -o "$OUT_MON" -f "$OUT"

@@ -19,7 +19,7 @@ else
 fi
 
 # --- Rutas compartidas ---
-# REPO_ROOT: /home/jo/hypr (donde está install.sh). SCRIPT_DIR puede venir del orquestador.
+# REPO_ROOT: directorio del repo (donde está install.sh). SCRIPT_DIR puede venir del orquestador.
 if [ -z "${REPO_ROOT:-}" ]; then
     _GF_SELF="$(readlink -f "${BASH_SOURCE[0]}")"
     _GF_DIR="$(dirname "$_GF_SELF")"

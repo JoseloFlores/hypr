@@ -37,6 +37,13 @@ if [ -d "$SCRIPT_DIR/wlogout" ]; then
             sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/wlogout/$wl" "$DOTS_CONF/wlogout/"
         fi
     done
+    # Portable: el template trae una ruta absoluta del autor; se reescribe al
+    # HOME real (set-wallpaper.sh regenera el css igual, esto cubre el caso
+    # sin caché pywal + deja el repo con rutas neutras en el deploy).
+    if [ -f "$DOTS_CONF/wlogout/style.css" ]; then
+        sudo -u "$REAL_USER" env HOME="$USER_HOME" \
+            sed -i -E "s#url\(\"/home/[^/\"]+#url(\"$USER_HOME#g" "$DOTS_CONF/wlogout/style.css" || true
+    fi
     log "-> wlogout desplegado en $DOTS_CONF/wlogout/"
 fi
 
