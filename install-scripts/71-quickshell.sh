@@ -22,30 +22,28 @@ run_bash "pip pywal+colorz" sudo -u "$REAL_USER" env HOME="$USER_HOME" \
     || sudo -u "$REAL_USER" env HOME="$USER_HOME" pip install --user pywal colorz || true
 
 if [ "$DRY_RUN" = "1" ]; then
-    echo "[DRY-RUN] git clone quickshell a $USER_HOME/quickshell + apply patches/quickshell-local.patch + set-wallpaper.sh + quickshell --version" | tee -a "$LOG"
+    echo "[DRY-RUN] git clone fork quickshell a $USER_HOME/quickshell + deploy shell.json/settings.json + Capturas/symlink + set-wallpaper.sh + quickshell --version" | tee -a "$LOG"
     exit 0
 fi
 
-# --- Config quickshell: clonar + aplicar ajustes locales versionados ---
+# --- Config quickshell: clonar el fork propio (compat + ajustes ya commiteados) ---
+# QS_REPO permite override (p. ej. upstream para probar). Todo lo que antes
+# hacía patches/quickshell-local.patch vive ahora en el historial del fork.
+QS_REPO="${QS_REPO:-https://github.com/JoseloFlores/quickshell.git}"
+QS_FALLBACK="https://github.com/tripathiji1312/quickshell.git"
 QS_DIR="$USER_HOME/quickshell"
 if [ ! -d "$QS_DIR/.git" ]; then
     sudo -u "$REAL_USER" env HOME="$USER_HOME" \
-        git clone https://github.com/tripathiji1312/quickshell.git "$QS_DIR" || {
-        log_warn "No se pudo clonar quickshell (¿sin red?). Se omite despliegue de config."
+        git clone "$QS_REPO" "$QS_DIR" || {
+        log_warn "No se pudo clonar $QS_REPO, probando upstream..."
+        sudo -u "$REAL_USER" env HOME="$USER_HOME" \
+            git clone "$QS_FALLBACK" "$QS_DIR" || {
+            log_warn "No se pudo clonar quickshell (¿sin red?). Se omite despliegue de config."
+        }
     }
 fi
-PATCH="$SCRIPT_DIR/patches/quickshell-local.patch"
-if [ -d "$QS_DIR/.git" ] && [ -f "$PATCH" ]; then
-    if sudo -u "$REAL_USER" env HOME="$USER_HOME" git -C "$QS_DIR" apply --check "$PATCH" 2>/dev/null; then
-        sudo -u "$REAL_USER" env HOME="$USER_HOME" git -C "$QS_DIR" apply "$PATCH" \
-            && log "-> parche quickshell-local aplicado" \
-            || log_warn "El parche quickshell no aplicó limpio; revisa $QS_DIR"
-    else
-        log "-> parche quickshell ya aplicado o no corresponde, se omite"
-    fi
-fi
 
-# --- ~/.config/quickshell (layer rules + shell.json por defecto, sin pisar usuario) ---
+# --- ~/.config/quickshell (layer rules + shell.json + settings.json por defecto, sin pisar usuario) ---
 if [ -d "$QS_DIR" ]; then
     sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p "$USER_HOME/.config/quickshell"
     if [ -f "$QS_DIR/hyprland-layer-config.conf" ] && [ ! -f "$USER_HOME/.config/quickshell/hyprland-layer-config.conf" ]; then
@@ -54,7 +52,20 @@ if [ -d "$QS_DIR" ]; then
     if [ -f "$QS_DIR/shell.json" ] && [ ! -f "$USER_HOME/.config/quickshell/shell.json" ]; then
         sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$QS_DIR/shell.json" "$USER_HOME/.config/quickshell/"
     fi
+    if [ -f "$QS_DIR/settings.json" ] && [ ! -f "$USER_HOME/.config/quickshell/settings.json" ]; then
+        sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$QS_DIR/settings.json" "$USER_HOME/.config/quickshell/"
+    fi
     chown -R "$REAL_USER":"$REAL_USER" "$USER_HOME/.config/quickshell" "$QS_DIR" 2>/dev/null || true
+fi
+
+# --- ~/Pictures/Capturas + symlink ~/Imágenes/Capturas (destino de grim/wf-recorder) ---
+if [ "$DRY_RUN" != "1" ]; then
+    sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p "$USER_HOME/Pictures/Capturas"
+    if [ ! -e "$USER_HOME/Imágenes/Capturas" ]; then
+        sudo -u "$REAL_USER" env HOME="$USER_HOME" ln -s "$USER_HOME/Pictures/Capturas" "$USER_HOME/Imágenes/Capturas" \
+            && log "-> symlink Imágenes/Capturas -> Pictures/Capturas" || true
+    fi
+    chown -R "$REAL_USER":"$REAL_USER" "$USER_HOME/Pictures/Capturas" 2>/dev/null || true
 fi
 
 # --- wlogout funcional desde el primer arranque ---
