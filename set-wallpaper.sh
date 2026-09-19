@@ -1,6 +1,7 @@
 #!/bin/bash
 # set-wallpaper.sh — Cambia el wallpaper y sincroniza todo:
-#   escritorio (swaybg) + bloqueo (hyprlock) + paleta (pywal/quickshell) + wlogout
+#   escritorio (swaybg) + bloqueo (hyprlock) + paleta (pywal/quickshell)
+#   + terminal (foot) + launcher (fuzzel) + wlogout
 # Uso:
 #   set-wallpaper.sh /ruta/a/imagen.jpg
 #   set-wallpaper.sh --random [directorio]   (por defecto ~/Imágenes/wallpapers/wallpaper)
@@ -41,9 +42,72 @@ nohup swaybg -i "$WALL" -m fill > /dev/null 2>&1 &
 disown || true
 
 # 3. Paleta pywal (quickshell la recarga sola vía FileView)
-# Nota: backend colorz porque ImageMagick no está instalado
+# Se evita --saturate: en este wallpaper generaba tonos rojizos (se prefiere neutro).
+# haishoku primero; si falla con algún wallpaper, fallback a colorz.
 if command -v wal &>/dev/null; then
-    wal --backend colorz -i "$WALL" > /dev/null 2>&1 || echo "Aviso: 'wal -i' falló, paleta sin actualizar" >&2
+    if ! wal --backend haishoku -i "$WALL" > /dev/null 2>&1; then
+        echo "Aviso: backend haishoku falló, probando colorz" >&2
+        wal --backend colorz -i "$WALL" > /dev/null 2>&1 \
+            || echo "Aviso: 'wal -i' falló, paleta sin actualizar" >&2
+    fi
+fi
+
+# 3.5 Terminal foot + launcher fuzzel desde pywal (consistentes con quickshell:
+#       quickshell usa color4 como primary — fuzzel lo usa como acento)
+if [[ -f "$HOME/.cache/wal/colors.json" ]] && command -v jq &>/dev/null; then
+    # --- foot: pywal [colors-dark] -> foot [colors] ---
+    FOOT_TEMPLATE="$HOME/.cache/wal/colors-foot-dark.ini"
+    FOOT_COLORS="$HOME/.config/foot/colors.ini"
+    if [[ -f "$FOOT_TEMPLATE" ]]; then
+        mkdir -p "$(dirname "$FOOT_COLORS")"
+        {
+            echo "# Generado por set-wallpaper.sh desde pywal ($(basename "$SRC")) — no editar a mano"
+            sed 's/^\[colors-dark\]/[colors]/; /^alpha=/d' "$FOOT_TEMPLATE"
+        } > "$FOOT_COLORS.tmp" && mv "$FOOT_COLORS.tmp" "$FOOT_COLORS"
+        echo "Foot sincronizado con pywal -> $FOOT_COLORS"
+    fi
+    # --- fuzzel: solo [colors], preserva [main]/[border]/[dmenu] y translucidez e6 ---
+    PW_BG=$(jq -r '.special.background' "$HOME/.cache/wal/colors.json" | tr -d '#')
+    PW_FG=$(jq -r '.special.foreground' "$HOME/.cache/wal/colors.json" | tr -d '#')
+    PW_ACC=$(jq -r '.colors.color4' "$HOME/.cache/wal/colors.json" | tr -d '#')
+    if [[ -n "$PW_BG" && -n "$PW_FG" && -n "$PW_ACC" ]]; then
+        python3 - "$HOME/.config/fuzzel/fuzzel.ini" "$PW_BG" "$PW_FG" "$PW_ACC" <<'PYEOF' \
+            && echo "Fuzzel sincronizado con pywal" || echo "Aviso: sync fuzzel falló" >&2
+import sys, re, pathlib
+cfg_path, BG, FG, ACC = sys.argv[1:5]
+desired = {
+    "background": BG + "e6",
+    "text": FG + "ff",
+    "prompt": FG + "ff",
+    "placeholder": FG + "80",
+    "input": FG + "ff",
+    "match": ACC + "ff",
+    "selection": ACC + "ff",
+    "selection-text": BG + "ff",
+    "selection-match": FG + "ff",
+    "counter": FG + "80",
+    "border": ACC + "ff",
+}
+p = pathlib.Path(cfg_path)
+lines = p.read_text().splitlines()
+out, in_colors = [], False
+for line in lines:
+    s = line.strip()
+    if s.startswith("[") and s.endswith("]"):
+        in_colors = (s == "[colors]")
+        out.append(line)
+        continue
+    if in_colors:
+        m = re.match(r'^\s*([a-z\-]+)\s*=', line)
+        if m and m.group(1) in desired:
+            out.append(f"{m.group(1)}={desired[m.group(1)]}")
+            continue
+    out.append(line)
+p.write_text("\n".join(out) + "\n")
+PYEOF
+    fi
+    # Los foot nuevos toman los colores solos; fuzzel lee el ini en cada lanzamiento.
+    # (No se usa pkill -USR1 foot: en esta build cerraba la terminal.)
 fi
 
 # 4. wlogout al tono de la paleta
