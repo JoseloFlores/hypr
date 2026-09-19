@@ -4,9 +4,8 @@
 
 MODE="${1:-area}"
 
-# Directorio portable: XDG_PICTURES_DIR o ~/Pictures, con fallback a ~/Imágenes
-DIR="$(xdg-user-dir PICTURES 2>/dev/null || echo "$HOME/Pictures")/Capturas"
-[ -d "$HOME/Imágenes" ] && [ ! -d "$DIR" ] && DIR="$HOME/Imágenes/Capturas"
+# Directorio unificado con Quickshell (~/.config/quickshell/shell.json -> ~/Pictures/Capturas)
+DIR="$HOME/Pictures/Capturas"
 mkdir -p "$DIR"
 
 # Si wf-recorder ya graba → detenerlo con SIGINT (finaliza el mp4 limpiamente)
@@ -20,8 +19,11 @@ fi
 OUT="$DIR/Video_$(date +%Y%m%d_%H%M%S).mp4"
 
 if [ "$MODE" = "full" ]; then
-    notify-send -e -u low -i video-x-generic "Grabador de Pantalla" "Grabación iniciada (Pantalla Completa)"
-    exec wf-recorder -f "$OUT"
+    # -o explícito: con 2+ monitores wf-recorder pregunta y falla sin TTY
+    OUT_MON=$(hyprctl monitors -j 2>/dev/null | jq -r '.[] | select(.focused==1) | .name' 2>/dev/null)
+    [ -z "$OUT_MON" ] && OUT_MON="eDP-1"
+    notify-send -e -u low -i video-x-generic "Grabador de Pantalla" "Grabación iniciada ($OUT_MON)"
+    exec wf-recorder -o "$OUT_MON" -f "$OUT"
 fi
 
 # Área: notifica solo si se seleccionó algo (ESC cancela)
