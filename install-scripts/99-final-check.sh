@@ -21,11 +21,11 @@ check_pkg() {
     fi
 }
 
-for p in waybar hyprland tuigreet xdg-desktop-portal-hyprland greetd foot fuzzel sway-notification-center network-manager brightnessctl wl-clipboard; do
+for p in noctalia hyprland tuigreet xdg-desktop-portal-hyprland greetd foot fuzzel network-manager brightnessctl wl-clipboard; do
     check_pkg "$p"
 done
 
-for b in Hyprland waybar tuigreet foot fuzzel swaync hyprlock hypridle nmcli brightnessctl; do
+for b in Hyprland noctalia tuigreet foot fuzzel hyprlock hypridle nmcli brightnessctl; do
     if command -v "$b" >/dev/null 2>&1; then
         echo "[OK] bin $b: $(command -v "$b")"
     else
@@ -34,21 +34,21 @@ for b in Hyprland waybar tuigreet foot fuzzel swaync hyprlock hypridle nmcli bri
     fi
 done
 
-# QuickShell (informativo: no bloquea el GREAT!, cubre INSTALL_QUICKSHELL=OFF)
-if [ "${INSTALL_QUICKSHELL:-ON}" = "OFF" ]; then
-    echo "[INFO] QuickShell omitido por preset (INSTALL_QUICKSHELL=OFF)"
+# Noctalia (informativo: no bloquea el GREAT!, cubre INSTALL_NOCTALIA=OFF)
+if [ "${INSTALL_NOCTALIA:-ON}" = "OFF" ]; then
+    echo "[INFO] Noctalia omitido por preset (INSTALL_NOCTALIA=OFF)"
 else
-    for b in quickshell wlogout playerctl grim slurp wf-recorder powerprofilesctl; do
+    for b in noctalia wlogout playerctl grim slurp wf-recorder powerprofilesctl; do
         if command -v "$b" >/dev/null 2>&1; then
-            echo "[OK] qs bin $b: $(command -v "$b")"
+            echo "[OK] noctalia bin $b: $(command -v "$b")"
         else
-            echo "[FALTA] qs bin $b no en PATH (revisa 30-base/71-quickshell)"
+            echo "[FALTA] noctalia bin $b no en PATH (revisa 30-base/71-noctalia)"
         fi
     done
-    if [ -d "${USER_HOME:-$HOME}/quickshell/.git" ]; then
-        echo "[OK] fork quickshell clonado en ${USER_HOME:-$HOME}/quickshell"
+    if sudo -u "${REAL_USER:-$USER}" env HOME="${USER_HOME:-$HOME}" noctalia config validate >/dev/null 2>&1; then
+        echo "[OK] noctalia config validate"
     else
-        echo "[FALTA] ~/quickshell no clonado (71-quickshell.sh lo clona del fork)"
+        echo "[FALTA] noctalia config inválida (revisa ~/.config/noctalia/)"
     fi
 fi
 
@@ -67,7 +67,7 @@ else
     printf "%s\n" "${missing[@]}" "${bins_missing[@]}" >> "$LOG"
 fi
 
-if pkg_installed hyprland && pkg_installed waybar; then
+if pkg_installed hyprland && pkg_installed noctalia; then
     echo "¡INSTALACIÓN COMPLETADA!" | tee -a "$LOG"
     if [ "${GPU_TYPE:-generic}" = "nvidia" ]; then
         echo "AVISO NVIDIA: añade 'nvidia-drm.modeset=1' a GRUB_CMDLINE_LINUX en /etc/default/grub y ejecuta: update-grub" | tee -a "$LOG"

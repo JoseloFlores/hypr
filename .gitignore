@@ -1,2 +1,5 @@
 Install-Logs/
 install.log
+# Artefactos demo (no versionar videos ni capturas de muestra)
+*.mp4
+screenshot-*.png

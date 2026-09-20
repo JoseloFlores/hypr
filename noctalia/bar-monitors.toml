@@ -1,0 +1,5 @@
+# Barra solo en la laptop (eDP-1). El externo DP-3 queda sin barra.
+# Ajusta el match a tu conector (ver con: hyprctl monitors).
+[bar.default.monitor.dp3]
+match = "DP-3"
+enabled = false

@@ -26,7 +26,7 @@ EOF
 
 usermod -aG video,render,input _greetd || true
 usermod -aG video,render,input,audio "$REAL_USER" || true
-# Grupo input opcional (waybar keyboard-state) — como InputGroup.sh de Debian-Hyprland
+# Grupo input opcional — como InputGroup.sh de Debian-Hyprland
 if [ "${INSTALL_INPUT_GROUP:-ON}" != "OFF" ]; then
     usermod -aG input "$REAL_USER" || true
 fi

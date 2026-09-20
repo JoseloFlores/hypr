@@ -29,10 +29,8 @@ fi
 
 echo "auto_timezone: $current -> $tz"
 if timedatectl set-timezone "$tz" 2>/dev/null; then
-  notify-send "Zona horaria" "Actualizada a $tz - recargando waybar..." -i clock 2>/dev/null || true
-  pkill -x waybar 2>/dev/null || true
-  sleep 0.5
-  setsid nohup ~/.config/hypr/waybar-launcher.sh >/dev/null 2>&1 < /dev/null &
+  # Noctalia lee la zona del sistema en vivo: basta con avisar.
+  notify-send "Zona horaria" "Actualizada a $tz" -i clock 2>/dev/null || true
 else
   echo "auto_timezone: fallo al setear zona (¿requiere autorización?)"
   notify-send "Zona horaria" "Detecté $tz pero no pude aplicar el cambio" 2>/dev/null || true

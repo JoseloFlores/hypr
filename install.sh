@@ -1,6 +1,6 @@
 #!/bin/bash
 # =============================================================================
-#  Hyprland & Waybar Installer - Debian 13 (Trixie) / 14 (Forky)
+#  Hyprland & Noctalia Installer - Debian 13 (Trixie) / 14 (Forky)
 #  ORQUESTADOR modular (refactor del monolito install.sh).
 #  Original completo respaldado en: install.sh.monolitico.bak
 #
@@ -35,8 +35,8 @@ usage() {
 Uso:
   sudo ./install.sh [--preset FILE] [--only a,b] [--skip c] [--dry-run] [--check]
 
-  Módulos: 10-repos 20-drivers 30-base 40-hypr 50-fonts 60-greetd 70-dots
-           71-quickshell 80-pam-portals 90-services 95-grub 99-final-check
+   Módulos: 10-repos 20-drivers 30-base 40-hypr 50-fonts 60-greetd 70-dots
+            71-noctalia 80-pam-portals 90-services 95-grub 99-final-check
 
 Ejemplos:
   sudo ./install.sh
@@ -61,7 +61,7 @@ done
 
 # --- Defaults preset (todo ON = comportamiento original) ---
 REPOS="ON"; DRIVERS="ON"; BASE="ON"; HYPR="ON"; FONTS="ON"; GREETD="ON"
-DOTS="ON"; QUICKSHELL="ON"; PAM="ON"; SERVICES="ON"; GRUB="ON"
+DOTS="ON"; NOCTALIA="ON"; PAM="ON"; SERVICES="ON"; GRUB="ON"
 NVIDIA_MODE="auto"
 INSTALL_THUNAR="ON"; INSTALL_MEDIA="ON"; INSTALL_INPUT_GROUP="ON"
 INSTALL_GRUB_THEME="ON"; INSTALL_SDDM="OFF"
@@ -73,7 +73,7 @@ if [ -n "$PRESET_FILE" ]; then
     echo "-> Preset cargado: $PRESET_FILE"
 fi
 
-ALL_MODULES=(10-repos 20-drivers 30-base 40-hypr 50-fonts 60-greetd 70-dots 71-quickshell 80-pam-portals 90-services 95-grub 99-final-check)
+ALL_MODULES=(10-repos 20-drivers 30-base 40-hypr 50-fonts 60-greetd 70-dots 71-noctalia 80-pam-portals 90-services 95-grub 99-final-check)
 # Preset OFF => skip implícito
 declare -a PRESET_SKIPS=()
 [ "$REPOS" = "OFF" ] && PRESET_SKIPS+=(10-repos)
@@ -83,7 +83,7 @@ declare -a PRESET_SKIPS=()
 [ "$FONTS" = "OFF" ] && PRESET_SKIPS+=(50-fonts)
 [ "$GREETD" = "OFF" ] && PRESET_SKIPS+=(60-greetd)
 [ "$DOTS" = "OFF" ] && PRESET_SKIPS+=(70-dots)
-[ "$QUICKSHELL" = "OFF" ] && PRESET_SKIPS+=(71-quickshell)
+[ "$NOCTALIA" = "OFF" ] && PRESET_SKIPS+=(71-noctalia)
 [ "$PAM" = "OFF" ] && PRESET_SKIPS+=(80-pam-portals)
 [ "$SERVICES" = "OFF" ] && PRESET_SKIPS+=(90-services)
 [ "$GRUB" = "OFF" ] && PRESET_SKIPS+=(95-grub)
@@ -140,7 +140,7 @@ if [ "$NVIDIA_MODE" = "OFF" ] && [ "$GPU_TYPE" = "nvidia" ]; then GPU_TYPE="gene
 
 export REPO_ROOT SCRIPT_DIR LOG_DIR DRY_RUN OS_CODENAME REAL_USER USER_HOME GPU_TYPE
 export NVIDIA_MODE INSTALL_THUNAR INSTALL_MEDIA INSTALL_INPUT_GROUP INSTALL_GRUB_THEME
-export INSTALL_QUICKSHELL
+export INSTALL_NOCTALIA
 
 echo "-> Sistema: Debian $OS_CODENAME | Usuario: $REAL_USER | GPU: $GPU_TYPE | DRY_RUN=$DRY_RUN"
 echo "-> Módulos: ${MODULES[*]}"

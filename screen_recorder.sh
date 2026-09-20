@@ -4,7 +4,7 @@
 
 MODE="${1:-area}"
 
-# Directorio unificado con Quickshell (~/.config/quickshell/shell.json -> ~/Pictures/Capturas)
+# Destino de capturas y grabaciones
 DIR="$HOME/Pictures/Capturas"
 mkdir -p "$DIR"
 

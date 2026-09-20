@@ -1,6 +1,6 @@
 #!/bin/bash
 # set-wallpaper.sh — Cambia el wallpaper y sincroniza todo:
-#   escritorio (swaybg) + bloqueo (hyprlock) + paleta (pywal/quickshell)
+#   escritorio (swaybg) + bloqueo (hyprlock) + paleta pywal
 #   + terminal (foot) + launcher (fuzzel) + wlogout
 # Uso:
 #   set-wallpaper.sh /ruta/a/imagen.jpg
@@ -41,7 +41,7 @@ sleep 0.3
 nohup swaybg -i "$WALL" -m fill > /dev/null 2>&1 &
 disown || true
 
-# 3. Paleta pywal (quickshell la recarga sola vía FileView)
+# 3. Paleta pywal (foot/fuzzel/wlogout la leen de ~/.cache/wal/)
 # Se evita --saturate: en este wallpaper generaba tonos rojizos (se prefiere neutro).
 # haishoku primero; si falla con algún wallpaper, fallback a colorz.
 if command -v wal &>/dev/null; then
@@ -52,8 +52,7 @@ if command -v wal &>/dev/null; then
     fi
 fi
 
-# 3.5 Terminal foot + launcher fuzzel desde pywal (consistentes con quickshell:
-#       quickshell usa color4 como primary — fuzzel lo usa como acento)
+# 3.5 Terminal foot + launcher fuzzel desde pywal
 if [[ -f "$HOME/.cache/wal/colors.json" ]] && command -v jq &>/dev/null; then
     # --- foot: pywal [colors-dark] -> foot [colors] ---
     FOOT_TEMPLATE="$HOME/.cache/wal/colors-foot-dark.ini"

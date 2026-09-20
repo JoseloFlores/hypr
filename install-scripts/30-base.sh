@@ -1,10 +1,10 @@
 #!/bin/bash
-# 30-base.sh — Paquetes base + Waybar + backlight + locales (paso 3/10 original)
+# 30-base.sh — Paquetes base + backlight + locales (paso 3/10 original)
 set -eo pipefail
 source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"
 common_init "30-base"
 
-log "3/10 Instalando herramientas base + Waybar..."
+log "3/10 Instalando herramientas base..."
 
 BASE_PKGS=(
     wget curl bc jq python3 fontconfig libnotify-bin dbus-user-session xdg-utils
@@ -14,7 +14,7 @@ BASE_PKGS=(
     pipewire pipewire-alsa pipewire-audio pipewire-pulse wireplumber pavucontrol
     alsa-utils alsa-ucm-conf libspa-0.2-bluetooth
     bluez blueman
-    sway-notification-center thunderbird
+    thunderbird
     wl-clipboard cliphist brightnessctl playerctl
     foot fuzzel swaybg grim slurp swappy wf-recorder
     xdg-desktop-portal xdg-desktop-portal-gtk xdg-user-dirs
@@ -23,7 +23,6 @@ BASE_PKGS=(
     fonts-jetbrains-mono fonts-noto-color-emoji fonts-firacode
     gnome-keyring libpam-gnome-keyring seahorse
     polkitd pkexec qt6-wayland libpam-systemd
-    waybar
 )
 # Thunar / multimedia opcionales por preset
 if [ "${INSTALL_THUNAR:-ON}" != "OFF" ]; then

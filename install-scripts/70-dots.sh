@@ -7,15 +7,14 @@ common_init "70-dots"
 log "7/10 Desplegando configuraciones en $USER_HOME/.config..."
 
 if [ "$DRY_RUN" = "1" ]; then
-    echo "[DRY-RUN] cp hyprland.conf waybar/* swaync/* foot.ini fuzzel.ini systemd/user/* wlogout/* launchers/set-wallpaper a $USER_HOME/.config + foot_sync.sh" | tee -a "$LOG"
+    echo "[DRY-RUN] cp hyprland.conf foot.ini fuzzel.ini noctalia/*.toml systemd/user/* wlogout/* scripts a $USER_HOME/.config + foot_sync.sh" | tee -a "$LOG"
     exit 0
 fi
 
 DOTS_CONF="$USER_HOME/.config"
 sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p \
-    "$DOTS_CONF/hypr" "$DOTS_CONF/waybar/themes" "$DOTS_CONF/waybar/scripts" \
-    "$DOTS_CONF/swaync" "$DOTS_CONF/foot" "$DOTS_CONF/fuzzel" \
-    "$DOTS_CONF/systemd/user" "$DOTS_CONF/wlogout" "$DOTS_CONF/quickshell"
+    "$DOTS_CONF/hypr" "$DOTS_CONF/noctalia" "$DOTS_CONF/foot" "$DOTS_CONF/fuzzel" \
+    "$DOTS_CONF/systemd/user" "$DOTS_CONF/wlogout"
 
 for src in hyprland.conf hyprlock.conf hypridle.conf wallpaper.jpg; do
     if [ -f "$SCRIPT_DIR/$src" ]; then
@@ -23,7 +22,7 @@ for src in hyprland.conf hyprlock.conf hypridle.conf wallpaper.jpg; do
     fi
 done
 
-for src in waybar_network.sh wifi_click.sh check_updates.sh check_updates_count.sh confirm_power.sh foot_sync.sh power_menu.sh waybar-launcher.sh auto_timezone.sh screen_recorder.sh quickshell-launcher.sh volver-waybar.sh probar-quickshell.sh set-wallpaper.sh; do
+for src in confirm_power.sh foot_sync.sh power_menu.sh auto_timezone.sh screen_recorder.sh set-wallpaper.sh; do
     if [ -f "$SCRIPT_DIR/$src" ]; then
         sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/$src" "$DOTS_CONF/hypr/"
         chmod +x "$DOTS_CONF/hypr/$src" 2>/dev/null || true
@@ -47,30 +46,21 @@ if [ -d "$SCRIPT_DIR/wlogout" ]; then
     log "-> wlogout desplegado en $DOTS_CONF/wlogout/"
 fi
 
-# Guía rápida quickshell (solo docs)
-if [ -f "$SCRIPT_DIR/QUICKSHELL_COMANDOS.md" ]; then
-    sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/QUICKSHELL_COMANDOS.md" "$DOTS_CONF/hypr/"
+# Guía rápida Noctalia (solo docs)
+if [ -f "$SCRIPT_DIR/NOCTALIA_COMANDOS.md" ]; then
+    sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/NOCTALIA_COMANDOS.md" "$DOTS_CONF/hypr/"
 fi
 
-if [ -d "$SCRIPT_DIR/waybar" ]; then
-    if [ -f "$SCRIPT_DIR/waybar/config.jsonc" ]; then
-        sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/waybar/config.jsonc" "$DOTS_CONF/waybar/config.jsonc"
-        sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/waybar/config.jsonc" "$DOTS_CONF/waybar/config"
-    fi
-    if [ -f "$SCRIPT_DIR/waybar/style.css" ]; then
-        sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/waybar/style.css" "$DOTS_CONF/waybar/style.css"
-    fi
-    for th in "$SCRIPT_DIR/waybar/themes"/*.css; do
-        [ -f "$th" ] || continue
-        sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$th" "$DOTS_CONF/waybar/themes/"
+# Config Noctalia (sin pisar la del usuario si ya existe)
+if [ -d "$SCRIPT_DIR/noctalia" ]; then
+    for f in "$SCRIPT_DIR"/noctalia/*.toml; do
+        [ -f "$f" ] || continue
+        base="$(basename "$f")"
+        if [ ! -f "$DOTS_CONF/noctalia/$base" ]; then
+            sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$f" "$DOTS_CONF/noctalia/"
+        fi
     done
-    for sh in "$SCRIPT_DIR/waybar/scripts"/*.sh; do
-        [ -f "$sh" ] || continue
-        sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$sh" "$DOTS_CONF/waybar/scripts/"
-        chmod +x "$DOTS_CONF/waybar/scripts/$(basename "$sh")"
-    done
-else
-    log_warn "No se encontró $SCRIPT_DIR/waybar, se omite despliegue Waybar"
+    log "-> noctalia/*.toml desplegado en $DOTS_CONF/noctalia/"
 fi
 
 if [ -d "$SCRIPT_DIR/systemd/user" ]; then
@@ -93,13 +83,6 @@ for app in foot fuzzel; do
         log "-> $app.ini desplegado en $DOTS_CONF/$app/"
     fi
 done
-
-if [ -f "$SCRIPT_DIR/swaync_config.json" ]; then
-    sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/swaync_config.json" "$DOTS_CONF/swaync/config.json"
-fi
-if [ -f "$SCRIPT_DIR/swaync_style.css" ]; then
-    sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/swaync_style.css" "$DOTS_CONF/swaync/style.css"
-fi
 
 HYPR_CONF="$DOTS_CONF/hypr/hyprland.conf"
 if [ "$GPU_TYPE" = "nvidia" ] && [ -f "$HYPR_CONF" ]; then
