@@ -1,12 +1,13 @@
-# Hyprland • Waybar • Debian 13/14 — Dotfiles Portables
+# Hyprland • QuickShell • Debian 13/14 — Dotfiles Portables
 
-> **Hyprland + Waybar + Thunar + GNOME comforts (keyring/polkit)** listo para instalación limpia en **Debian 13 `trixie` / 14 `forky`** (sin entorno gráfico previo).  
-> Resultado: sesión Wayland con blur corregido para Hyprland 0.55, waybar en píldoras transparentes, colores sincronizados (Foot/Fuzzel) y soporte multi-monitor/monitor único.
+> **Hyprland + QuickShell + Thunar + GNOME comforts (keyring/polkit)** listo para instalación limpia en **Debian 13 `trixie` / 14 `forky`** (sin entorno gráfico previo).  
+> Resultado: sesión Wayland con blur corregido para Hyprland 0.55, QuickShell como shell por defecto (Waybar instalada como rollback con `volver-waybar.sh`), colores sincronizados (Foot/Fuzzel) y soporte multi-monitor/monitor único.
 >
 > Instalador **modular**: `install.sh` orquesta 12 módulos re-ejecutables en `install-scripts/`, con presets, `dry-run` y verificación final.
 
 ![Debian](https://img.shields.io/badge/Debian-13%2F14-A81D33?logo=debian)
 ![Hyprland](https://img.shields.io/badge/Hyprland-0.55-00A8F4?logo=hyprland)
+![QuickShell](https://img.shields.io/badge/QuickShell-0.3-8DA68A)
 ![Waybar](https://img.shields.io/badge/Waybar-0.12%20%2F%200.15-7AA2F7)
 ![Portability](https://img.shields.io/badge/portable-%E2%9C%93-8DA68A)
 
@@ -27,7 +28,7 @@ https://github.com/user-attachments/assets/ae336086-9837-4481-bdb6-8b1fac6b10e6
 - **Workspaces** sin morado — `active` y `visible` en gris `rgba(200,201,209,0.15)` sobre `fg #c8c9d1`
 - **Reloj** automático: `timezone: ""` (sigue `/etc/localtime`), `format: " {0:%H:%M}   {0:%d/%m}"` compatible con Waybar 0.12 (`fmt` requiere `{0:...}` para 2 placeholders)
 - **19 temas sincronizados**: `ash-dark`, `ash-light`, `catppuccin-latte/mocha`, `dracula`, `everforest-dark/light`, `gruvbox-dark/light`, `kanagawa`, `monokai`, `nebula`, `nord`, `onedark`, `rose-pine/dawn`, `solarized-dark/light`, `tokyonight` → `waybar/style.css` + `foot` + `fuzzel` + `swaync` vía `waybar/scripts/waybar-theme.sh` y `foot_sync.sh`
-- **QuickShell** `0.3` (trixie-backports) como barra por defecto — config en `~/quickshell` (clon del fork `JoseloFlores/quickshell`: compat Qt + ajustes propios commiteados), arranque con `quickshell-launcher.sh`, rollback a Waybar con `volver-waybar.sh`, menú de apagado con `wlogout`, paleta pywal (`wal`+`colorz`) y fondo unificado con `set-wallpaper.sh` (SUPER+SHIFT+W aleatorio)
+- **QuickShell** `0.3` (trixie-backports) como barra por defecto — config en `~/quickshell` (clon del fork `JoseloFlores/quickshell`: compat Qt + ajustes propios commiteados), arranque con `quickshell-launcher.sh`, rollback a Waybar con `volver-waybar.sh`, menú de apagado con `wlogout`, paleta pywal (`wal`+`colorz`) y fondo unificado con `set-wallpaper.sh` (SUPER+SHIFT+W aleatorio). Campana de notificaciones en barra, Logout/Sleep en el centro de control, Gaming Mode sin sudo (vía `power-profiles-daemon`) y DND por holders (Gaming+Focus sin pisarse). Guía en `QUICKSHELL_COMANDOS.md`
 - **Instalador modular + presets + dry-run**: 12 módulos en `install-scripts/`, `preset.example.sh` / `preset.minimal.sh`, `./dry-run-build.sh` (PASS/FAIL por módulo), `99-final-check.sh` y `uninstall-lite.sh`
 - **Portales**: `xdg-desktop-portal`, `xdg-desktop-portal-hyprland`, `xdg-desktop-portal-gtk` + `hyprland-portals.conf` (`default=hyprland;gtk`, `FileChooser=gtk`)
 - **Gestión color/tema GTK Wayland**: `nwg-look` (reemplaza `lxappearance` que rompe Wayland) + `xdg-desktop-portal-gtk`

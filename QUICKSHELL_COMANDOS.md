@@ -3,6 +3,8 @@
 QuickShell arranca por defecto vía `exec-once = ~/.config/hypr/quickshell-launcher.sh`
 en `hyprland.conf`. Waybar queda instalada e intacta (`~/.config/waybar/`),
 solo dormida (sin `exec-once` y con `waybar.service` deshabilitado).
+Código en `~/quickshell` (clon del fork `JoseloFlores/quickshell`); la config
+activa vive en `~/.config/quickshell/shell.json` + `settings.json`.
 
 ## Probar / depurar QuickShell
 ```bash
@@ -19,10 +21,41 @@ Mata QuickShell y revive `swaync + waybar-launcher.sh`.
 
 ## Recargar QuickShell
 ```bash
-~/.config/hypr/reload-quickshell.sh   # si existe (repo quickshell)
+~/quickshell/reload-quickshell.sh
 # o:
 bind = $mainMod SHIFT, B   # recarga quickshell + notifica
 ```
+
+## Botones de la barra
+- **Reloj**: click izquierdo abre el launcher, click derecho el dashboard.
+- **Campana** (powerPill, con badge de no-leídas): abre el centro de
+  notificaciones (sidebar). Abrirlo **no** borra el badge: se limpia con
+  Clear/Dismiss/Delete.
+- **Caffeine / DND** (indicadores): el click **alterna** el estado.
+- **Brillo**: click alterna 100% ↔ 35%; la rueda ajusta fino (igual en el
+  slider del ControlCenter).
+- **Updates**: click abre la actualización APT en `foot`; la rueda refresca.
+
+## Centro de control
+Header con Settings (`nm-connection-editor`), Lock, **Logout**
+(`hyprctl dispatch exit`), **Sleep** (`systemctl suspend`) y Power (`wlogout`).
+QuickToggles: Wi-Fi, Bluetooth, DND, Caffeine, **Gaming Mode**, Focus Mode
+(timer 25 min), Screenshot (pantalla completa), Updates, Record, Open Captures.
+
+## Gaming Mode (sin sudo)
+Activa perfil `performance` vía `power-profiles-daemon` + inhibe idle + pide
+DND. Al apagarlo vuelve a `balanced`. **Ya no toca sysfs**: no hay que
+configurar `sudoers` para `scaling_governor`.
+DND es por *holders* (`gaming`, `focus`): Gaming y Focus pueden coexistir sin
+pisarse; se apaga solo cuando nadie lo pide. Los toggles manuales de DND se
+respetan siempre.
+
+## Desactivar ventanas
+`~/.config/quickshell/shell.json`: `launcher.enabled`, `sidebar.enabled`,
+`dashboard.enabled` y `controlcenter.enabled`. Los botones de la barra
+respetan estos flags (click sin efecto si la ventana está desactivada).
+`settings.json` solo guarda Focus Mode (`focusModeEnabled`,
+`focusModeMinutesLeft`).
 
 ## Menú de apagado (wlogout)
 Los botones de apagado abren `wlogout` (Shutdown/Reboot/Suspend/Logout/Lock).

@@ -34,6 +34,24 @@ for b in Hyprland waybar tuigreet foot fuzzel swaync hyprlock hypridle nmcli bri
     fi
 done
 
+# QuickShell (informativo: no bloquea el GREAT!, cubre INSTALL_QUICKSHELL=OFF)
+if [ "${INSTALL_QUICKSHELL:-ON}" = "OFF" ]; then
+    echo "[INFO] QuickShell omitido por preset (INSTALL_QUICKSHELL=OFF)"
+else
+    for b in quickshell wlogout playerctl grim slurp wf-recorder powerprofilesctl; do
+        if command -v "$b" >/dev/null 2>&1; then
+            echo "[OK] qs bin $b: $(command -v "$b")"
+        else
+            echo "[FALTA] qs bin $b no en PATH (revisa 30-base/71-quickshell)"
+        fi
+    done
+    if [ -d "${USER_HOME:-$HOME}/quickshell/.git" ]; then
+        echo "[OK] fork quickshell clonado en ${USER_HOME:-$HOME}/quickshell"
+    else
+        echo "[FALTA] ~/quickshell no clonado (71-quickshell.sh lo clona del fork)"
+    fi
+fi
+
 echo "Greetd: $(systemctl is-enabled greetd 2>&1 || echo 'no habilitado')"
 echo "auto-timezone.timer (user $REAL_USER): $(sudo -u "$REAL_USER" env HOME="$USER_HOME" systemctl --user is-enabled auto-timezone.timer 2>&1 || echo 'no habilitado/sin sesión')"
 
