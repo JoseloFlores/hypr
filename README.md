@@ -46,14 +46,16 @@ hypr/
 ├── hyprland.conf            # config Hyprland 0.55 + autostart/binds/reglas Noctalia
 ├── noctalia/
 │   ├── bar-monitors.toml    # barra solo en eDP-1 (ajusta el match a tu conector)
-│   ├── templates.toml       # fuente wallpaper + templates builtin/user + automation + hooks
+│   ├── templates.toml       # theme wallpaper + templates builtin/user + automation + hooks
 │   ├── templates/           # inputs foot/fuzzel/wlogout/hyprlock/matugen (tokens Noctalia)
 │   └── hooks/               # foot-apply, fuzzel-apply, sync-lock-wallpaper
+├── nvim/                      # init.lua + plugins (base16 via template) + lazy-lock
+│   └── lua/plugins/           # themes/tools/neotest (lazy.nvim baja los plugins)
 ├── hypridle.conf
 ├── foot.ini / fuzzel.ini   # estructura; colores via templates Noctalia
 ├── power_menu.sh / confirm_power.sh
 ├── NOCTALIA_COMANDOS.md     # guía noctalia (wallpapers, widgets, theming)
-├── wlogout/                   # layout (style.css lo genera el template Noctalia)
+├── wlogout/                   # layout + icons/ (style.css lo genera el template)
 ├── auto_timezone.sh / screen_recorder.sh
 ├── wallpaper.jpg              # semilla inicial; en uso lo mantiene el hook wallpaper_changed
 ├── systemd/
@@ -114,7 +116,7 @@ El instalador (comportamiento clásico, todo ON):
 
 1. **Repos** → `main contrib non-free non-free-firmware` + backports
 2. **Drivers** → microcode + `nvidia`/`amd`/`intel` + firmware
-3. **Base** → `wget curl bc jq`, `network-manager`, `gvfs gvfs-backends gvfs-fuse gvfs-daemons udisks2 udiskie`, **`thunar thunar-archive-plugin thunar-volman xarchiver tumbler ffmpegthumbnailer`** (`INSTALL_THUNAR=OFF` lo omite), **`imv swayimg mpv`** (`INSTALL_MEDIA=OFF` lo omite), `pipewire wireplumber pavucontrol`, `bluez blueman`, `thunderbird`, `wl-clipboard cliphist brightnessctl playerctl`, `foot fuzzel swaybg grim slurp swappy wf-recorder`, **`xdg-desktop-portal xdg-desktop-portal-gtk xdg-user-dirs`**, **`nwg-look`**, `fonts-jetbrains-mono`, `gnome-keyring seahorse polkitd`
+3. **Base** → `wget curl bc jq`, `network-manager`, `gvfs gvfs-backends gvfs-fuse gvfs-daemons udisks2 udiskie`, **`thunar thunar-archive-plugin thunar-volman xarchiver tumbler ffmpegthumbnailer`** (`INSTALL_THUNAR=OFF` lo omite), **`imv swayimg mpv`** (`INSTALL_MEDIA=OFF` lo omite), `pipewire wireplumber pavucontrol`, `bluez blueman`, `thunderbird`, `wl-clipboard cliphist brightnessctl playerctl`, `foot fuzzel grim slurp swappy wf-recorder`, **`xdg-desktop-portal xdg-desktop-portal-gtk xdg-user-dirs`**, **`nwg-look`**, `fonts-jetbrains-mono`, `gnome-keyring seahorse polkitd`
    > Tras instalar `thunar` ejecuta automáticamente:
    > ```bash
    > LANG=es_ES.UTF-8 xdg-user-dirs-update --force
@@ -124,8 +126,8 @@ El instalador (comportamiento clásico, todo ON):
 4. **Hyprland stack** → `hyprland hyprlock hypridle hyprpolkitagent` + **`hyprland-guiutils`** + `greetd tuigreet` (desde `trixie-backports` si es trixie, nativo si es forky) + `xdg-desktop-portal-hyprland`
 5. **Fuentes** → `Meslo Nerd Font` + `SymbolsOnly` en `~/.local/share/fonts`
 6. **Greetd** → `tuigreet --time --remember --cmd Hyprland` (con vars NVIDIA si `GPU_TYPE=nvidia`)
-7. **Dots** → copia `hyprland.conf`, `noctalia/*.toml`, `foot.ini`/`fuzzel.ini`, `systemd/user/*` a `~/.config` (rutas portables con `$HOME`/`~`, sin hardcode de usuario; no pisa tu `~/.config/noctalia/` si ya existe)
-8. **Noctalia** → repo APT + `noctalia` + `noctalia config validate`
+7. **Dots** → copia `hyprland.conf`, `noctalia/` (toml + templates + hooks), `nvim/` (si no existe), `foot.ini`/`fuzzel.ini`, `wlogout/` (+icons), `systemd/user/*` a `~/.config` (rutas portables con `$HOME`/`~`, sin hardcode de usuario; no pisa tu `~/.config/noctalia/` si ya existe)
+8. **Noctalia** → repo APT + `noctalia` + GTK oscuro base + `noctalia config validate` (los colores se aplican al primer inicio de sesión)
 9. **PAM + Portales** → `pam_gnome_keyring`, `/etc/xdg/xdg-desktop-portal/hyprland-portals.conf`
 10. **Servicios** → `systemctl enable greetd bluetooth NetworkManager`, `mask getty@tty1`
 11. **GRUB gráfico** → instala `desktop-base` y ejecuta `update-grub` (si `update-grub` no existe, lo omite)

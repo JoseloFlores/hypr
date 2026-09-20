@@ -43,6 +43,24 @@ if [ -d "$SCRIPT_DIR/wlogout" ]; then
             sed -i -E "s#url\(\"/home/[^/\"]+#url(\"$USER_HOME#g" "$DOTS_CONF/wlogout/style.css" || true
     fi
     log "-> wlogout desplegado en $DOTS_CONF/wlogout/"
+    # Iconos (el template solo genera style.css; los png van en repo)
+    if [ -d "$SCRIPT_DIR/wlogout/icons" ]; then
+        sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p "$USER_HOME/.local/share/wlogout/icons"
+        sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/wlogout/icons/"*.png "$USER_HOME/.local/share/wlogout/icons/"
+    fi
+fi
+
+# Neovim (sin pisar config existente; matugen.lua lo genera el template Noctalia)
+if [ -d "$SCRIPT_DIR/nvim" ]; then
+    if [ ! -e "$USER_HOME/.config/nvim" ]; then
+        sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p "$USER_HOME/.config/nvim/lua/plugins"
+        sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/nvim/init.lua" "$USER_HOME/.config/nvim/"
+        [ -f "$SCRIPT_DIR/nvim/lazy-lock.json" ] && sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/nvim/lazy-lock.json" "$USER_HOME/.config/nvim/"
+        sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/nvim/lua/plugins/"*.lua "$USER_HOME/.config/nvim/lua/plugins/"
+        log "-> nvim desplegado en $USER_HOME/.config/nvim/ (plugins los baja lazy.nvim)"
+    else
+        log "-> nvim existente, no se pisa (el template aporta matugen.lua)"
+    fi
 fi
 
 # Guía rápida Noctalia (solo docs)

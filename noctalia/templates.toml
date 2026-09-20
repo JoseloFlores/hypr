@@ -1,6 +1,12 @@
 # Noctalia como única fuente de verdad: paleta + fondo + apps.
 # settings.toml (GUI) gana sobre este archivo si repite una clave.
 
+# Fuente única: paleta del fondo actual (mismo default de Noctalia, explícito).
+[theme]
+source = "wallpaper"
+wallpaper_scheme = "m3-content"
+mode = "dark"
+
 [theme.templates]
 enable_builtin_templates = true
 builtin_ids = ["gtk3", "gtk4", "hyprland"]

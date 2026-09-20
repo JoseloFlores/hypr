@@ -50,6 +50,18 @@ else
     else
         echo "[FALTA] noctalia config inválida (revisa ~/.config/noctalia/)"
     fi
+    for f in templates.toml templates/foot.ini templates/fuzzel.ini templates/wlogout.css templates/hyprlock.conf templates/matugen-template.lua hooks/foot-apply.sh hooks/fuzzel-apply.sh hooks/sync-lock-wallpaper.sh; do
+        if [ -f "${USER_HOME:-$HOME}/.config/noctalia/$f" ]; then
+            echo "[OK] noctalia/$f"
+        else
+            echo "[FALTA] ~/.config/noctalia/$f (re-ejecuta 70-dots)"
+        fi
+    done
+    if [ -f "${USER_HOME:-$HOME}/.config/nvim/lua/plugins/themes.lua" ]; then
+        echo "[OK] nvim themes.lua (base16 via template)"
+    else
+        echo "[FALTA] nvim themes.lua (re-ejecuta 70-dots o revisa INSTALL de nvim)"
+    fi
 fi
 
 echo "Greetd: $(systemctl is-enabled greetd 2>&1 || echo 'no habilitado')"

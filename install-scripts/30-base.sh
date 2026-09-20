@@ -16,7 +16,7 @@ BASE_PKGS=(
     bluez blueman
     thunderbird
     wl-clipboard cliphist brightnessctl playerctl
-    foot fuzzel swaybg grim slurp swappy wf-recorder
+    foot fuzzel grim slurp swappy wf-recorder
     xdg-desktop-portal xdg-desktop-portal-gtk xdg-user-dirs
     nwg-look
     zsh vim firefox-esr zenity
