@@ -13,14 +13,7 @@
 
 ## 👀 Vista previa
 
-https://github.com/user-attachments/assets/ae336086-9837-4481-bdb6-8b1fac6b10e6
-
-> Entorno completo: waybar en píldoras, workspaces en gris, fondo sincronizado y terminal foot con el tema activo.
-> Copia local del video en [`preview.mp4`](preview.mp4).
-
-## 🎬 QuickShell en acción
-
-<video src="preview.mp4" width="100%" controls></video>
+![QuickShell en acción](preview.mp4)
 
 > Demo (~13 s, 2560x1600@30fps): launcher, centro de control, centro de
 > notificaciones (con popup vía `notify-send`) y dashboard abriéndose sobre un
