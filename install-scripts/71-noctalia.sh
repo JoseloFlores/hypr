@@ -58,6 +58,17 @@ if [ ! -e "$USER_HOME/Imágenes/Capturas" ]; then
 fi
 chown -R "$REAL_USER":"$REAL_USER" "$USER_HOME/Pictures/Capturas" 2>/dev/null || true
 
+# --- GTK oscuro base (los templates gtk3/gtk4 de Noctalia ponen los colores) ---
+# adw-gtk3 no está en repos Debian: Adwaita-dark + import noctalia.css es suficiente.
+for gver in 3.0 4.0; do
+    gini="$USER_HOME/.config/gtk-$gver/settings.ini"
+    if [ -f "$gini" ]; then
+        sudo -u "$REAL_USER" env HOME="$USER_HOME" \
+            sed -i -E 's/^gtk-theme-name=.*/gtk-theme-name=Adwaita-dark/; s/^gtk-application-prefer-dark-theme=.*/gtk-application-prefer-dark-theme=1/' "$gini" || true
+    fi
+done
+log "-> GTK en Adwaita-dark + prefer-dark (colores via templates Noctalia)"
+
 if command -v noctalia >/dev/null 2>&1; then
     log "-> $(noctalia --version 2>&1 | head -n1)"
     if sudo -u "$REAL_USER" env HOME="$USER_HOME" noctalia config validate >/dev/null 2>&1; then

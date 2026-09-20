@@ -1,0 +1,54 @@
+# Noctalia como única fuente de verdad: paleta + fondo + apps.
+# settings.toml (GUI) gana sobre este archivo si repite una clave.
+
+[theme.templates]
+enable_builtin_templates = true
+builtin_ids = ["gtk3", "gtk4", "hyprland"]
+# Community desactivado: el template fuzzel en caché viene sin input (roto);
+# fuzzel va por user-template propio (ver abajo).
+enable_community_templates = false
+community_ids = []
+
+# Fuzzel: theme separado + include (fuzzel 1.12 soporta include con scope propio).
+[theme.templates.user.fuzzel]
+input_path = "templates/fuzzel.ini"
+output_path = "$XDG_CONFIG_HOME/fuzzel/themes/noctalia"
+post_hook = "bash '{{ config_dir }}/hooks/fuzzel-apply.sh'"
+hook_async = false
+
+# Foot: el template builtin genera [colors-dark] (roto) → user-template propio.
+[theme.templates.user.foot]
+input_path = "templates/foot.ini"
+output_path = "$XDG_CONFIG_HOME/foot/themes/noctalia"
+post_hook = "bash '{{ config_dir }}/hooks/foot-apply.sh'"
+hook_async = false
+
+# wlogout: style.css generado desde la paleta (reemplaza al de pywal).
+[theme.templates.user.wlogout]
+input_path = "templates/wlogout.css"
+output_path = "$XDG_CONFIG_HOME/wlogout/style.css"
+
+# hyprlock: conf completa generada (colores + path al wallpaper que mantiene el hook).
+[theme.templates.user.hyprlock]
+input_path = "templates/hyprlock.conf"
+output_path = "$XDG_CONFIG_HOME/hypr/hyprlock.conf"
+
+# Neovim: base16 via matugen (ver docs noctalia/templates/community/neovim).
+[theme.templates.user.nvim_base16]
+input_path = "templates/matugen-template.lua"
+output_path = "$XDG_CONFIG_HOME/nvim/lua/matugen.lua"
+post_hook = "pkill -SIGUSR1 nvim"
+
+# Fondo: Noctalia dibuja el wallpaper (swaybg jubilado).
+[wallpaper]
+directory = "~/Imágenes/wallpapers/wallpaper"
+
+[wallpaper.automation]
+enabled = true
+interval_seconds = 1800
+order = "random"
+recursive = false
+
+# Mantiene ~/.config/hypr/wallpaper.jpg (fuente de hyprlock) al cambiar el fondo.
+[hooks]
+wallpaper_changed = "__HOME__/.config/noctalia/hooks/sync-lock-wallpaper.sh"

@@ -42,16 +42,39 @@ por widget bajo `[widget.<nombre>]`. Tras editar:
 
 ## Fondo de pantalla
 
-`~/.config/hypr/set-wallpaper.sh /ruta/a/imagen.jpg` o
-`--random [directorio]`. Sincroniza `swaybg` + `hyprlock` +
-paleta pywal (`foot`/`fuzzel`/`wlogout`). Atajo: `SUPER+SHIFT+W`.
-El archivo canónico es `~/.config/hypr/wallpaper.jpg`.
+El fondo lo dibuja Noctalia (sin `swaybg`):
+`SUPER+Space` → widget wallpaper, o `SUPER+SHIFT+W` (aleatorio).
+Rotación automática cada 30 min desde `~/Imágenes/wallpapers/wallpaper`
+(`[wallpaper.automation]` en `noctalia/templates.toml`).
+`~/.config/hypr/wallpaper.jpg` lo mantiene el hook `wallpaper_changed`
+(es la imagen que usa hyprlock).
 
-## Ojo: template `foot` de Noctalia
+## Theming: Noctalia manda en todo
 
-No actives el template builtin `foot` (Settings → Templates):
+Fuente única: `theme.source = "wallpaper"` (paleta del fondo actual).
+Templates activos (`noctalia/templates.toml`):
+
+| Destino | Template | Notas |
+|---|---|---|
+| GTK3/GTK4 + Thunar | builtins `gtk3`/`gtk4` | base `Adwaita-dark` (`adw-gtk3` no está en Debian; opcional manual desde GitHub) |
+| Bordes Hyprland | builtin `hyprland` | genera `~/.config/hypr/noctalia.conf` + `source` (no tocar ese archivo) |
+| Foot | user `foot` | el builtin genera `[colors-dark]` roto; este genera `[colors]` bien |
+| Fuzzel | user `fuzzel` | el community en caché viene sin input; este escribe `themes/noctalia` + `include` |
+| wlogout | user `wlogout` | `style.css` generado (iconos en `~/.local/share/wlogout/icons/`) |
+| hyprlock | user `hyprlock` | `hyprlock.conf` generado (fondo = `wallpaper.jpg` del hook) |
+| Neovim | user `nvim_base16` | `matugen.lua` + plugin `base16-nvim` (reemplaza gruvbox) |
+
+```bash
+noctalia msg templates-apply   # re-renderizar tras editar inputs
+noctalia msg wallpaper-random  # fondo aleatorio
+noctalia msg wallpaper-set /ruta/a/img.jpg
+```
+
+## Ojo: template builtin `foot` de Noctalia
+
+No actives el builtin `foot` (Settings → Templates):
 genera `~/.config/foot/themes/noctalia` con cabecera `[colors-dark]`
-y Foot falla al arrancar (`invalid section name`). Foot/Fuzzel ya
-van por pywal (`foot_sync.sh`). Si lo activaste por error, quita
-`"foot"` de `builtin_ids` en `~/.local/state/noctalia/settings.toml`;
-Noctalia borra el archivo y el include solo.
+y Foot falla al arrancar (`invalid section name`). Foot va por el
+user-template propio (`noctalia/templates/foot.ini`, cabecera `[colors]`
+correcta). Si activaste el builtin por error, quítalo de `builtin_ids`
+en `~/.local/state/noctalia/settings.toml`; Noctalia limpia solo.

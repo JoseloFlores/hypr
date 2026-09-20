@@ -7,7 +7,7 @@ common_init "70-dots"
 log "7/10 Desplegando configuraciones en $USER_HOME/.config..."
 
 if [ "$DRY_RUN" = "1" ]; then
-    echo "[DRY-RUN] cp hyprland.conf foot.ini fuzzel.ini noctalia/*.toml systemd/user/* wlogout/* scripts a $USER_HOME/.config + foot_sync.sh" | tee -a "$LOG"
+    echo "[DRY-RUN] cp hyprland.conf hypridle.conf foot.ini fuzzel.ini noctalia/{*.toml,templates,hooks} systemd/user/* wlogout/* scripts a $USER_HOME/.config" | tee -a "$LOG"
     exit 0
 fi
 
@@ -16,20 +16,20 @@ sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p \
     "$DOTS_CONF/hypr" "$DOTS_CONF/noctalia" "$DOTS_CONF/foot" "$DOTS_CONF/fuzzel" \
     "$DOTS_CONF/systemd/user" "$DOTS_CONF/wlogout"
 
-for src in hyprland.conf hyprlock.conf hypridle.conf wallpaper.jpg; do
+for src in hyprland.conf hypridle.conf wallpaper.jpg; do
     if [ -f "$SCRIPT_DIR/$src" ]; then
         sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/$src" "$DOTS_CONF/hypr/"
     fi
 done
 
-for src in confirm_power.sh foot_sync.sh power_menu.sh auto_timezone.sh screen_recorder.sh set-wallpaper.sh; do
+for src in confirm_power.sh power_menu.sh auto_timezone.sh screen_recorder.sh; do
     if [ -f "$SCRIPT_DIR/$src" ]; then
         sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/$src" "$DOTS_CONF/hypr/"
         chmod +x "$DOTS_CONF/hypr/$src" 2>/dev/null || true
     fi
 done
 
-# wlogout (layout + estilo base; set-wallpaper.sh lo regenera al tono de la paleta)
+# wlogout layout (style.css lo genera el template Noctalia al iniciar sesión)
 if [ -d "$SCRIPT_DIR/wlogout" ]; then
     for wl in layout style.css; do
         if [ -f "$SCRIPT_DIR/wlogout/$wl" ]; then
@@ -37,8 +37,7 @@ if [ -d "$SCRIPT_DIR/wlogout" ]; then
         fi
     done
     # Portable: el template trae una ruta absoluta del autor; se reescribe al
-    # HOME real (set-wallpaper.sh regenera el css igual, esto cubre el caso
-    # sin caché pywal + deja el repo con rutas neutras en el deploy).
+    # HOME real (el template Noctalia también usa __HOME__; esto cubre el layout).
     if [ -f "$DOTS_CONF/wlogout/style.css" ]; then
         sudo -u "$REAL_USER" env HOME="$USER_HOME" \
             sed -i -E "s#url\(\"/home/[^/\"]+#url(\"$USER_HOME#g" "$DOTS_CONF/wlogout/style.css" || true
@@ -51,7 +50,8 @@ if [ -f "$SCRIPT_DIR/NOCTALIA_COMANDOS.md" ]; then
     sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/NOCTALIA_COMANDOS.md" "$DOTS_CONF/hypr/"
 fi
 
-# Config Noctalia (sin pisar la del usuario si ya existe)
+# Config Noctalia: *.toml sin pisar los del usuario; templates/ y hooks/ siempre
+# (son código del repo; __HOME__ se reescribe al HOME real).
 if [ -d "$SCRIPT_DIR/noctalia" ]; then
     for f in "$SCRIPT_DIR"/noctalia/*.toml; do
         [ -f "$f" ] || continue
@@ -60,7 +60,15 @@ if [ -d "$SCRIPT_DIR/noctalia" ]; then
             sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$f" "$DOTS_CONF/noctalia/"
         fi
     done
-    log "-> noctalia/*.toml desplegado en $DOTS_CONF/noctalia/"
+    for sub in templates hooks; do
+        if [ -d "$SCRIPT_DIR/noctalia/$sub" ]; then
+            sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p "$DOTS_CONF/noctalia/$sub"
+            sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/noctalia/$sub/"* "$DOTS_CONF/noctalia/$sub/"
+        fi
+    done
+    sudo -u "$REAL_USER" env HOME="$USER_HOME" \
+        sed -i "s#__HOME__#$USER_HOME#g" "$DOTS_CONF"/noctalia/*.toml "$DOTS_CONF"/noctalia/templates/* 2>/dev/null || true
+    log "-> noctalia/*.toml + templates/ + hooks/ desplegado en $DOTS_CONF/noctalia/"
 fi
 
 if [ -d "$SCRIPT_DIR/systemd/user" ]; then
@@ -92,9 +100,4 @@ fi
 
 chown -R "$REAL_USER":"$REAL_USER" "$DOTS_CONF"
 find "$DOTS_CONF" -name "*.sh" -exec chmod +x {} + 2>/dev/null || true
-
-if [ -f "$DOTS_CONF/hypr/foot_sync.sh" ]; then
-    log "-> Sincronizando paleta inicial para Foot y Fuzzel..."
-    sudo -u "$REAL_USER" env HOME="$USER_HOME" bash "$DOTS_CONF/hypr/foot_sync.sh" || true
-fi
-log_ok "Dots OK"
+log_ok "Dots OK (colores los aplica Noctalia al iniciar sesión: templates-apply)"

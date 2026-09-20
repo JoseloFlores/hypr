@@ -16,7 +16,7 @@
 
 - **Hyprland 0.55** con `hyprlock`, `hypridle`, `hyprpolkitagent`, `hyprland-guiutils`
 - **Noctalia v5** como shell (repo APT `pkg.noctalia.dev`, suite `trixie`/`sid` según `VERSION_CODENAME`): barra solo en laptop (`noctalia/bar-monitors.toml`), arranque con `exec-once = noctalia`, binds IPC (`SUPER+Space` launcher, `SUPER+O` control-center, `SUPER+comma` settings, `ALT+Tab` switcher). Guía en `NOCTALIA_COMANDOS.md`
-- **Paleta pywal** (`wal`+`colorz`) y fondo unificado con `set-wallpaper.sh` (SUPER+SHIFT+W aleatorio) → `swaybg` + `hyprlock` + `foot` + `fuzzel` + `wlogout`. `foot_sync.sh` regenera Foot/Fuzzel desde `~/.cache/wal/colors.json`
+- **Theming único vía Noctalia** (`theme.source = wallpaper`): fondo + rotación sin `swaybg`, templates para GTK3/GTK4 (Thunar), bordes Hyprland, Foot, Fuzzel, wlogout, hyprlock y Neovim (base16, reemplaza gruvbox). Sin pywal. Detalle en `NOCTALIA_COMANDOS.md`
 - **Instalador modular + presets + dry-run**: 12 módulos en `install-scripts/`, `preset.example.sh` / `preset.minimal.sh`, `./dry-run-build.sh` (PASS/FAIL por módulo), `99-final-check.sh` y `uninstall-lite.sh`
 - **Portales**: `xdg-desktop-portal`, `xdg-desktop-portal-hyprland`, `xdg-desktop-portal-gtk` + `hyprland-portals.conf` (`default=hyprland;gtk`, `FileChooser=gtk`)
 - **Gestión color/tema GTK Wayland**: `nwg-look` + `xdg-desktop-portal-gtk`
@@ -45,15 +45,17 @@ hypr/
 ├── Install-Logs/            # un log por módulo + resumen dry-run (ignorado por git)
 ├── hyprland.conf            # config Hyprland 0.55 + autostart/binds/reglas Noctalia
 ├── noctalia/
-│   └── bar-monitors.toml    # barra solo en eDP-1 (ajusta el match a tu conector)
-├── hyprlock.conf
+│   ├── bar-monitors.toml    # barra solo en eDP-1 (ajusta el match a tu conector)
+│   ├── templates.toml       # fuente wallpaper + templates builtin/user + automation + hooks
+│   ├── templates/           # inputs foot/fuzzel/wlogout/hyprlock/matugen (tokens Noctalia)
+│   └── hooks/               # foot-apply, fuzzel-apply, sync-lock-wallpaper
 ├── hypridle.conf
-├── foot.ini / fuzzel.ini   # terminal y launcher (set-wallpaper.sh/foot_sync.sh los re-colorean)
-├── power_menu.sh / confirm_power.sh / foot_sync.sh
-├── set-wallpaper.sh / NOCTALIA_COMANDOS.md  # fondo unificado + guía noctalia
-├── wlogout/                   # layout + style.css base (set-wallpaper.sh lo re-tintea)
+├── foot.ini / fuzzel.ini   # estructura; colores via templates Noctalia
+├── power_menu.sh / confirm_power.sh
+├── NOCTALIA_COMANDOS.md     # guía noctalia (wallpapers, widgets, theming)
+├── wlogout/                   # layout (style.css lo genera el template Noctalia)
 ├── auto_timezone.sh / screen_recorder.sh
-├── wallpaper.jpg
+├── wallpaper.jpg              # semilla inicial; en uso lo mantiene el hook wallpaper_changed
 ├── systemd/
 │   └── user/
 │       └── auto-timezone.{service,timer}  # detecta zona por IP (cada 30 min)
@@ -101,7 +103,7 @@ Relación módulo → fase:
 | `40-hypr.sh` | `hyprland hyprlock hypridle hyprpolkitagent hyprland-guiutils greetd tuigreet uwsm` |
 | `50-fonts.sh` | `Meslo` + `SymbolsOnly` en `~/.local/share/fonts` (omite si ya descargadas) |
 | `60-greetd.sh` | `config.toml` tuigreet + grupos `video/render/input/audio` (+ `input` opcional) |
-| `70-dots.sh` | copia dots a `~/.config` (incluye `noctalia/*.toml`), activa bloque NVIDIA si aplica, corre `foot_sync.sh`, habilita timer |
+| `70-dots.sh` | copia dots a `~/.config` (incluye `noctalia/*.toml` + `templates/` + `hooks/`), activa bloque NVIDIA si aplica, fija GTK oscuro base, habilita timer |
 | `71-noctalia.sh` | repo APT Noctalia + `noctalia` + deps runtime (`upower power-profiles-daemon brightnessctl cliphist`) + `config validate` |
 | `80-pam-portals.sh` | `pam_gnome_keyring` + `hyprland-portals.conf` |
 | `90-services.sh` | NetworkManager gestionado + `enable NM/bluetooth/greetd`, `mask getty@tty1` |
@@ -158,13 +160,13 @@ No purga paquetes (si quieres quitarlos: `sudo apt autoremove hyprland noctalia`
   systemctl --user enable --now auto-timezone.timer         # si no está activo
   ```
 
-### Temas
+### Temas (todo vía Noctalia)
 
 ```bash
-~/.config/hypr/set-wallpaper.sh /ruta/a/imagen.jpg   # fondo + paleta pywal + foot/fuzzel/wlogout
-~/.config/hypr/foot_sync.sh                          # regenera foot + fuzzel desde ~/.cache/wal/colors.json
-# Tip Wayland: usa nwg-look en vez de lxappearance para GTK sin romper la sesión
-nwg-look
+noctalia msg wallpaper-set /ruta/a/imagen.jpg   # fondo + paleta + apps
+noctalia msg wallpaper-random                   # aleatorio (también SUPER+SHIFT+W)
+noctalia msg templates-apply                    # re-renderizar templates
+# Tip Wayland: usa nwg-look solo como visor; el tema GTK lo pone Noctalia
 ```
 
 ---
@@ -220,7 +222,7 @@ Dotfiles bajo MIT. Hyprland BSD-3.
 - [Hyprland](https://hypr.land) vaxerski & contributors
 - [Noctalia](https://noctalia.dev) noctalia-dev & contributors
 - Fuentes [Nerd Fonts](https://www.nerdfonts.com) (Meslo, SymbolsOnly)
-- Wallpaper `wallpaper.jpg` incluido
+- Wallpaper `wallpaper.jpg` incluido como semilla (en uso lo sincroniza el hook de Noctalia)
 - Enfoque modular/preset/dry-run inspirado en [Debian-Hyprland (KooL Dots)](https://github.com/LinuxBeginnings/Debian-Hyprland) (adaptado a install `apt`, sin compilación desde source)
 
 ---
