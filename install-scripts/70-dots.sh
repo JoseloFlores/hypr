@@ -78,7 +78,7 @@ if [ -d "$SCRIPT_DIR/systemd/user" ]; then
 fi
 
 for app in foot fuzzel; do
-    if [ -f "$SCRIPT_DIR/$app.ini" ]; then
+    if [ -f "$SCRIPT_DIR/$app.ini" ] && [ ! -f "$DOTS_CONF/$app/$app.ini" ]; then
         sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/$app.ini" "$DOTS_CONF/$app/$app.ini"
         log "-> $app.ini desplegado en $DOTS_CONF/$app/"
     fi

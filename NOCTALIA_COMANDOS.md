@@ -46,3 +46,12 @@ por widget bajo `[widget.<nombre>]`. Tras editar:
 `--random [directorio]`. Sincroniza `swaybg` + `hyprlock` +
 paleta pywal (`foot`/`fuzzel`/`wlogout`). Atajo: `SUPER+SHIFT+W`.
 El archivo canónico es `~/.config/hypr/wallpaper.jpg`.
+
+## Ojo: template `foot` de Noctalia
+
+No actives el template builtin `foot` (Settings → Templates):
+genera `~/.config/foot/themes/noctalia` con cabecera `[colors-dark]`
+y Foot falla al arrancar (`invalid section name`). Foot/Fuzzel ya
+van por pywal (`foot_sync.sh`). Si lo activaste por error, quita
+`"foot"` de `builtin_ids` en `~/.local/state/noctalia/settings.toml`;
+Noctalia borra el archivo y el include solo.
