@@ -1,9 +1,0 @@
-[34m[INFO][m 7/10 Desplegando configuraciones en /home/jo/.config...
-[34m[INFO][m -> wlogout desplegado en /home/jo/.config/wlogout/
-[34m[INFO][m -> nvim desplegado en /home/jo/.config/nvim/ (plugins los baja lazy.nvim)
-[34m[INFO][m -> noctalia/*.toml + templates/ + hooks/ desplegado en /home/jo/.config/noctalia/
-[31m[WARN][m auto-timezone.timer no se pudo habilitar ahora (sin sesión de usuario activa).
-[34m[INFO][m -> foot.ini desplegado en /home/jo/.config/foot/
-[34m[INFO][m -> fuzzel.ini desplegado en /home/jo/.config/fuzzel/
-[34m[INFO][m -> WALLPAPER_URL vacío: se omite descarga (crea /root/Imágenes/wallpapers/wallpaper o define URL en preset)
-[32m[OK][m Dots OK (colores los aplica Noctalia al iniciar sesión: templates-apply)

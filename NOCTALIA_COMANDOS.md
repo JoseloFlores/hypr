@@ -1,7 +1,7 @@
 # Noctalia — shell por defecto
 
 Noctalia v5 arranca por defecto vía `exec-once = noctalia` en
-`hyprland.conf`. No usa Quickshell ni Waybar: es un binario nativo
+`hyprland.conf`. Es un binario nativo
 (`apt install noctalia` desde su repo APT).
 
 La config vive en `~/.config/noctalia/*.toml` (este repo despliega
