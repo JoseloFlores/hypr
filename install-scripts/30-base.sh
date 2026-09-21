@@ -19,6 +19,10 @@ BASE_PKGS=(
     xdg-desktop-portal xdg-desktop-portal-gtk xdg-user-dirs
     nwg-look
     vim zenity
+    # mako-notifier: provee el virtual notification-daemon que blueman exige.
+    # Sin proveedor explícito apt arrastra cinnamon/muffin/nemo (ver logs forky 14).
+    # Nunca se autostartea: Noctalia es quien sirve las notificaciones.
+    mako-notifier
     fonts-jetbrains-mono fonts-noto-color-emoji fonts-firacode
     gnome-keyring libpam-gnome-keyring seahorse
     polkitd pkexec qt6-wayland libpam-systemd
@@ -44,6 +48,9 @@ fi
 
 apt_install_resilient "${BASE_PKGS[@]}"
 apt_hypr_stack xdg-desktop-portal-hyprland || true
+# hyprpolkitagent anticipado (40-hypr lo reinstala, no-op): satisface el virtual
+# polkit-1-auth-agent de nm-applet y evita que apt arrastre cinnamon (ver logs forky 14).
+apt_hypr_stack hyprpolkitagent || true
 
 run_cmd systemctl enable bluetooth || true
 

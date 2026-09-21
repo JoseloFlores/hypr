@@ -13,34 +13,57 @@ fi
 
 log "7b/10 Instalando Noctalia v5 + deps runtime..."
 
+# Candidatas por OS. Forky no tiene suite propia (solo trixie/unstable en
+# pkg.noctalia.dev 2026-09): se prueba trixie primero (libwebp 1.5, la que trae
+# forky-testing) y luego unstable (libwebp 1.6 de sid). Ver logs forky 14.
 case "${OS_CODENAME:-trixie}" in
-    trixie) NOCTALIA_SUITE="noctalia-trixie" ;;
-    # Debian 14 forky (testing) no tiene suite propia (solo trixie/unstable en
-    # pkg.noctalia.dev 2026-09). Forky va con unstable: sigue a testing/sid.
-    forky|sid|unstable) NOCTALIA_SUITE="noctalia-unstable" ;;
+    trixie) NOCTALIA_CANDIDATES="noctalia-trixie" ;;
+    forky) NOCTALIA_CANDIDATES="noctalia-trixie noctalia-unstable" ;;
+    sid|unstable) NOCTALIA_CANDIDATES="noctalia-unstable" ;;
     *)
-        log_error "OS '$OS_CODENAME' sin suite Noctalia (solo trixie/forky). Abortando."
+        log_error "OS '$OS_CODENAME' sin suite Noctalia (solo trixie/forky/sid)."
         exit 1
         ;;
 esac
-log "-> suite Noctalia: $NOCTALIA_SUITE (Debian $OS_CODENAME)"
+log "-> suites candidatas: $NOCTALIA_CANDIDATES (Debian $OS_CODENAME)"
 
 run_bash "keyring noctalia" \
     bash -c 'wget -q https://pkg.noctalia.dev/deb/nickh-archive-keyring.deb -O /tmp/nickh-archive-keyring.deb && dpkg -i /tmp/nickh-archive-keyring.deb'
-run_bash "sources noctalia" \
-    bash -c "wget -q -O /etc/apt/sources.list.d/$NOCTALIA_SUITE.sources https://pkg.noctalia.dev/deb/$NOCTALIA_SUITE.sources"
-apt_update_resilient
 
-apt_install_resilient noctalia
-# Runtime que los widgets de Noctalia esperan (si ya están, apt no hace nada)
-apt_install_resilient upower power-profiles-daemon brightnessctl cliphist wl-clipboard
+# Runtime nativo Debian que los widgets esperan (vaya bien o no Noctalia).
+apt_install_resilient upower power-profiles-daemon brightnessctl cliphist wl-clipboard || true
 
 if [ "$DRY_RUN" = "1" ]; then
+    for _s in $NOCTALIA_CANDIDATES; do
+        echo "[DRY-RUN] suite $_s -> /etc/apt/sources.list.d/$_s.sources + apt update + apt install noctalia" | tee -a "$LOG"
+    done
     echo "[DRY-RUN] deploy noctalia/*.toml a $USER_HOME/.config/noctalia + noctalia --version + config validate" | tee -a "$LOG"
     exit 0
 fi
 
+# --- Intento de instalación por suites candidatas (no bloqueante) ---
+for NOCTALIA_SUITE in $NOCTALIA_CANDIDATES; do
+    log "-> probando suite $NOCTALIA_SUITE..."
+    if ! bash -c "wget -q -O /etc/apt/sources.list.d/$NOCTALIA_SUITE.sources https://pkg.noctalia.dev/deb/$NOCTALIA_SUITE.sources"; then
+        log_warn "no se pudo descargar $NOCTALIA_SUITE.sources, siguiente candidata."
+        rm -f "/etc/apt/sources.list.d/$NOCTALIA_SUITE.sources"
+        continue
+    fi
+    if ! apt_update_resilient; then
+        log_warn "apt update falló con $NOCTALIA_SUITE, siguiente candidata."
+        rm -f "/etc/apt/sources.list.d/$NOCTALIA_SUITE.sources"
+        continue
+    fi
+    if apt_install_resilient noctalia; then
+        log "-> suite que funcionó: $NOCTALIA_SUITE"
+        break
+    fi
+    log_warn "noctalia no instalable con $NOCTALIA_SUITE (dependencias), siguiente candidata."
+    rm -f "/etc/apt/sources.list.d/$NOCTALIA_SUITE.sources"
+done
+
 # --- ~/.config/noctalia (sin pisar config del usuario si ya existe) ---
+# Se despliega aunque el paquete falle: el reintento posterior solo reinstala el .deb.
 if [ -d "$SCRIPT_DIR/noctalia" ]; then
     sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p "$USER_HOME/.config/noctalia"
     for f in "$SCRIPT_DIR"/noctalia/*.toml; do
@@ -82,11 +105,18 @@ log "-> GTK en Adwaita-dark + prefer-dark (colores via templates Noctalia)"
 
 if command -v noctalia >/dev/null 2>&1; then
     log "-> $(noctalia --version 2>&1 | head -n1)"
+    rm -f "$LOG_DIR/noctalia-missing.flag" 2>/dev/null || true
     if sudo -u "$REAL_USER" env HOME="$USER_HOME" noctalia config validate >/dev/null 2>&1; then
         log_ok "Noctalia OK (arranca con exec-once = noctalia en hyprland.conf)"
     else
         log_warn "Noctalia instalado pero 'noctalia config validate' reporta avisos; revisa ~/.config/noctalia/"
     fi
-else
-    log_warn "Binario 'noctalia' no encontrado tras instalar. Revisa el repo APT."
+    exit 0
 fi
+# Sin binario tras probar todas las candidatas: NO bloquea el instalador.
+# 90-services/95-grub/99-final-check siguen; el reintento es solo este módulo.
+touch "$LOG_DIR/noctalia-missing.flag" 2>/dev/null || true
+log_warn "Noctalia no instalable en Debian $OS_CODENAME con: $NOCTALIA_CANDIDATES."
+log_warn "Hyprland queda usable sin shell Noctalia. Reintenta luego:"
+log_warn "  sudo ./install.sh --only 71-noctalia,99-final-check"
+exit 0

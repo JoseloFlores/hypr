@@ -31,6 +31,7 @@ INSTALL_FIREFOX="ON"
 INSTALL_THUNDERBIRD="OFF"
 # Wallpapers: se descargan en install (no versionados). Vacío = solo semilla local si existe.
 WALLPAPER_URL=""
-WALLPAPER_DIR="$HOME/Imágenes/wallpapers/wallpaper"
+# Vacío = default ~/Imágenes/wallpapers/wallpaper del usuario real (no usar $HOME: bajo sudo es /root).
+WALLPAPER_DIR=""
 # SDDM opcional: OFF por defecto (greetd es el login del repo). ON solo instala sddm sin tema.
 INSTALL_SDDM="OFF"

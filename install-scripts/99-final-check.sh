@@ -79,12 +79,19 @@ else
     printf "%s\n" "${missing[@]}" "${bins_missing[@]}" >> "$LOG"
 fi
 
-if pkg_installed hyprland && pkg_installed noctalia; then
-    echo "¡INSTALACIÓN COMPLETADA!" | tee -a "$LOG"
+if pkg_installed hyprland; then
+    if pkg_installed noctalia; then
+        echo "¡INSTALACIÓN COMPLETADA!" | tee -a "$LOG"
+    else
+        echo "¡INSTALACIÓN COMPLETADA CON ADVERTENCIA! Hyprland OK, falta Noctalia." | tee -a "$LOG"
+        echo "Causa probable en forky: skew testing/unstable (libwebp). Reintenta luego:" | tee -a "$LOG"
+        echo "  sudo ./install.sh --only 71-noctalia,99-final-check" | tee -a "$LOG"
+        echo "Sin Noctalia el sistema arranca a Hyprland (sin barra/launcher); fuzzel (SUPER+D) cubre el lanzamiento." | tee -a "$LOG"
+    fi
     if [ "${GPU_TYPE:-generic}" = "nvidia" ]; then
         echo "AVISO NVIDIA: añade 'nvidia-drm.modeset=1' a GRUB_CMDLINE_LINUX en /etc/default/grub y ejecuta: update-grub" | tee -a "$LOG"
     fi
 else
-    echo "¡INSTALACIÓN INCOMPLETA! Revisa logs en $LOG_DIR" | tee -a "$LOG"
+    echo "¡INSTALACIÓN INCOMPLETA! Falta Hyprland. Revisa logs en $LOG_DIR" | tee -a "$LOG"
     exit 1
 fi

@@ -126,7 +126,9 @@ fi
 
 # --- Wallpapers descargables (no versionados) ---
 # WALLPAPER_URL: zip o jpg suelto. WALLPAPER_DIR: destino (~/Imágenes/wallpapers/wallpaper).
+# Defensa: si WALLPAPER_DIR apunta a /root (HOME de sudo), se re-resuelve al usuario real.
 WALLPAPER_DIR="${WALLPAPER_DIR:-$USER_HOME/Imágenes/wallpapers/wallpaper}"
+[[ "$WALLPAPER_DIR" == /root/* ]] && WALLPAPER_DIR="$USER_HOME/Imágenes/wallpapers/wallpaper"
 WALLPAPER_URL="${WALLPAPER_URL:-}"
 if [ -n "$WALLPAPER_URL" ]; then
     sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p "$WALLPAPER_DIR"

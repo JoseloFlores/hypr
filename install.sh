@@ -66,7 +66,8 @@ NVIDIA_MODE="auto"
 INSTALL_THUNAR="ON"; INSTALL_MEDIA="ON"; INSTALL_INPUT_GROUP="ON"
 INSTALL_GRUB_THEME="ON"; INSTALL_SDDM="OFF"
 INSTALL_FIREFOX="ON"; INSTALL_THUNDERBIRD="OFF"
-WALLPAPER_URL=""; WALLPAPER_DIR="$HOME/Imágenes/wallpapers/wallpaper"
+WALLPAPER_URL=""; WALLPAPER_DIR=""
+# NOTA: WALLPAPER_DIR se resuelve tras detectar USER_HOME (vacío = default portable).
 
 if [ -n "$PRESET_FILE" ]; then
     [ -f "$PRESET_FILE" ] || { echo "ERROR: preset no encontrado: $PRESET_FILE" >&2; exit 1; }
@@ -140,6 +141,11 @@ elif lspci 2>/dev/null | grep -iq "amd.*\(vga\|display\|graphics\)\|Advanced Mic
 elif lspci 2>/dev/null | grep -iq "intel.*\(graphics\|display\|vga\)"; then GPU_TYPE="intel"; fi
 if [ "$NVIDIA_MODE" = "OFF" ] && [ "$GPU_TYPE" = "nvidia" ]; then GPU_TYPE="generic"; fi
 
+# WALLPAPER_DIR siempre contra el HOME real (bajo sudo $HOME=/root; ver logs forky 14).
+if [ -z "${WALLPAPER_DIR:-}" ] || [[ "${WALLPAPER_DIR:-}" == /root/* ]]; then
+    WALLPAPER_DIR="$USER_HOME/Imágenes/wallpapers/wallpaper"
+fi
+
 export REPO_ROOT SCRIPT_DIR LOG_DIR DRY_RUN OS_CODENAME REAL_USER USER_HOME GPU_TYPE
 export NVIDIA_MODE INSTALL_THUNAR INSTALL_MEDIA INSTALL_INPUT_GROUP INSTALL_GRUB_THEME
 export INSTALL_NOCTALIA INSTALL_FIREFOX INSTALL_THUNDERBIRD WALLPAPER_URL WALLPAPER_DIR
@@ -164,11 +170,19 @@ execute_script() {
 }
 
 FAILED=()
+# 71-noctalia es no-bloqueante (siempre exit 0; deja flag si falta el .deb):
+# Hyprland queda usable y 80/90/95/99 siguen. El resto sí aborta salvo dry-run.
+NONBLOCKING=("71-noctalia" "99-final-check")
 for mod in "${MODULES[@]}"; do
     if ! execute_script "$mod"; then
         echo "ERROR en módulo $mod" >&2
         FAILED+=("$mod")
-        # 99-final-check nunca bloquea; el resto sí aborta salvo dry-run
+        _nb=0
+        for _n in "${NONBLOCKING[@]}"; do [[ "$mod" == "$_n" ]] && _nb=1; done
+        if [ "$_nb" -eq 1 ]; then
+            echo "AVISO: $mod falló pero es no-bloqueante, se continúa..." >&2
+            continue
+        fi
         if [ "$DRY_RUN" != "1" ]; then
             echo "Abortando. Revisa $LOG_DIR" >&2
             exit 1
@@ -185,7 +199,16 @@ fi
 echo ""
 echo "Logs por módulo en: $LOG_DIR (y resumen en ./install.log)"
 if [ ${#FAILED[@]} -gt 0 ]; then
-    echo "Módulos con fallo (dry-run): ${FAILED[*]}" >&2
-    exit 1
+    _block_fail=0
+    for _f in "${FAILED[@]}"; do
+        _nb=0
+        for _n in "${NONBLOCKING[@]}"; do [[ "$_f" == "$_n" ]] && _nb=1; done
+        [[ $_nb -eq 0 ]] && _block_fail=1
+    done
+    echo "Módulos con fallo: ${FAILED[*]}" >&2
+    if [ "$_block_fail" -eq 1 ] || [ "$DRY_RUN" = "1" ]; then
+        exit 1
+    fi
+    echo "AVISO: solo fallaron módulos no-bloqueantes; revisa 99-final-check." >&2
 fi
 echo "Reinicia: sudo reboot"
