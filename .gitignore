@@ -3,3 +3,8 @@ install.log
 # Artefactos demo (no versionar videos ni capturas de muestra)
 *.mp4
 screenshot-*.png
+# Wallpapers: se descargan en install (WALLPAPER_URL), no versionados
+wallpaper.jpg
+wallpapers/
+# wlogout/style.css lo genera el template Noctalia (solo layout + icons/ van en git)
+wlogout/style.css

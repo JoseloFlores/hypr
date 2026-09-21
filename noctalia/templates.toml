@@ -46,6 +46,7 @@ output_path = "$XDG_CONFIG_HOME/nvim/lua/matugen.lua"
 post_hook = "pkill -SIGUSR1 nvim"
 
 # Fondo: Noctalia dibuja el wallpaper (swaybg jubilado).
+# El directorio lo crea 70-dots.sh y se llena vía WALLPAPER_URL (no versionado).
 [wallpaper]
 directory = "~/Imágenes/wallpapers/wallpaper"
 

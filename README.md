@@ -15,7 +15,7 @@
 ## ✨ Características
 
 - **Hyprland 0.55** con `hyprlock`, `hypridle`, `hyprpolkitagent`, `hyprland-guiutils`
-- **Noctalia v5** como shell (repo APT `pkg.noctalia.dev`, suite `trixie`/`sid` según `VERSION_CODENAME`): barra solo en laptop (`noctalia/bar-monitors.toml`), arranque con `exec-once = noctalia`, binds IPC (`SUPER+Space` launcher, `SUPER+O` control-center, `SUPER+comma` settings, `ALT+Tab` switcher). Guía en `NOCTALIA_COMANDOS.md`
+- **Noctalia v5** como shell (repo APT `pkg.noctalia.dev`, suite `trixie` en Debian 13 / `unstable` en Debian 14 `forky`, no existe suite `forky` a 2026-09): barra solo en laptop (`noctalia/bar-monitors.toml`), arranque con `exec-once = noctalia`, binds IPC (`SUPER+Space` launcher, `SUPER+O` control-center, `SUPER+comma` settings, `ALT + Tab` switcher). Guía en `NOCTALIA_COMANDOS.md`
 - **Theming único vía Noctalia** (`theme.source = wallpaper`): fondo + rotación sin `swaybg`, templates para GTK3/GTK4 (Thunar), bordes Hyprland, Foot, Fuzzel, wlogout, hyprlock y Neovim (base16, reemplaza gruvbox). Sin pywal. Detalle en `NOCTALIA_COMANDOS.md`
 - **Instalador modular + presets + dry-run**: 12 módulos en `install-scripts/`, `preset.example.sh` / `preset.minimal.sh`, `./dry-run-build.sh` (PASS/FAIL por módulo), `99-final-check.sh` y `uninstall-lite.sh`
 - **Portales**: `xdg-desktop-portal`, `xdg-desktop-portal-hyprland`, `xdg-desktop-portal-gtk` + `hyprland-portals.conf` (`default=hyprland;gtk`, `FileChooser=gtk`)
@@ -57,7 +57,8 @@ hypr/
 ├── NOCTALIA_COMANDOS.md     # guía noctalia (wallpapers, widgets, theming)
 ├── wlogout/                   # layout + icons/ (style.css lo genera el template)
 ├── auto_timezone.sh / screen_recorder.sh
-├── wallpaper.jpg              # semilla inicial; en uso lo mantiene el hook wallpaper_changed
+├── wallpaper.jpg NO versionado         # semilla local opcional; en uso lo mantiene el hook wallpaper_changed
+│                                       # Descarga real: WALLPAPER_URL en preset → 70-dots.sh → ~/Imágenes/wallpapers/wallpaper
 ├── systemd/
 │   └── user/
 │       └── auto-timezone.{service,timer}  # detecta zona por IP (cada 30 min)
@@ -116,7 +117,7 @@ El instalador (comportamiento clásico, todo ON):
 
 1. **Repos** → `main contrib non-free non-free-firmware` + backports
 2. **Drivers** → microcode + `nvidia`/`amd`/`intel` + firmware
-3. **Base** → `wget curl bc jq`, `network-manager`, `gvfs gvfs-backends gvfs-fuse gvfs-daemons udisks2 udiskie`, **`thunar thunar-archive-plugin thunar-volman xarchiver tumbler ffmpegthumbnailer`** (`INSTALL_THUNAR=OFF` lo omite), **`imv swayimg mpv`** (`INSTALL_MEDIA=OFF` lo omite), `pipewire wireplumber pavucontrol`, `bluez blueman`, `thunderbird`, `wl-clipboard cliphist brightnessctl playerctl`, `foot fuzzel grim slurp swappy wf-recorder`, **`xdg-desktop-portal xdg-desktop-portal-gtk xdg-user-dirs`**, **`nwg-look`**, `fonts-jetbrains-mono`, `gnome-keyring seahorse polkitd`
+3. **Base** → `wget curl bc jq`, `network-manager`, `gvfs gvfs-backends gvfs-fuse gvfs-daemons udisks2 udiskie`, **`thunar thunar-archive-plugin thunar-volman xarchiver tumbler ffmpegthumbnailer`** (`INSTALL_THUNAR=OFF` lo omite), **`imv swayimg mpv`** (`INSTALL_MEDIA=OFF` lo omite), `pipewire wireplumber pavucontrol`, `bluez blueman`, **`firefox-esr`** (`INSTALL_FIREFOX=OFF` lo omite; chrome/spotify van post-setup manual, no en install.sh), **`thunderbird`** solo si `INSTALL_THUNDERBIRD=ON`, `wl-clipboard cliphist brightnessctl playerctl`, `foot fuzzel grim slurp swappy wf-recorder`, **`xdg-desktop-portal xdg-desktop-portal-gtk xdg-user-dirs`**, **`nwg-look`**, `fonts-jetbrains-mono`, `gnome-keyring seahorse polkitd`
    > Tras instalar `thunar` ejecuta automáticamente:
    > ```bash
    > LANG=es_ES.UTF-8 xdg-user-dirs-update --force
@@ -126,7 +127,7 @@ El instalador (comportamiento clásico, todo ON):
 4. **Hyprland stack** → `hyprland hyprlock hypridle hyprpolkitagent` + **`hyprland-guiutils`** + `greetd tuigreet` (desde `trixie-backports` si es trixie, nativo si es forky) + `xdg-desktop-portal-hyprland`
 5. **Fuentes** → `Meslo Nerd Font` + `SymbolsOnly` en `~/.local/share/fonts`
 6. **Greetd** → `tuigreet --time --remember --cmd Hyprland` (con vars NVIDIA si `GPU_TYPE=nvidia`)
-7. **Dots** → copia `hyprland.conf`, `noctalia/` (toml + templates + hooks), `nvim/` (si no existe), `foot.ini`/`fuzzel.ini`, `wlogout/` (+icons), `systemd/user/*` a `~/.config` (rutas portables con `$HOME`/`~`, sin hardcode de usuario; no pisa tu `~/.config/noctalia/` si ya existe)
+7. **Dots** → copia `hyprland.conf`, `noctalia/` (toml + templates + hooks), `nvim/` (si no existe), `foot.ini`/`fuzzel.ini`, `wlogout/layout` (+icons), `systemd/user/*` a `~/.config` (rutas portables con `$HOME`/`~`, sin hardcode de usuario; no pisa tu `~/.config/noctalia/` si ya existe; `wlogout/style.css` lo genera el template, no va en git)
 8. **Noctalia** → repo APT + `noctalia` + GTK oscuro base + `noctalia config validate` (los colores se aplican al primer inicio de sesión)
 9. **PAM + Portales** → `pam_gnome_keyring`, `/etc/xdg/xdg-desktop-portal/hyprland-portals.conf`
 10. **Servicios** → `systemctl enable greetd bluetooth NetworkManager`, `mask getty@tty1`
@@ -149,7 +150,7 @@ No purga paquetes (si quieres quitarlos: `sudo apt autoremove hyprland noctalia`
 ## 🖥️ Uso
 
 - **SUPER + Return** → `$terminal` (`foot`) | **SUPER + F** → `foot` | **SUPER + D** → `fuzzel` | **SUPER + X** → `$fileManager` (`thunar`)
-  > Si no tienes `chrome`, edita `hyprland.conf` (`$browser`) o instala ese paquete.
+  > `$browser` es `firefox-esr` (Debian). Chrome/spotify se instalan post-setup manual.
 - **Noctalia** → `SUPER + Space` launcher, `SUPER + O` control-center, `SUPER + comma` settings, `ALT + Tab` switcher, `SUPER + SHIFT + B` reinicia Noctalia. Detalle en `NOCTALIA_COMANDOS.md`
 - **Workspaces** → `SUPER + 1..0` / `SHIFT + 1..0` mover, `SUPER + scroll` navegar, `SUPER + S` scratchpad
 - **Brillo/Volumen** → `XF86MonBrightnessUp/Down` (`brightnessctl -e4 -n2 set 5%±`), `XF86AudioRaise/LowerVolume` (`wpctl` 2%)
@@ -224,7 +225,7 @@ Dotfiles bajo MIT. Hyprland BSD-3.
 - [Hyprland](https://hypr.land) vaxerski & contributors
 - [Noctalia](https://noctalia.dev) noctalia-dev & contributors
 - Fuentes [Nerd Fonts](https://www.nerdfonts.com) (Meslo, SymbolsOnly)
-- Wallpaper `wallpaper.jpg` incluido como semilla (en uso lo sincroniza el hook de Noctalia)
+- Wallpaper `wallpaper.jpg` NO versionado (ver `.gitignore`): se descarga con `WALLPAPER_URL` a `~/Imágenes/wallpapers/wallpaper` en `70-dots.sh`; en uso lo sincroniza el hook de Noctalia
 - Enfoque modular/preset/dry-run inspirado en [Debian-Hyprland (KooL Dots)](https://github.com/LinuxBeginnings/Debian-Hyprland) (adaptado a install `apt`, sin compilación desde source)
 
 ---

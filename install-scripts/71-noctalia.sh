@@ -15,17 +15,20 @@ log "7b/10 Instalando Noctalia v5 + deps runtime..."
 
 case "${OS_CODENAME:-trixie}" in
     trixie) NOCTALIA_SUITE="noctalia-trixie" ;;
-    sid|unstable) NOCTALIA_SUITE="noctalia-unstable" ;;
+    # Debian 14 forky (testing) no tiene suite propia (solo trixie/unstable en
+    # pkg.noctalia.dev 2026-09). Forky va con unstable: sigue a testing/sid.
+    forky|sid|unstable) NOCTALIA_SUITE="noctalia-unstable" ;;
     *)
-        log_warn "OS '$OS_CODENAME' sin repo Noctalia dedicado; se prueba suite trixie."
-        NOCTALIA_SUITE="noctalia-trixie"
+        log_error "OS '$OS_CODENAME' sin suite Noctalia (solo trixie/forky). Abortando."
+        exit 1
         ;;
 esac
+log "-> suite Noctalia: $NOCTALIA_SUITE (Debian $OS_CODENAME)"
 
 run_bash "keyring noctalia" \
     bash -c 'wget -q https://pkg.noctalia.dev/deb/nickh-archive-keyring.deb -O /tmp/nickh-archive-keyring.deb && dpkg -i /tmp/nickh-archive-keyring.deb'
 run_bash "sources noctalia" \
-    bash -c "wget -q -O /etc/apt/sources.list.d/noctalia-trixie.sources https://pkg.noctalia.dev/deb/$NOCTALIA_SUITE.sources"
+    bash -c "wget -q -O /etc/apt/sources.list.d/$NOCTALIA_SUITE.sources https://pkg.noctalia.dev/deb/$NOCTALIA_SUITE.sources"
 apt_update_resilient
 
 apt_install_resilient noctalia

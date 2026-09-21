@@ -14,16 +14,23 @@ BASE_PKGS=(
     pipewire pipewire-alsa pipewire-audio pipewire-pulse wireplumber pavucontrol
     alsa-utils alsa-ucm-conf libspa-0.2-bluetooth
     bluez blueman
-    thunderbird
     wl-clipboard cliphist brightnessctl playerctl
     foot fuzzel grim slurp swappy wf-recorder
     xdg-desktop-portal xdg-desktop-portal-gtk xdg-user-dirs
     nwg-look
-    zsh vim firefox-esr zenity
+    vim zenity
     fonts-jetbrains-mono fonts-noto-color-emoji fonts-firacode
     gnome-keyring libpam-gnome-keyring seahorse
     polkitd pkexec qt6-wayland libpam-systemd
 )
+# Apps opcionales por preset (portable: nada post-instalación como chrome/spotify aquí).
+# Firefox = navegador usable en netinst limpia. Thunderbird = solo si lo quieres.
+if [ "${INSTALL_FIREFOX:-ON}" != "OFF" ]; then
+    BASE_PKGS+=(firefox-esr)
+fi
+if [ "${INSTALL_THUNDERBIRD:-OFF}" = "ON" ]; then
+    BASE_PKGS+=(thunderbird)
+fi
 # Thunar / multimedia opcionales por preset
 if [ "${INSTALL_THUNAR:-ON}" != "OFF" ]; then
     BASE_PKGS+=(thunar thunar-archive-plugin thunar-volman xarchiver tumbler ffmpegthumbnailer)

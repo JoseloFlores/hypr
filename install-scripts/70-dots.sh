@@ -7,7 +7,7 @@ common_init "70-dots"
 log "7/10 Desplegando configuraciones en $USER_HOME/.config..."
 
 if [ "$DRY_RUN" = "1" ]; then
-    echo "[DRY-RUN] cp hyprland.conf hypridle.conf foot.ini fuzzel.ini noctalia/{*.toml,templates,hooks} systemd/user/* wlogout/* scripts a $USER_HOME/.config" | tee -a "$LOG"
+    echo "[DRY-RUN] cp hyprland.conf hypridle.conf foot.ini fuzzel.ini noctalia/{*.toml,templates,hooks} systemd/user/* wlogout/layout+icons scripts a $USER_HOME/.config + wallpapers download (\$WALLPAPER_URL -> \$WALLPAPER_DIR)" | tee -a "$LOG"
     exit 0
 fi
 
@@ -16,11 +16,17 @@ sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p \
     "$DOTS_CONF/hypr" "$DOTS_CONF/noctalia" "$DOTS_CONF/foot" "$DOTS_CONF/fuzzel" \
     "$DOTS_CONF/systemd/user" "$DOTS_CONF/wlogout"
 
-for src in hyprland.conf hypridle.conf wallpaper.jpg; do
+for src in hyprland.conf hypridle.conf; do
     if [ -f "$SCRIPT_DIR/$src" ]; then
         sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/$src" "$DOTS_CONF/hypr/"
     fi
 done
+# Semilla local opcional (no versionada): si existe en el repo se usa como fallback.
+# El caso normal es descarga vía WALLPAPER_URL (ver abajo).
+if [ -f "$SCRIPT_DIR/wallpaper.jpg" ]; then
+    sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/wallpaper.jpg" "$DOTS_CONF/hypr/"
+    log "-> semilla wallpaper.jpg copiada a $DOTS_CONF/hypr/ (legado, no versionar)"
+fi
 
 for src in confirm_power.sh power_menu.sh auto_timezone.sh screen_recorder.sh; do
     if [ -f "$SCRIPT_DIR/$src" ]; then
@@ -29,13 +35,12 @@ for src in confirm_power.sh power_menu.sh auto_timezone.sh screen_recorder.sh; d
     fi
 done
 
-# wlogout layout (style.css lo genera el template Noctalia al iniciar sesión)
+# wlogout layout (style.css lo genera el template Noctalia al iniciar sesión;
+# wlogout/style.css del repo es legado y ya no se versiona ni se copia).
 if [ -d "$SCRIPT_DIR/wlogout" ]; then
-    for wl in layout style.css; do
-        if [ -f "$SCRIPT_DIR/wlogout/$wl" ]; then
-            sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/wlogout/$wl" "$DOTS_CONF/wlogout/"
-        fi
-    done
+    if [ -f "$SCRIPT_DIR/wlogout/layout" ]; then
+        sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/wlogout/layout" "$DOTS_CONF/wlogout/"
+    fi
     # Portable: el template trae una ruta absoluta del autor; se reescribe al
     # HOME real (el template Noctalia también usa __HOME__; esto cubre el layout).
     if [ -f "$DOTS_CONF/wlogout/style.css" ]; then
@@ -81,11 +86,14 @@ if [ -d "$SCRIPT_DIR/noctalia" ]; then
     for sub in templates hooks; do
         if [ -d "$SCRIPT_DIR/noctalia/$sub" ]; then
             sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p "$DOTS_CONF/noctalia/$sub"
-            sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/noctalia/$sub/"* "$DOTS_CONF/noctalia/$sub/"
+            for tf in "$SCRIPT_DIR/noctalia/$sub/"*; do
+                [ -f "$tf" ] || continue
+                sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$tf" "$DOTS_CONF/noctalia/$sub/"
+            done
         fi
     done
     sudo -u "$REAL_USER" env HOME="$USER_HOME" \
-        sed -i "s#__HOME__#$USER_HOME#g" "$DOTS_CONF"/noctalia/*.toml "$DOTS_CONF"/noctalia/templates/* 2>/dev/null || true
+        sed -i "s#__HOME__#$USER_HOME#g" "$DOTS_CONF"/noctalia/*.toml "$DOTS_CONF"/noctalia/templates/* "$DOTS_CONF"/noctalia/hooks/* 2>/dev/null || true
     log "-> noctalia/*.toml + templates/ + hooks/ desplegado en $DOTS_CONF/noctalia/"
 fi
 
@@ -114,6 +122,41 @@ HYPR_CONF="$DOTS_CONF/hypr/hyprland.conf"
 if [ "$GPU_TYPE" = "nvidia" ] && [ -f "$HYPR_CONF" ]; then
     sed -i '/^# NVIDIA_ENV_BEGIN/,/^# NVIDIA_ENV_END/{s/^# env =/env =/;}' "$HYPR_CONF"
     log "-> hyprland.conf: variables NVIDIA activadas"
+fi
+
+# --- Wallpapers descargables (no versionados) ---
+# WALLPAPER_URL: zip o jpg suelto. WALLPAPER_DIR: destino (~/Imágenes/wallpapers/wallpaper).
+WALLPAPER_DIR="${WALLPAPER_DIR:-$USER_HOME/Imágenes/wallpapers/wallpaper}"
+WALLPAPER_URL="${WALLPAPER_URL:-}"
+if [ -n "$WALLPAPER_URL" ]; then
+    sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p "$WALLPAPER_DIR"
+    log "-> descargando wallpapers: $WALLPAPER_URL -> $WALLPAPER_DIR"
+    if [[ "$WALLPAPER_URL" == *.zip ]]; then
+        _tmpzip="/tmp/wallpapers-$(date +%s).zip"
+        if sudo -u "$REAL_USER" env HOME="$USER_HOME" wget -q --show-progress --tries=5 --waitretry=3 --timeout=20 -O "$_tmpzip" "$WALLPAPER_URL"; then
+            sudo -u "$REAL_USER" env HOME="$USER_HOME" unzip -o -q "$_tmpzip" -d "$WALLPAPER_DIR"
+            rm -f "$_tmpzip"
+        else
+            log_warn "no se pudo descargar WALLPAPER_URL (zip). Revisa la URL."
+        fi
+    else
+        _fname="$(basename "$WALLPAPER_URL")"
+        [ -z "$_fname" ] && _fname="wallpaper.jpg"
+        sudo -u "$REAL_USER" env HOME="$USER_HOME" wget -q --show-progress --tries=5 --waitretry=3 --timeout=20 -O "$WALLPAPER_DIR/$_fname" "$WALLPAPER_URL" \
+            || log_warn "no se pudo descargar WALLPAPER_URL. Revisa la URL."
+    fi
+    # Semilla para hyprlock si aún no existe (el hook wallpaper_changed lo mantiene luego).
+    if [ ! -f "$DOTS_CONF/hypr/wallpaper.jpg" ]; then
+        _first="$(sudo -u "$REAL_USER" env HOME="$USER_HOME" bash -c "ls -1 \"$WALLPAPER_DIR\"/*.{jpg,jpeg,png,webp} 2>/dev/null | head -n1" || true)"
+        if [ -n "$_first" ] && [ -f "$_first" ]; then
+            sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$_first" "$DOTS_CONF/hypr/wallpaper.jpg"
+            log "-> semilla hyprlock desde pack descargado"
+        fi
+    fi
+    chown -R "$REAL_USER":"$REAL_USER" "$WALLPAPER_DIR" 2>/dev/null || true
+else
+    log "-> WALLPAPER_URL vacío: se omite descarga (crea $WALLPAPER_DIR o define URL en preset)"
+    sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p "$WALLPAPER_DIR" || true
 fi
 
 chown -R "$REAL_USER":"$REAL_USER" "$DOTS_CONF"

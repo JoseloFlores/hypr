@@ -41,6 +41,8 @@ deb http://deb.debian.org/debian trixie-backports main contrib non-free non-free
 deb-src http://deb.debian.org/debian trixie-backports main contrib non-free non-free-firmware
 EOF
     log "-> Backports asegurado para Trixie"
+elif [ "$OS_CODENAME" = "forky" ]; then
+    log "-> Forky (testing): sin backports, Hyprland/Noctalia nativos o suite unstable"
 fi
 
 apt_update_resilient
