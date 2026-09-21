@@ -1,5 +1,5 @@
 #!/bin/bash
-# 40-hypr.sh — Hyprland stack (paso 4/10 original)
+# 40-hypr.sh — Hyprland stack desde trixie-backports (Debian 13)
 set -eo pipefail
 source "$(dirname "$(readlink -f "$0")")/Global_functions.sh"
 common_init "40-hypr"

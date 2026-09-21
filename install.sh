@@ -1,7 +1,7 @@
 #!/bin/bash
 # =============================================================================
-#  Hyprland & Noctalia Installer - Debian 13 (Trixie) / 14 (Forky)
-#  ORQUESTADOR modular (refactor del monolito install.sh).
+#  Hyprland & Noctalia Installer - Debian 13 (Trixie)
+#  ORQUESTADOR modular.
 #  Original completo respaldado en: install.sh.monolitico.bak
 #
 #  Uso compatible:            sudo ./install.sh
@@ -22,7 +22,7 @@ ORCH_LOG="$LOG_DIR/00-orchestrator-$(date +%d-%H%M%S).log"
 # Compat: además del log por módulo, todo el output va a install.log como antes.
 exec > >(tee -i "$REPO_ROOT/install.log" | tee -a "$ORCH_LOG") 2>&1
 
-echo "=== Hyprland Installer (modular) — Debian Trixie/Forky — $(date) ==="
+echo "=== Hyprland Installer (modular) — Debian 13 Trixie — $(date) ==="
 
 PRESET_FILE=""
 ONLY_LIST=""
@@ -64,7 +64,7 @@ REPOS="ON"; DRIVERS="ON"; BASE="ON"; HYPR="ON"; FONTS="ON"; GREETD="ON"
 DOTS="ON"; NOCTALIA="ON"; PAM="ON"; SERVICES="ON"; GRUB="ON"
 NVIDIA_MODE="auto"
 INSTALL_THUNAR="ON"; INSTALL_MEDIA="ON"; INSTALL_INPUT_GROUP="ON"
-INSTALL_GRUB_THEME="ON"; INSTALL_SDDM="OFF"
+INSTALL_GRUB_THEME="ON"
 INSTALL_FIREFOX="ON"; INSTALL_THUNDERBIRD="OFF"
 WALLPAPER_URL=""; WALLPAPER_DIR=""
 # NOTA: WALLPAPER_DIR se resuelve tras detectar USER_HOME (vacío = default portable).
@@ -121,12 +121,12 @@ if [ "$EUID" -ne 0 ] && [ "$DRY_RUN" != "1" ]; then
     exit 1
 fi
 
-# --- Detección temprana (se exporta a los módulos) ---
+# --- Detección temprana (Debian 13 trixie; se exporta a los módulos) ---
 # shellcheck disable=SC1091
 source /etc/os-release 2>/dev/null || true
 OS_CODENAME="${VERSION_CODENAME:-}"
 if [ -z "$OS_CODENAME" ]; then
-    OS_CODENAME=$(grep -oE 'trixie|forky|bookworm|sid' <<< "${VERSION:-}" | head -n1 || true)
+    OS_CODENAME=$(grep -oE 'trixie' <<< "${VERSION:-}" | head -n1 || true)
 fi
 [ -z "$OS_CODENAME" ] && OS_CODENAME="trixie"
 
@@ -141,7 +141,7 @@ elif lspci 2>/dev/null | grep -iq "amd.*\(vga\|display\|graphics\)\|Advanced Mic
 elif lspci 2>/dev/null | grep -iq "intel.*\(graphics\|display\|vga\)"; then GPU_TYPE="intel"; fi
 if [ "$NVIDIA_MODE" = "OFF" ] && [ "$GPU_TYPE" = "nvidia" ]; then GPU_TYPE="generic"; fi
 
-# WALLPAPER_DIR siempre contra el HOME real (bajo sudo $HOME=/root; ver logs forky 14).
+# WALLPAPER_DIR siempre contra el HOME real (bajo sudo $HOME=/root).
 if [ -z "${WALLPAPER_DIR:-}" ] || [[ "${WALLPAPER_DIR:-}" == /root/* ]]; then
     WALLPAPER_DIR="$USER_HOME/Imágenes/wallpapers/wallpaper"
 fi
@@ -189,12 +189,6 @@ for mod in "${MODULES[@]}"; do
         fi
     fi
 done
-
-# SDDM opcional (no era parte del original; OFF por defecto)
-if [ "${INSTALL_SDDM:-OFF}" = "ON" ] && [ "$DRY_RUN" != "1" ]; then
-    echo "===== [sddm opcional] ====="
-    apt-get install -y --no-install-recommends sddm || true
-fi
 
 echo ""
 echo "Logs por módulo en: $LOG_DIR (y resumen en ./install.log)"

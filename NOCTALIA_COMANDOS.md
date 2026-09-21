@@ -59,7 +59,6 @@ Templates activos (`noctalia/templates.toml`):
 | GTK3/GTK4 + Thunar | builtins `gtk3`/`gtk4` | base `Adwaita-dark` (`adw-gtk3` no está en Debian; opcional manual desde GitHub) |
 | Bordes Hyprland | builtin `hyprland` | genera `~/.config/hypr/noctalia.conf` + `source` (no tocar ese archivo) |
 | Foot | user `foot` | el builtin genera `[colors-dark]` roto; este genera `[colors]` bien |
-| Fuzzel | user `fuzzel` | el community en caché viene sin input; este escribe `themes/noctalia` + `include` |
 | wlogout | user `wlogout` | `style.css` generado (iconos en `~/.local/share/wlogout/icons/`) |
 | hyprlock | user `hyprlock` | `hyprlock.conf` generado (fondo = `wallpaper.jpg` del hook) |
 | Neovim | user `nvim_base16` | `matugen.lua` + plugin `base16-nvim` (reemplaza gruvbox) |

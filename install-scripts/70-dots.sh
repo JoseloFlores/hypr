@@ -7,13 +7,13 @@ common_init "70-dots"
 log "7/10 Desplegando configuraciones en $USER_HOME/.config..."
 
 if [ "$DRY_RUN" = "1" ]; then
-    echo "[DRY-RUN] cp hyprland.conf hypridle.conf foot.ini fuzzel.ini noctalia/{*.toml,templates,hooks} systemd/user/* wlogout/layout+icons scripts a $USER_HOME/.config + wallpapers download (\$WALLPAPER_URL -> \$WALLPAPER_DIR)" | tee -a "$LOG"
+    echo "[DRY-RUN] cp hyprland.conf hypridle.conf foot.ini noctalia/{*.toml,templates,hooks} systemd/user/* wlogout/layout+icons scripts a $USER_HOME/.config + wallpapers download (\$WALLPAPER_URL -> \$WALLPAPER_DIR)" | tee -a "$LOG"
     exit 0
 fi
 
 DOTS_CONF="$USER_HOME/.config"
 sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p \
-    "$DOTS_CONF/hypr" "$DOTS_CONF/noctalia" "$DOTS_CONF/foot" "$DOTS_CONF/fuzzel" \
+    "$DOTS_CONF/hypr" "$DOTS_CONF/noctalia" "$DOTS_CONF/foot" \
     "$DOTS_CONF/systemd/user" "$DOTS_CONF/wlogout"
 
 for src in hyprland.conf hypridle.conf; do
@@ -28,7 +28,7 @@ if [ -f "$SCRIPT_DIR/wallpaper.jpg" ]; then
     log "-> semilla wallpaper.jpg copiada a $DOTS_CONF/hypr/ (legado, no versionar)"
 fi
 
-for src in confirm_power.sh power_menu.sh auto_timezone.sh screen_recorder.sh; do
+for src in confirm_power.sh auto_timezone.sh screen_recorder.sh; do
     if [ -f "$SCRIPT_DIR/$src" ]; then
         sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/$src" "$DOTS_CONF/hypr/"
         chmod +x "$DOTS_CONF/hypr/$src" 2>/dev/null || true
@@ -111,12 +111,10 @@ if [ -d "$SCRIPT_DIR/systemd/user" ]; then
     fi
 fi
 
-for app in foot fuzzel; do
-    if [ -f "$SCRIPT_DIR/$app.ini" ] && [ ! -f "$DOTS_CONF/$app/$app.ini" ]; then
-        sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/$app.ini" "$DOTS_CONF/$app/$app.ini"
-        log "-> $app.ini desplegado en $DOTS_CONF/$app/"
-    fi
-done
+if [ -f "$SCRIPT_DIR/foot.ini" ] && [ ! -f "$DOTS_CONF/foot/foot.ini" ]; then
+    sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/foot.ini" "$DOTS_CONF/foot/foot.ini"
+    log "-> foot.ini desplegado en $DOTS_CONF/foot/"
+fi
 
 HYPR_CONF="$DOTS_CONF/hypr/hyprland.conf"
 if [ "$GPU_TYPE" = "nvidia" ] && [ -f "$HYPR_CONF" ]; then

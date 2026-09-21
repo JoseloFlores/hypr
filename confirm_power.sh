@@ -20,6 +20,6 @@ export GTK_A11Y=none
 
 # Usamos zenity para un diálogo fiable
 if zenity --question --text="$1" --title="Confirmar" --width=300; then
-    echo "Ejecutando: $2" >> /tmp/power_menu.log
-    eval "$2" >> /tmp/power_menu.log 2>&1
+    echo "Ejecutando: $2" >> /tmp/power_confirm.log
+    eval "$2" >> /tmp/power_confirm.log 2>&1
 fi

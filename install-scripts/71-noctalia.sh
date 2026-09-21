@@ -13,19 +13,9 @@ fi
 
 log "7b/10 Instalando Noctalia v5 + deps runtime..."
 
-# Candidatas por OS. Forky no tiene suite propia (solo trixie/unstable en
-# pkg.noctalia.dev 2026-09): se prueba trixie primero (libwebp 1.5, la que trae
-# forky-testing) y luego unstable (libwebp 1.6 de sid). Ver logs forky 14.
-case "${OS_CODENAME:-trixie}" in
-    trixie) NOCTALIA_CANDIDATES="noctalia-trixie" ;;
-    forky) NOCTALIA_CANDIDATES="noctalia-trixie noctalia-unstable" ;;
-    sid|unstable) NOCTALIA_CANDIDATES="noctalia-unstable" ;;
-    *)
-        log_error "OS '$OS_CODENAME' sin suite Noctalia (solo trixie/forky/sid)."
-        exit 1
-        ;;
-esac
-log "-> suites candidatas: $NOCTALIA_CANDIDATES (Debian $OS_CODENAME)"
+# Debian 13: suite única noctalia-trixie (pkg.noctalia.dev).
+NOCTALIA_SUITE="noctalia-trixie"
+log "-> suite Noctalia: $NOCTALIA_SUITE (Debian trixie)"
 
 run_bash "keyring noctalia" \
     bash -c 'wget -q https://pkg.noctalia.dev/deb/nickh-archive-keyring.deb -O /tmp/nickh-archive-keyring.deb && dpkg -i /tmp/nickh-archive-keyring.deb'
@@ -34,33 +24,25 @@ run_bash "keyring noctalia" \
 apt_install_resilient upower power-profiles-daemon brightnessctl cliphist wl-clipboard || true
 
 if [ "$DRY_RUN" = "1" ]; then
-    for _s in $NOCTALIA_CANDIDATES; do
-        echo "[DRY-RUN] suite $_s -> /etc/apt/sources.list.d/$_s.sources + apt update + apt install noctalia" | tee -a "$LOG"
-    done
+    echo "[DRY-RUN] suite $NOCTALIA_SUITE -> /etc/apt/sources.list.d/$NOCTALIA_SUITE.sources + apt update + apt install noctalia" | tee -a "$LOG"
     echo "[DRY-RUN] deploy noctalia/*.toml a $USER_HOME/.config/noctalia + noctalia --version + config validate" | tee -a "$LOG"
     exit 0
 fi
 
-# --- Intento de instalación por suites candidatas (no bloqueante) ---
-for NOCTALIA_SUITE in $NOCTALIA_CANDIDATES; do
-    log "-> probando suite $NOCTALIA_SUITE..."
-    if ! bash -c "wget -q -O /etc/apt/sources.list.d/$NOCTALIA_SUITE.sources https://pkg.noctalia.dev/deb/$NOCTALIA_SUITE.sources"; then
-        log_warn "no se pudo descargar $NOCTALIA_SUITE.sources, siguiente candidata."
-        rm -f "/etc/apt/sources.list.d/$NOCTALIA_SUITE.sources"
-        continue
-    fi
-    if ! apt_update_resilient; then
-        log_warn "apt update falló con $NOCTALIA_SUITE, siguiente candidata."
-        rm -f "/etc/apt/sources.list.d/$NOCTALIA_SUITE.sources"
-        continue
-    fi
-    if apt_install_resilient noctalia; then
-        log "-> suite que funcionó: $NOCTALIA_SUITE"
-        break
-    fi
-    log_warn "noctalia no instalable con $NOCTALIA_SUITE (dependencias), siguiente candidata."
+# --- Instalación suite trixie (no bloqueante) ---
+log "-> probando suite $NOCTALIA_SUITE..."
+if ! bash -c "wget -q -O /etc/apt/sources.list.d/$NOCTALIA_SUITE.sources https://pkg.noctalia.dev/deb/$NOCTALIA_SUITE.sources"; then
+    log_warn "no se pudo descargar $NOCTALIA_SUITE.sources."
     rm -f "/etc/apt/sources.list.d/$NOCTALIA_SUITE.sources"
-done
+elif ! apt_update_resilient; then
+    log_warn "apt update falló con $NOCTALIA_SUITE."
+    rm -f "/etc/apt/sources.list.d/$NOCTALIA_SUITE.sources"
+elif apt_install_resilient noctalia; then
+    log "-> suite que funcionó: $NOCTALIA_SUITE"
+else
+    log_warn "noctalia no instalable con $NOCTALIA_SUITE (dependencias)."
+    rm -f "/etc/apt/sources.list.d/$NOCTALIA_SUITE.sources"
+fi
 
 # --- ~/.config/noctalia (sin pisar config del usuario si ya existe) ---
 # Se despliega aunque el paquete falle: el reintento posterior solo reinstala el .deb.
@@ -113,10 +95,10 @@ if command -v noctalia >/dev/null 2>&1; then
     fi
     exit 0
 fi
-# Sin binario tras probar todas las candidatas: NO bloquea el instalador.
+# Sin binario: NO bloquea el instalador.
 # 90-services/95-grub/99-final-check siguen; el reintento es solo este módulo.
 touch "$LOG_DIR/noctalia-missing.flag" 2>/dev/null || true
-log_warn "Noctalia no instalable en Debian $OS_CODENAME con: $NOCTALIA_CANDIDATES."
+log_warn "Noctalia no instalable en Debian trixie con suite: $NOCTALIA_SUITE."
 log_warn "Hyprland queda usable sin shell Noctalia. Reintenta luego:"
 log_warn "  sudo ./install.sh --only 71-noctalia,99-final-check"
 exit 0

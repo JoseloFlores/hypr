@@ -10,17 +10,9 @@ mode = "dark"
 [theme.templates]
 enable_builtin_templates = true
 builtin_ids = ["gtk3", "gtk4", "hyprland"]
-# Community desactivado: el template fuzzel en caché viene sin input (roto);
-# fuzzel va por user-template propio (ver abajo).
+# Community desactivado: solo usamos user-templates propios y probados.
 enable_community_templates = false
 community_ids = []
-
-# Fuzzel: theme separado + include (fuzzel 1.12 soporta include con scope propio).
-[theme.templates.user.fuzzel]
-input_path = "templates/fuzzel.ini"
-output_path = "$XDG_CONFIG_HOME/fuzzel/themes/noctalia"
-post_hook = "bash '{{ config_dir }}/hooks/fuzzel-apply.sh'"
-hook_async = false
 
 # Foot: el template builtin genera [colors-dark] (roto) → user-template propio.
 [theme.templates.user.foot]

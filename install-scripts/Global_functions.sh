@@ -106,15 +106,12 @@ apt_update_resilient() {
 }
 
 apt_hypr_stack() {
-    if [ "${OS_CODENAME:-trixie}" = "trixie" ]; then
-        if [ "$DRY_RUN" = "1" ]; then
-            echo "[DRY-RUN] apt-get install -y --no-install-recommends -t trixie-backports $*" | tee -a "$LOG"
-            return 0
-        fi
-        apt_install_resilient -t trixie-backports "$@"
-    else
-        apt_install_resilient "$@"
+    # Debian 13: Hyprland vive en trixie-backports.
+    if [ "$DRY_RUN" = "1" ]; then
+        echo "[DRY-RUN] apt-get install -y --no-install-recommends -t trixie-backports $*" | tee -a "$LOG"
+        return 0
     fi
+    apt_install_resilient -t trixie-backports "$@"
 }
 
 # --- Detección compartida (idempotente, con fallback si el orquestador no exportó) ---
@@ -141,7 +138,7 @@ detect_os() {
     source /etc/os-release 2>/dev/null || true
     OS_CODENAME="${VERSION_CODENAME:-}"
     if [ -z "$OS_CODENAME" ]; then
-        OS_CODENAME=$(grep -oE 'trixie|forky|bookworm|sid' <<< "${VERSION:-}" | head -n1 || true)
+        OS_CODENAME=$(grep -oE 'trixie' <<< "${VERSION:-}" | head -n1 || true)
     fi
     if [ -z "$OS_CODENAME" ]; then
         log_warn "No se pudo detectar VERSION_CODENAME, usando 'trixie' por defecto."
@@ -150,8 +147,8 @@ detect_os() {
     if [ "${ID:-}" != "debian" ]; then
         log_warn "ID detectado es '${ID:-desconocido}', esperado 'debian'. Continuando de todos modos."
     fi
-    if [[ "$OS_CODENAME" != "trixie" && "$OS_CODENAME" != "forky" ]]; then
-        log_warn "OS detectado es $OS_CODENAME. Pensado para trixie o forky."
+    if [[ "$OS_CODENAME" != "trixie" ]]; then
+        log_warn "OS detectado es $OS_CODENAME. Este instalador es solo para Debian 13 trixie."
     fi
     export OS_CODENAME
 }

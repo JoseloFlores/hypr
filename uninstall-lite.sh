@@ -22,7 +22,7 @@ rm -f "$DOTS_CONF/systemd/user/auto-timezone.service" "$DOTS_CONF/systemd/user/a
 echo "-> Borrando dots desplegados por este repo (se conserva backup con fecha)..."
 BAK="$USER_HOME/.config.hypr-bak-$(date +%Y%m%d-%H%M%S)"
 mkdir -p "$BAK"
-for d in hypr noctalia foot fuzzel; do
+for d in hypr noctalia foot; do
     [ -e "$DOTS_CONF/$d" ] && mv "$DOTS_CONF/$d" "$BAK/$(echo "$d" | tr '/' '_')" 2>/dev/null || true
 done
 echo "Backup en: $BAK"

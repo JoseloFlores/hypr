@@ -33,5 +33,3 @@ INSTALL_THUNDERBIRD="OFF"
 WALLPAPER_URL=""
 # Vacío = default ~/Imágenes/wallpapers/wallpaper del usuario real (no usar $HOME: bajo sudo es /root).
 WALLPAPER_DIR=""
-# SDDM opcional: OFF por defecto (greetd es el login del repo). ON solo instala sddm sin tema.
-INSTALL_SDDM="OFF"

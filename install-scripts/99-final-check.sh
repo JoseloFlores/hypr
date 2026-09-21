@@ -21,11 +21,11 @@ check_pkg() {
     fi
 }
 
-for p in noctalia hyprland tuigreet xdg-desktop-portal-hyprland greetd foot fuzzel network-manager brightnessctl wl-clipboard; do
+for p in noctalia hyprland tuigreet xdg-desktop-portal-hyprland greetd foot network-manager brightnessctl wl-clipboard; do
     check_pkg "$p"
 done
 
-for b in Hyprland noctalia tuigreet foot fuzzel hyprlock hypridle nmcli brightnessctl; do
+for b in Hyprland noctalia tuigreet foot hyprlock hypridle nmcli brightnessctl; do
     if command -v "$b" >/dev/null 2>&1; then
         echo "[OK] bin $b: $(command -v "$b")"
     else
@@ -50,7 +50,7 @@ else
     else
         echo "[FALTA] noctalia config inválida (revisa ~/.config/noctalia/)"
     fi
-    for f in templates.toml templates/foot.ini templates/fuzzel.ini templates/wlogout.css templates/hyprlock.conf templates/matugen-template.lua hooks/foot-apply.sh hooks/fuzzel-apply.sh hooks/sync-lock-wallpaper.sh; do
+    for f in templates.toml templates/foot.ini templates/wlogout.css templates/hyprlock.conf templates/matugen-template.lua hooks/foot-apply.sh hooks/sync-lock-wallpaper.sh; do
         if [ -f "${USER_HOME:-$HOME}/.config/noctalia/$f" ]; then
             echo "[OK] noctalia/$f"
         else
@@ -84,9 +84,9 @@ if pkg_installed hyprland; then
         echo "¡INSTALACIÓN COMPLETADA!" | tee -a "$LOG"
     else
         echo "¡INSTALACIÓN COMPLETADA CON ADVERTENCIA! Hyprland OK, falta Noctalia." | tee -a "$LOG"
-        echo "Causa probable en forky: skew testing/unstable (libwebp). Reintenta luego:" | tee -a "$LOG"
+        echo "Reintenta luego:" | tee -a "$LOG"
         echo "  sudo ./install.sh --only 71-noctalia,99-final-check" | tee -a "$LOG"
-        echo "Sin Noctalia el sistema arranca a Hyprland (sin barra/launcher); fuzzel (SUPER+D) cubre el lanzamiento." | tee -a "$LOG"
+        echo "Sin Noctalia el sistema arranca a Hyprland (sin barra/launcher)." | tee -a "$LOG"
     fi
     if [ "${GPU_TYPE:-generic}" = "nvidia" ]; then
         echo "AVISO NVIDIA: añade 'nvidia-drm.modeset=1' a GRUB_CMDLINE_LINUX en /etc/default/grub y ejecuta: update-grub" | tee -a "$LOG"

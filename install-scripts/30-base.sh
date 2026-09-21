@@ -15,12 +15,12 @@ BASE_PKGS=(
     alsa-utils alsa-ucm-conf libspa-0.2-bluetooth
     bluez blueman
     wl-clipboard cliphist brightnessctl playerctl
-    foot fuzzel grim slurp swappy wf-recorder
+    foot grim slurp swappy wf-recorder wlogout
     xdg-desktop-portal xdg-desktop-portal-gtk xdg-user-dirs
     nwg-look
     vim zenity
     # mako-notifier: provee el virtual notification-daemon que blueman exige.
-    # Sin proveedor explícito apt arrastra cinnamon/muffin/nemo (ver logs forky 14).
+    # Sin proveedor explícito apt arrastra cinnamon/muffin/nemo.
     # Nunca se autostartea: Noctalia es quien sirve las notificaciones.
     mako-notifier
     fonts-jetbrains-mono fonts-noto-color-emoji fonts-firacode
@@ -40,7 +40,7 @@ if [ "${INSTALL_THUNAR:-ON}" != "OFF" ]; then
     BASE_PKGS+=(thunar thunar-archive-plugin thunar-volman xarchiver tumbler ffmpegthumbnailer)
 fi
 if [ "${INSTALL_MEDIA:-ON}" != "OFF" ]; then
-    BASE_PKGS+=(imv swayimg mpv)
+    BASE_PKGS+=(imv mpv)
 fi
 if [ "${INSTALL_ZSH_EXTRA:-OFF}" = "ON" ]; then
     BASE_PKGS+=(zsh)
@@ -49,7 +49,7 @@ fi
 apt_install_resilient "${BASE_PKGS[@]}"
 apt_hypr_stack xdg-desktop-portal-hyprland || true
 # hyprpolkitagent anticipado (40-hypr lo reinstala, no-op): satisface el virtual
-# polkit-1-auth-agent de nm-applet y evita que apt arrastre cinnamon (ver logs forky 14).
+# polkit-1-auth-agent de nm-applet y evita que apt arrastre cinnamon.
 apt_hypr_stack hyprpolkitagent || true
 
 run_cmd systemctl enable bluetooth || true
