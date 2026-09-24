@@ -12,11 +12,11 @@ Instalador **modular y seguro**: 12 pasitos re-ejecutables en `install-scripts/`
 
 ## 🎬 Demo
 
-<video src="https://raw.githubusercontent.com/JoseloFlores/hypr/master/preview.mp4" controls muted loop playsinline width="100%">
-  Tu navegador no soporta video. <a href="https://github.com/JoseloFlores/hypr/blob/master/preview.mp4">Ver preview.mp4</a>
+<video src="https://github.com/JoseloFlores/hypr/releases/download/demo/preview.mp4" poster="./preview.png" controls muted loop playsinline width="100%">
+  Tu navegador no soporta video. <a href="https://github.com/JoseloFlores/hypr/releases/download/demo/preview.mp4">Ver/descargar demo</a>
 </video>
 
-https://github.com/JoseloFlores/hypr/blob/master/preview.mp4
+[![Ver demo](./preview.png)](https://github.com/JoseloFlores/hypr/releases/download/demo/preview.mp4)
 
 ---
 
@@ -61,7 +61,7 @@ hypr/
 ├── confirm_power.sh / screen_recorder.sh / auto_timezone.sh
 ├── hypridle.conf
 ├── systemd/user/            # auto-timezone.service + .timer (zona horaria al viajar)
-├── preview.mp4              # demo del escritorio
+├── preview.mp4 + preview.png  # demo del escritorio (video + miniatura)
 └── NOCTALIA_COMANDOS.md     # chuleta de Noctalia ([ver](./NOCTALIA_COMANDOS.md))
 ```
 
