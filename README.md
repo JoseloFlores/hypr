@@ -16,7 +16,7 @@ Instalador **modular y seguro**: 12 pasitos re-ejecutables en `install-scripts/`
   Tu navegador no soporta video. <a href="https://github.com/JoseloFlores/hypr/releases/download/demo/preview.mp4">Ver/descargar demo</a>
 </video>
 
-[![Ver demo](./preview.png)](https://github.com/JoseloFlores/hypr/releases/download/demo/preview.mp4)
+![Demo del escritorio](./preview.png)
 
 ---
 
