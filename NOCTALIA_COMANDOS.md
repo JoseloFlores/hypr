@@ -54,6 +54,7 @@ noctalia msg plugin h-jangra/region-recorder:service all record-fullscreen
 noctalia msg plugin h-jangra/region-recorder:service all select-region
 noctalia msg plugin h-jangra/region-recorder:service all stop
 ~/.config/hypr/noctalia-plugins-apply.sh   # re-aplica plugin+parche (idempotente)
+# (en este repo: noctalia/plugins-apply.sh)
 ```
 
 Notas:

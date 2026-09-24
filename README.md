@@ -10,6 +10,12 @@
 
 Instalador **modular y seguro**: 12 pasitos re-ejecutables en `install-scripts/`, con presets, modo simulación (`dry-run`) y chequeo final.
 
+## 🎬 Demo
+
+<video src="./preview.mp4" controls muted loop playsinline width="100%">
+  Tu navegador no soporta video. <a href="./preview.mp4">Ver preview.mp4</a>
+</video>
+
 ---
 
 ## ✨ ¿Qué te llevas?
@@ -43,14 +49,18 @@ hypr/
 ├── noctalia/                # theming y shell
 │   ├── bar-monitors.toml    # barra solo en la laptop (ajusta tu conector)
 │   ├── templates.toml       # paleta + templates + rotación de fondo
-│   └── templates/ + hooks/  # foot, wlogout, hyprlock, neovim
+│   ├── templates/           # foot.ini, hyprlock.conf, wlogout.css, matugen-template.lua
+│   ├── hooks/               # foot-apply.sh, sync-lock-wallpaper.sh
+│   ├── plugins-apply.sh     # re-aplica plugin grabador + parche (idempotente)
+│   └── plugins/region-recorder-wf-fix.patch
 ├── foot.ini                 # terminal (los colores los pone Noctalia)
 ├── nvim/                    # Neovim con base16 (lazy.nvim baja los plugins)
-├── wlogout/                 # menú de apagado (el estilo lo genera Noctalia)
+├── wlogout/                 # menú de apagado: layout + icons/ (style.css lo genera Noctalia)
 ├── confirm_power.sh / screen_recorder.sh / auto_timezone.sh
 ├── hypridle.conf
-├── systemd/user/            # timer que ajusta tu zona horaria al viajar
-└── NOCTALIA_COMANDOS.md     # chuleta de Noctalia
+├── systemd/user/            # auto-timezone.service + .timer (zona horaria al viajar)
+├── preview.mp4              # demo del escritorio
+└── NOCTALIA_COMANDOS.md     # chuleta de Noctalia ([ver](./NOCTALIA_COMANDOS.md))
 ```
 
 ---
@@ -204,7 +214,7 @@ systemctl --user enable --now auto-timezone.timer   # si no estaba activo
 
 ## 📜 Licencia y gracias
 
-Dotfiles bajo MIT. Hyprland es BSD-3.
+Dotfiles bajo MIT (ver `LICENSE`). Hyprland es BSD-3.
 
 Gracias a [Hyprland](https://hypr.land), [Noctalia](https://noctalia.dev), [Nerd Fonts](https://www.nerdfonts.com) y la idea modular inspirada en [Debian-Hyprland (KooL Dots)](https://github.com/LinuxBeginnings/Debian-Hyprland) (aquí todo vía `apt`, sin compilar).
 
