@@ -62,6 +62,38 @@ else
     else
         echo "[FALTA] nvim themes.lua (re-ejecuta 70-dots o revisa INSTALL de nvim)"
     fi
+    # Grabación de pantalla (plugin region-recorder + parche wf-recorder)
+    if [ "${NOCTALIA_PLUGINS:-ON}" = "OFF" ]; then
+        echo "[INFO] plugins Noctalia omitidos por preset (NOCTALIA_PLUGINS=OFF)"
+    else
+        if [ -d "${USER_HOME:-$HOME}/Vídeos/Recordings" ]; then
+            echo "[OK] ~/Vídeos/Recordings (destino region-recorder)"
+        else
+            echo "[FALTA] ~/Vídeos/Recordings (re-ejecuta 71-noctalia)"
+        fi
+        if [ -f "${USER_HOME:-$HOME}/.config/hypr/noctalia-plugins-apply.sh" ]; then
+            echo "[OK] noctalia-plugins-apply.sh desplegado (re-ejecutable tras login)"
+        else
+            echo "[FALTA] noctalia-plugins-apply.sh (re-ejecuta 70-dots)"
+        fi
+        # Estado persisted en settings.toml (vale sin instancia corriendo; `msg`
+        # requiere socket Wayland que sudo no hereda).
+        if grep -q 'h-jangra/region-recorder' "${USER_HOME:-$HOME}/.local/state/noctalia/settings.toml" 2>/dev/null; then
+            echo "[OK] plugin h-jangra/region-recorder en settings.toml"
+        else
+            echo "[FALTA] plugin h-jangra/region-recorder no configurado (ejecuta ~/.config/hypr/noctalia-plugins-apply.sh)"
+        fi
+        if [ -f "${USER_HOME:-$HOME}/.local/state/noctalia/plugins/materialized/community/region-recorder/service.luau" ]; then
+            echo "[OK] plugin region-recorder materializado"
+        else
+            echo "[INFO] plugin region-recorder aún no materializado (requiere red + primer login)"
+        fi
+        if grep -q "LOCAL FIX" "${USER_HOME:-$HOME}/.local/state/noctalia/plugins/materialized/community/region-recorder/service.luau" 2>/dev/null; then
+            echo "[OK] parche wf-recorder aplicado en region-recorder"
+        else
+            echo "[FALTA] parche wf-recorder no aplicado (ejecuta ~/.config/hypr/noctalia-plugins-apply.sh)"
+        fi
+    fi
 fi
 
 echo "Greetd: $(systemctl is-enabled greetd 2>&1 || echo 'no habilitado')"

@@ -25,7 +25,7 @@ apt_install_resilient upower power-profiles-daemon brightnessctl cliphist wl-cli
 
 if [ "$DRY_RUN" = "1" ]; then
     echo "[DRY-RUN] suite $NOCTALIA_SUITE -> /etc/apt/sources.list.d/$NOCTALIA_SUITE.sources + apt update + apt install noctalia" | tee -a "$LOG"
-    echo "[DRY-RUN] deploy noctalia/*.toml a $USER_HOME/.config/noctalia + noctalia --version + config validate" | tee -a "$LOG"
+    echo "[DRY-RUN] deploy noctalia/*.toml a $USER_HOME/.config/noctalia + ~/Vídeos/Recordings + NOCTALIA_PLUGINS apply + noctalia --version + config validate" | tee -a "$LOG"
     exit 0
 fi
 
@@ -65,6 +65,24 @@ if [ ! -e "$USER_HOME/Imágenes/Capturas" ]; then
         && log "-> symlink Imágenes/Capturas -> Pictures/Capturas" || true
 fi
 chown -R "$REAL_USER":"$REAL_USER" "$USER_HOME/Pictures/Capturas" 2>/dev/null || true
+
+# --- ~/Vídeos/Recordings (destino del plugin region-recorder) ---
+sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p "$USER_HOME/Vídeos/Recordings"
+chown -R "$REAL_USER":"$REAL_USER" "$USER_HOME/Vídeos/Recordings" 2>/dev/null || true
+
+# --- Plugins Noctalia del repo (region-recorder + parche wf-recorder) ---
+# Best-effort: si Noctalia no corre aún, deja settings.toml listo y avisa re-ejecutar.
+if [ "${NOCTALIA_PLUGINS:-ON}" = "OFF" ]; then
+    log "Plugins Noctalia desactivados por preset (NOCTALIA_PLUGINS=OFF), se omite."
+elif [ "$DRY_RUN" = "1" ]; then
+    echo "[DRY-RUN] NOCTALIA_PLUGINS apply (settings merge + enable + patch + reload)" | tee -a "$LOG"
+elif [ -f "$SCRIPT_DIR/../noctalia/plugins-apply.sh" ]; then
+    sudo -u "$REAL_USER" env HOME="$USER_HOME" \
+        NOCTALIA_PLUGINS=ON REPO_ROOT="$(dirname "$SCRIPT_DIR")" DRY_RUN=0 \
+        bash "$SCRIPT_DIR/../noctalia/plugins-apply.sh" >>"$LOG" 2>&1 \
+        && log "-> plugins Noctalia aplicados" \
+        || log_warn "plugins-apply.sh no completó (¿Noctalia sin arrancar?). Re-ejecuta tras el primer login: ~/.config/hypr/noctalia-plugins-apply.sh"
+fi
 
 # --- GTK oscuro base (los templates gtk3/gtk4 de Noctalia ponen los colores) ---
 # adw-gtk3 no está en repos Debian: Adwaita-dark + import noctalia.css es suficiente.

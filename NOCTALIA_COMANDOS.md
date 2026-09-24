@@ -40,6 +40,27 @@ En TOML: listas `start/center/end` bajo `[bar.default]` y ajustes
 por widget bajo `[widget.<nombre>]`. Tras editar:
 `noctalia config validate && noctalia msg config-reload`.
 
+## Grabación de pantalla (vídeo)
+
+Dos vías que conviven (fotos siguen en el widget `screenshot`):
+
+| Vía | Uso | Destino |
+|---|---|---|
+| Widget `recorder` (plugin `h-jangra/region-recorder`) | click izq = región (slurp), click der = pantalla completa / detener | `~/Vídeos/Recordings/` |
+| `screen_recorder.sh` (fallback sin plugin) | `Print+SHIFT` = área, `Print+CTRL` = full (`~/.config/hypr/screen_recorder.sh area\|full`) | `~/Pictures/Capturas/` |
+
+```bash
+noctalia msg plugin h-jangra/region-recorder:service all record-fullscreen
+noctalia msg plugin h-jangra/region-recorder:service all select-region
+noctalia msg plugin h-jangra/region-recorder:service all stop
+~/.config/hypr/noctalia-plugins-apply.sh   # re-aplica plugin+parche (idempotente)
+```
+
+Notas:
+- Sin audio, 30 fps, h264 por defecto (cambia en Settings → Plugins → Region Recorder).
+- El plugin oficial `noctalia/screen_recorder` (gpu-screen-recorder) **no va en este HW**: el portal no entrega frames dmabuf/GPU y el Flatpak no conecta su servidor KMS. No instalarlo en reinstall.
+- El plugin trae 2 bugs con `wf-recorder` (codec `h264` en vez de `libx264`, y sin `-o` pregunta monitor y muere sin TTY). Este repo los corrige con `noctalia/plugins/region-recorder-wf-fix.patch`, protegido con `auto_update = "official"`. Si haces `plugins update community` a mano, re-ejecuta `noctalia-plugins-apply.sh`.
+
 ## Fondo de pantalla
 
 El fondo lo dibuja Noctalia (sin `swaybg`):

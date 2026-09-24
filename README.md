@@ -92,7 +92,7 @@ sudo ./install-scripts/70-dots.sh                 # un módulo suelto, cualquier
 | `50-fonts` | Meslo Nerd Font + símbolos, en tu `~/.local/share/fonts` |
 | `60-greetd` | Login bonito en `tty1` |
 | `70-dots` | Copia mis configs a tu `~/.config` (sin pisar tu Noctalia/nvim si ya existen) |
-| `71-noctalia` | Instala Noctalia (`noctalia-trixie`) + valida tu config |
+| `71-noctalia` | Instala Noctalia (`noctalia-trixie`) + plugin grabador `region-recorder` con parche wf-recorder + valida tu config |
 | `80-pam-portals` | Keyring desbloqueado al entrar + diálogos de archivo GTK |
 | `90-services` | Red con NetworkManager, Bluetooth y greetd activados |
 | `95-grub` | GRUB gráfico de Debian |

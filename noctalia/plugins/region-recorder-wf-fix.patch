@@ -1,0 +1,37 @@
+# Parche portable para h-jangra/region-recorder (wf-recorder en Debian trixie, multi-monitor).
+# Aplicar dentro del dir materializado del plugin con: patch -p1 --forward < este-archivo
+# Origen: ~/.config/noctalia/region-recorder-wf-fix.patch
+# Si `patch` reporta "Reversed (or previously applied)", ya está aplicado: OK.
+# Si falla un hunk tras actualizar el plugin, revisa service.luau a mano.
+--- a/service.luau
++++ b/service.luau
+@@ -78,8 +78,17 @@
+         return table.concat(parts, " ")
+     elseif noctalia.commandExists("wf-recorder") then
+         recordingProcessName = "wf-recorder"
+-        local parts = { "wf-recorder", string.format("-f %s", shellQuote(targetPath)), string.format("-r %d", fps), string.format("-c %s", codec) }
++        -- LOCAL FIX (Debian trixie, multi-monitor): wf-recorder expects ffmpeg
++        -- encoder names (libx264…), not short names (h264…); and without -o it
++        -- prompts for output on stdin and dies headless when 2+ monitors exist.
++        local wfCodec = if codec == "hevc" then "libx265" elseif codec == "av1" then "libaom-av1" else "libx264"
++        local parts = { "wf-recorder", string.format("-f %s", shellQuote(targetPath)), string.format("-r %d", fps), string.format("-c %s", wfCodec) }
+         if geom and geom ~= "" and geom ~= "screen" then table.insert(parts, string.format("-g %s", shellQuote(geom))) end
++        if geom == "screen" or geom == "" then
++            local focused = (noctalia.focusedOutputName and noctalia.focusedOutputName()) or "eDP-1"
++            if focused == "" then focused = "eDP-1" end
++            table.insert(parts, string.format("-o %s", shellQuote(focused)))
++        end
+         if audioSource ~= "none" then table.insert(parts, "-a") end
+         return table.concat(parts, " ")
+     end
+@@ -138,7 +147,9 @@
+ 
+     local savedPath = outputPath
+     setState("idle")
+-    noctalia.runAsync(string.format("sleep 0.5; test -s %s", targetEscaped), function(res)
++    -- LOCAL FIX: wf-recorder tarda en finalizar/muxear el mp4 tras SIGINT;
++    -- reintentar la comprobación durante ~6s antes de darlo por perdido.
++    noctalia.runAsync(string.format("for i in 1 2 3 4 5 6; do test -s %s && break; sleep 1; done; test -s %s", targetEscaped, targetEscaped), function(res)
+         if res.exitCode == 0 then
+             log(`recording saved successfully: {savedPath}`)
+             noctalia.notify(noctalia.tr("notify.recording_saved"):format(savedPath), savedPath)
