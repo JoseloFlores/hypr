@@ -12,7 +12,7 @@ Instalador **modular y seguro**: 12 pasitos re-ejecutables en `install-scripts/`
 
 ## 🎬 Demo
 
-<video src="https://github.com/JoseloFlores/hypr/releases/download/demo/preview.mp4" poster="./preview.png" controls muted loop playsinline width="100%">
+<video src="https://github.com/user-attachments/assets/c4aea930-48fc-4d0a-ba01-5023112762f3" poster="./preview.png" controls muted loop playsinline width="100%">
   Tu navegador no soporta video. <a href="https://github.com/JoseloFlores/hypr/releases/download/demo/preview.mp4">Ver/descargar demo</a>
 </video>
 
