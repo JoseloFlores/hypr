@@ -19,6 +19,10 @@ sudo -u "$REAL_USER" env HOME="$USER_HOME" mkdir -p \
 for src in hyprland.conf hypridle.conf; do
     if [ -f "$SCRIPT_DIR/$src" ]; then
         sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/$src" "$DOTS_CONF/hypr/"
+        # Cambiar terminal por defecto de foot a alacritty si existe en el config
+        if [ "$src" = "hyprland.conf" ] && [ -f "$DOTS_CONF/hypr/$src" ]; then
+            sudo -u "$REAL_USER" env HOME="$USER_HOME" sed -i 's/\$terminal = foot/\$terminal = alacritty/g' "$DOTS_CONF/hypr/$src" 2>/dev/null || true
+        fi
     fi
 done
 # Semilla local opcional (no versionada): si existe en el repo se usa como fallback.
