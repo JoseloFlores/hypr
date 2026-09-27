@@ -15,19 +15,27 @@ if command -v pam-auth-update &>/dev/null; then
     pam-auth-update --enable gnome-keyring || true
 fi
 
+# greetd trae su propio /etc/pam.d/greetd por paquete: el `if ! -f` original
+# nunca lo parcheaba y el llavero quedaba bloqueado -> Chrome pedía contraseña.
+# Orden correcto (portable, idempotente): auth pam_gnome_keyring DESPUÉS de
+# common-auth (necesita el authtok de pam_unix) y session auto_start al final.
+# Se normaliza siempre: vale para el archivo empaquetado y para el creado aquí.
 if [ ! -f /etc/pam.d/greetd ]; then
     cat > /etc/pam.d/greetd <<'PAMGREETD'
 #%PAM-1.0
-auth    requisite       pam_nologin.so
-auth    required        pam_env.so
-auth    optional        pam_gnome_keyring.so
 @include common-auth
+auth    optional        pam_gnome_keyring.so
 @include common-account
 @include common-session
 session optional        pam_gnome_keyring.so auto_start
 @include common-password
 PAMGREETD
 fi
+# Limpia líneas previas (evita duplicados y corrige el auth-antes-de-common-auth
+# que trae Debian y que dejaba el llavero `login` bloqueado).
+sed -i '/pam_gnome_keyring\.so/d' /etc/pam.d/greetd
+sed -i '/@include common-auth/a auth    optional        pam_gnome_keyring.so' /etc/pam.d/greetd
+echo 'session optional        pam_gnome_keyring.so auto_start' >> /etc/pam.d/greetd
 
 mkdir -p /etc/xdg/xdg-desktop-portal
 if [ ! -f /etc/xdg/xdg-desktop-portal/hyprland-portals.conf ]; then

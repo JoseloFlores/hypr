@@ -99,6 +99,33 @@ fi
 echo "Greetd: $(systemctl is-enabled greetd 2>&1 || echo 'no habilitado')"
 echo "auto-timezone.timer (user $REAL_USER): $(sudo -u "$REAL_USER" env HOME="$USER_HOME" systemctl --user is-enabled auto-timezone.timer 2>&1 || echo 'no habilitado/sin sesión')"
 
+# Llavero: PAM solo auto-desbloquea el llavero `login` (misma clave que el login).
+# Un `default` apuntando a otro nombre o un auth-antes-de-common-auth = prompt en Chrome.
+if [ -f /etc/pam.d/greetd ]; then
+    _auth_ln=$(grep -n 'pam_gnome_keyring\.so$' /etc/pam.d/greetd | head -n1 | cut -d: -f1)
+    _common_ln=$(grep -n '@include common-auth' /etc/pam.d/greetd | head -n1 | cut -d: -f1)
+    if grep -q 'pam_gnome_keyring\.so auto_start' /etc/pam.d/greetd && \
+       [ -n "${_auth_ln:-}" ] && [ -n "${_common_ln:-}" ] && [ "$_auth_ln" -gt "$_common_ln" ]; then
+        echo "[OK] greetd PAM: auth tras common-auth + session auto_start"
+    else
+        echo "[FALTA] greetd PAM sin orden correcto (re-ejecuta 80-pam-portals)"
+    fi
+else
+    echo "[FALTA] /etc/pam.d/greetd no existe (re-ejecuta 60-greetd y 80-pam-portals)"
+fi
+if [ -f "${USER_HOME:-$HOME}/.local/share/keyrings/login.keyring" ]; then
+    if [ "$(cat "${USER_HOME:-$HOME}/.local/share/keyrings/default" 2>/dev/null)" = "login" ]; then
+        echo "[OK] llavero login es el predeterminado (auto-desbloqueo por PAM)"
+    else
+        echo "[FALTA] llavero login existe pero no es el default: echo -n login > ~/.local/share/keyrings/default"
+    fi
+elif ls "${USER_HOME:-$HOME}"/.local/share/keyrings/*.keyring >/dev/null 2>&1; then
+    echo "[INFO] no hay login.keyring: iguala su clave a la del login en Seahorse y renómbralo a login"
+fi
+if grep -qE '^[[:space:]]*exec-once = \[workspace 1 silent\] \$browser' "${USER_HOME:-$HOME}/.config/hypr/hyprland.conf" 2>/dev/null; then
+    echo "[INFO] Chrome auto-arranca en Hyprland: si el llavero no es login pedirá clave al entrar"
+fi
+
 if command -v hyprland >/dev/null 2>&1 || command -v Hyprland >/dev/null 2>&1; then
     echo "-> hyprland --verify-config:"
     (hyprland --verify-config 2>&1 || Hyprland --verify-config 2>&1 || true) | tail -n 5 | tee -a "$LOG"
