@@ -53,8 +53,10 @@ hypr/
 │   ├── templates.toml       # paleta + templates + rotación de fondo
 │   ├── templates/           # foot.ini, hyprlock.conf, wlogout.css, matugen-template.lua
 │   ├── hooks/               # foot-apply.sh, sync-lock-wallpaper.sh
-│   ├── plugins-apply.sh     # re-aplica plugin grabador + parche (idempotente)
-│   └── plugins/region-recorder-wf-fix.patch
+│   ├── capture-apply.sh     # re-despliega plugin foto+video jo/capture (idempotente)
+│   ├── plugins-apply.sh     # legado region-recorder + parche (jubilado por jo/capture)
+│   └── plugins/capture/     # plugin local foto+video (widget+service wf-recorder)
+│       └── ../region-recorder-wf-fix.patch  # legado (fix ya integrado en capture)
 ├── foot.ini                 # terminal (los colores los pone Noctalia)
 ├── nvim/                    # Neovim con base16 (lazy.nvim baja los plugins)
 ├── wlogout/                 # menú de apagado: layout + icons/ (style.css lo genera Noctalia)
@@ -104,7 +106,7 @@ sudo ./install-scripts/70-dots.sh                 # un módulo suelto, cualquier
 | `50-fonts` | Meslo Nerd Font + símbolos, en tu `~/.local/share/fonts` |
 | `60-greetd` | Login bonito en `tty1` |
 | `70-dots` | Copia mis configs a tu `~/.config` (sin pisar tu Noctalia/nvim si ya existen) |
-| `71-noctalia` | Instala Noctalia (`noctalia-trixie`) + plugin grabador `region-recorder` con parche wf-recorder + valida tu config |
+| `71-noctalia` | Instala Noctalia (`noctalia-trixie`) + valida tu config (el plugin foto+video `jo/capture` se aplica con `noctalia/capture-apply.sh`) |
 | `80-pam-portals` | Keyring desbloqueado al entrar + diálogos de archivo GTK |
 | `90-services` | Red con NetworkManager, Bluetooth y greetd activados |
 | `95-grub` | GRUB gráfico de Debian |

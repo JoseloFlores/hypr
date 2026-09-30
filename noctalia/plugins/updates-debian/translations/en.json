@@ -1,0 +1,17 @@
+{
+  "settings.show_count.label": "Show count",
+  "settings.show_count.description": "Show the number of pending updates next to the icon.",
+  "settings.interval_minutes.label": "Check interval (minutes)",
+  "settings.interval_minutes.description": "How often to scan for available updates.",
+  "settings.include_flatpak.label": "Include Flatpak",
+  "settings.include_flatpak.description": "Count Flatpak updates in addition to .deb packages.",
+  "settings.notify_on_updates.label": "Notify on updates",
+  "settings.notify_on_updates.description": "Show a notification when new updates appear.",
+  "settings.terminal.label": "Terminal",
+  "settings.terminal.description": "Terminal used to install updates (must support -e).",
+  "settings.auto_yes.label": "Install without asking",
+  "settings.auto_yes.description": "Pass -y to apt/flatpak so the upgrade does not ask for confirmation.",
+  "notification.updates_available": "Updates available",
+  "notification.no_terminal": "Terminal not found",
+  "notification.launch_failed": "Could not open the terminal"
+}

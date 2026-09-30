@@ -1,0 +1,83 @@
+id = "jo/capture"
+name = "Capture"
+version = "1.0.0"
+plugin_api = 14
+author = "jo"
+license = "MIT"
+icon = "camera"
+description = "Foto y video en un solo widget: click foto region, medio foto pantalla, click-der video region/full toggle con wf-recorder."
+tags = ["utility", "screenshot", "recording", "video"]
+dependencies = ["wf-recorder", "slurp"]
+
+[[setting]]
+key = "directory"
+type = "folder"
+label_key = "settings.directory.label"
+description_key = "settings.directory.description"
+default = "~/Vídeos/Recordings"
+
+[[setting]]
+key = "filename_pattern"
+type = "string"
+label_key = "settings.filename_pattern.label"
+description_key = "settings.filename_pattern.description"
+default = "Video_%Y%m%d_%H%M%S"
+
+[[setting]]
+key = "frame_rate"
+type = "int"
+label_key = "settings.frame_rate.label"
+description_key = "settings.frame_rate.description"
+default = 30
+min = 1
+max = 120
+
+[[setting]]
+key = "video_codec"
+type = "select"
+label_key = "settings.video_codec.label"
+description_key = "settings.video_codec.description"
+default = "h264"
+options = [
+  { value = "h264", label_key = "settings.video_codec.options.h264" },
+  { value = "hevc", label_key = "settings.video_codec.options.hevc" },
+  { value = "av1", label_key = "settings.video_codec.options.av1" },
+]
+
+[[setting]]
+key = "audio_source"
+type = "select"
+label_key = "settings.audio_source.label"
+description_key = "settings.audio_source.description"
+default = "none"
+options = [
+  { value = "none", label_key = "settings.audio_source.options.none" },
+  { value = "default_output", label_key = "settings.audio_source.options.default_output" },
+]
+
+[[setting]]
+key = "copy_to_clipboard"
+type = "bool"
+label_key = "settings.copy_to_clipboard.label"
+description_key = "settings.copy_to_clipboard.description"
+default = false
+
+[[setting]]
+key = "hide_inactive"
+type = "bool"
+label_key = "settings.hide_inactive.label"
+description_key = "settings.hide_inactive.description"
+default = false
+
+[[service]]
+id = "service"
+entry = "service.luau"
+
+[[widget]]
+id = "capture"
+entry = "widget.luau"
+
+  # Libera el boton medio (por defecto abre settings) para foto-pantalla.
+  # left/right quedan sin bindear para que lleguen a onClick/onRightClick.
+  [widget.actions]
+  middle = "none"

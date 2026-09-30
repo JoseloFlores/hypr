@@ -40,27 +40,35 @@ En TOML: listas `start/center/end` bajo `[bar.default]` y ajustes
 por widget bajo `[widget.<nombre>]`. Tras editar:
 `noctalia config validate && noctalia msg config-reload`.
 
-## Grabación de pantalla (vídeo)
+## Captura (foto + vídeo en un solo widget)
 
-Dos vías que conviven (fotos siguen en el widget `screenshot`):
+Widget `capture` (plugin local `jo/capture`, `noctalia/plugins/capture/`):
+reemplaza al builtin `screenshot`.
 
-| Vía | Uso | Destino |
+| Gesto | Acción | Destino |
 |---|---|---|
-| Widget `recorder` (plugin `h-jangra/region-recorder`) | click izq = región (slurp), click der = pantalla completa / detener | `~/Vídeos/Recordings/` |
-| `screen_recorder.sh` (fallback sin plugin) | `Print+SHIFT` = área, `Print+CTRL` = full (`~/.config/hypr/screen_recorder.sh area\|full`) | `~/Pictures/Capturas/` |
+| click izq | foto región (`screenshot-region`, respeta `[shell.screenshot]`) | según tu política de screenshot |
+| click medio | foto pantalla (`screenshot-fullscreen`) | idem |
+| click der | vídeo toggle: región (slurp) si idle, detener si grabando | `~/Vídeos/Recordings/Video_*.mp4` |
+
+Backend vídeo `wf-recorder` con fixes integrados (codec `libx264`, `-o` monitor
+con foco en multi-monitor, espera ~6s al muxear tras SIGINT). Sin audio,
+30 fps por defecto (cambia en Settings → Plugins → Capture).
 
 ```bash
-noctalia msg plugin h-jangra/region-recorder:service all record-fullscreen
-noctalia msg plugin h-jangra/region-recorder:service all select-region
-noctalia msg plugin h-jangra/region-recorder:service all stop
-~/.config/hypr/noctalia-plugins-apply.sh   # re-aplica plugin+parche (idempotente)
-# (en este repo: noctalia/plugins-apply.sh)
+~/.config/hypr/capture-apply.sh   # (en este repo: noctalia/capture-apply.sh) re-despliega plugin + merge barra (idempotente)
+noctalia msg plugin jo/capture:service all record-fullscreen
+noctalia msg plugin jo/capture:service all select-region   # alias: toggle-region
+noctalia msg plugin jo/capture:service all stop
+noctalia msg plugin jo/capture:capture focused photo            # foto región
+noctalia msg plugin jo/capture:capture focused photo-fullscreen # foto pantalla
+noctalia msg plugin jo/capture:capture focused video            # = click-der
 ```
 
 Notas:
-- Sin audio, 30 fps, h264 por defecto (cambia en Settings → Plugins → Region Recorder).
 - El plugin oficial `noctalia/screen_recorder` (gpu-screen-recorder) **no va en este HW**: el portal no entrega frames dmabuf/GPU y el Flatpak no conecta su servidor KMS. No instalarlo en reinstall.
-- El plugin trae 2 bugs con `wf-recorder` (codec `h264` en vez de `libx264`, y sin `-o` pregunta monitor y muere sin TTY). Este repo los corrige con `noctalia/plugins/region-recorder-wf-fix.patch`, protegido con `auto_update = "official"`. Si haces `plugins update community` a mano, re-ejecuta `noctalia-plugins-apply.sh`.
+- El community `h-jangra/region-recorder` queda jubilado (su lógica vive ahora en `jo/capture:service` con el parche ya integrado). No re-ejecutar `noctalia-plugins-apply.sh` para region-recorder.
+- Fallback sin plugin: `screen_recorder.sh` (`Print+SHIFT` = área, `Print+CTRL` = full, `~/.config/hypr/screen_recorder.sh area|full`) → `~/Pictures/Capturas/`. Sigue operativo.
 
 ## Fondo de pantalla
 

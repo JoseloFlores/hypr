@@ -38,10 +38,14 @@ for src in confirm_power.sh auto_timezone.sh screen_recorder.sh; do
         chmod +x "$DOTS_CONF/hypr/$src" 2>/dev/null || true
     fi
 done
-# plugins-apply.sh vive en noctalia/ del repo (no en install-scripts/).
+# plugins-apply.sh y capture-apply.sh viven en noctalia/ del repo (no en install-scripts/).
 if [ -f "$SCRIPT_DIR/../noctalia/plugins-apply.sh" ]; then
     sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/../noctalia/plugins-apply.sh" "$DOTS_CONF/hypr/noctalia-plugins-apply.sh"
     chmod +x "$DOTS_CONF/hypr/noctalia-plugins-apply.sh" 2>/dev/null || true
+fi
+if [ -f "$SCRIPT_DIR/../noctalia/capture-apply.sh" ]; then
+    sudo -u "$REAL_USER" env HOME="$USER_HOME" cp -f "$SCRIPT_DIR/../noctalia/capture-apply.sh" "$DOTS_CONF/hypr/capture-apply.sh"
+    chmod +x "$DOTS_CONF/hypr/capture-apply.sh" 2>/dev/null || true
 fi
 # Parche wf-recorder del plugin region-recorder (lo aplica noctalia-plugins-apply.sh;
 # se versiona aquí porque el caché materialized de Noctalia se regenera en cada install).

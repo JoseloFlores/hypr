@@ -1,0 +1,17 @@
+{
+  "settings.show_count.label": "Mostrar conteo",
+  "settings.show_count.description": "Muestra el numero de actualizaciones pendientes junto al icono.",
+  "settings.interval_minutes.label": "Intervalo de chequeo (minutos)",
+  "settings.interval_minutes.description": "Cada cuanto buscar actualizaciones disponibles.",
+  "settings.include_flatpak.label": "Incluir Flatpak",
+  "settings.include_flatpak.description": "Contar actualizaciones Flatpak ademas de paquetes .deb.",
+  "settings.notify_on_updates.label": "Notificar actualizaciones",
+  "settings.notify_on_updates.description": "Muestra una notificacion cuando aparecen actualizaciones nuevas.",
+  "settings.terminal.label": "Terminal",
+  "settings.terminal.description": "Terminal usada para instalar (debe soportar -e).",
+  "settings.auto_yes.label": "Instalar sin preguntar",
+  "settings.auto_yes.description": "Pasa -y a apt/flatpak para no pedir confirmacion.",
+  "notification.updates_available": "Actualizaciones disponibles",
+  "notification.no_terminal": "Terminal no encontrada",
+  "notification.launch_failed": "No se pudo abrir la terminal"
+}
